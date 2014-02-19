@@ -1,34 +1,0 @@
-9
-
-dir
-59
-file:///afs/nada.kth.se/info/DD2488/protected/svn/project/branches/komp09/tools/javacc-4.2/examples/Obfuscator/input
-file:///afs/nada.kth.se/info/DD2488/protected/svn
-
-
-
-2009-01-19T20:13:37.137911Z
-56
-migo
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-b9a0ee16-acc4-11dd-b021-82ab8d1b9a77
-
-package1
-dir
-
-package2
-dir
-
