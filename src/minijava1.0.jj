@@ -79,7 +79,8 @@ TOKEN :
 | < VOID: "void" >
 | < WHILE: "while" >
 | < LENGTH: "length" >
-| < STRING: "string" >
+| < STRING: "String" >
+| < MAIN: "main" >
 | < SYSOUT_PRINTLN : "System.out.println" >
 }
 
@@ -203,7 +204,7 @@ void MainBody():
 void MainBodyDeclaration():
 {}
 {
-  <PUBLIC> <STATIC> <VOID> "main" "(" <STRING> "[" "]" <IDENTIFIER> ")" MainBlock()
+  <PUBLIC> <STATIC> <VOID> <MAIN> "(" <STRING> "[" "]" <IDENTIFIER> ")" MainBlock()
 }
 
 void ClassBody():
@@ -215,12 +216,11 @@ void ClassBody():
 void ClassBodyDeclaration():
 {}
 {
-  (
-      LOOKAHEAD( Type() <IDENTIFIER> ";" )
-      ( VariableDeclaration() )*
-    |
-      ( MethodDeclaration() )*
-  )
+	LOOKAHEAD( VariableDeclaration() )
+   ( VariableDeclaration() )*
+|
+	LOOKAHEAD( MethodDeclaration() )
+   ( MethodDeclaration() )*
 |
   ";"
 }
