@@ -50,244 +50,329 @@ public static void main(String args[]) {
  * Program structuring syntax follows.
  */
   static final public void CompilationUnit() throws ParseException {
-    MainDeclaration();
-    label_1:
-    while (true) {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case CLASS:
-      case SEMICOLON:
-        ;
-        break;
-      default:
-        jj_la1[0] = jj_gen;
-        break label_1;
+    trace_call("CompilationUnit");
+    try {
+      MainDeclaration();
+      label_1:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case CLASS:
+        case SEMICOLON:
+          ;
+          break;
+        default:
+          jj_la1[0] = jj_gen;
+          break label_1;
+        }
+        ClassDeclaration();
       }
-      ClassDeclaration();
+      jj_consume_token(0);
+    } finally {
+      trace_return("CompilationUnit");
     }
-    jj_consume_token(0);
   }
 
 /*
  * Declaration syntax follows.
  */
   static final public void MainDeclaration() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case SEMICOLON:
-      jj_consume_token(SEMICOLON);
-      break;
-    case CLASS:
-      jj_consume_token(CLASS);
-      jj_consume_token(IDENTIFIER);
-      MainBody();
-      break;
-    default:
-      jj_la1[1] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+    trace_call("MainDeclaration");
+    try {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case SEMICOLON:
+        jj_consume_token(SEMICOLON);
+        break;
+      case CLASS:
+        jj_consume_token(CLASS);
+        jj_consume_token(IDENTIFIER);
+        MainBody();
+        break;
+      default:
+        jj_la1[1] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    } finally {
+      trace_return("MainDeclaration");
     }
   }
 
   static final public void ClassDeclaration() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case SEMICOLON:
-      jj_consume_token(SEMICOLON);
-      break;
-    case CLASS:
-      jj_consume_token(CLASS);
-      jj_consume_token(IDENTIFIER);
-      ClassBody();
-      break;
-    default:
-      jj_la1[2] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+    trace_call("ClassDeclaration");
+    try {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case SEMICOLON:
+        jj_consume_token(SEMICOLON);
+        break;
+      case CLASS:
+        jj_consume_token(CLASS);
+        jj_consume_token(IDENTIFIER);
+        ClassBody();
+        break;
+      default:
+        jj_la1[2] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    } finally {
+      trace_return("ClassDeclaration");
     }
   }
 
   static final public void MainBody() throws ParseException {
-    jj_consume_token(LBRACE);
-    MainBodyDeclaration();
-    jj_consume_token(RBRACE);
+    trace_call("MainBody");
+    try {
+      jj_consume_token(LBRACE);
+      MainBodyDeclaration();
+      jj_consume_token(RBRACE);
+    } finally {
+      trace_return("MainBody");
+    }
   }
 
   static final public void MainBodyDeclaration() throws ParseException {
-    jj_consume_token(PUBLIC);
-    jj_consume_token(STATIC);
-    jj_consume_token(VOID);
-    jj_consume_token(43);
-    jj_consume_token(LPAREN);
-    jj_consume_token(STRING);
-    jj_consume_token(LBRACKET);
-    jj_consume_token(RBRACKET);
-    jj_consume_token(IDENTIFIER);
-    jj_consume_token(RPAREN);
-    MainBlock();
+    trace_call("MainBodyDeclaration");
+    try {
+      jj_consume_token(PUBLIC);
+      jj_consume_token(STATIC);
+      jj_consume_token(VOID);
+      jj_consume_token(43);
+      jj_consume_token(LPAREN);
+      jj_consume_token(STRING);
+      jj_consume_token(LBRACKET);
+      jj_consume_token(RBRACKET);
+      jj_consume_token(IDENTIFIER);
+      jj_consume_token(RPAREN);
+      MainBlock();
+    } finally {
+      trace_return("MainBodyDeclaration");
+    }
   }
 
   static final public void ClassBody() throws ParseException {
-    jj_consume_token(LBRACE);
-    ClassBodyDeclaration();
-    jj_consume_token(RBRACE);
+    trace_call("ClassBody");
+    try {
+      jj_consume_token(LBRACE);
+      ClassBodyDeclaration();
+      jj_consume_token(RBRACE);
+    } finally {
+      trace_return("ClassBody");
+    }
   }
 
   static final public void ClassBodyDeclaration() throws ParseException {
-    if (jj_2_1(2147483647)) {
-      label_2:
-      while (true) {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case BOOLEAN:
-        case INT:
-          ;
-          break;
-        default:
-          jj_la1[3] = jj_gen;
-          break label_2;
+    trace_call("ClassBodyDeclaration");
+    try {
+      if (jj_2_1(2147483647)) {
+        label_2:
+        while (true) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case BOOLEAN:
+          case INT:
+            ;
+            break;
+          default:
+            jj_la1[3] = jj_gen;
+            break label_2;
+          }
+          VariableDeclaration();
         }
-        VariableDeclaration();
-      }
-    } else {
-      label_3:
-      while (true) {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case PUBLIC:
-          ;
-          break;
-        default:
-          jj_la1[4] = jj_gen;
-          break label_3;
+      } else {
+        label_3:
+        while (true) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case PUBLIC:
+            ;
+            break;
+          default:
+            jj_la1[4] = jj_gen;
+            break label_3;
+          }
+          MethodDeclaration();
         }
-        MethodDeclaration();
       }
+    } finally {
+      trace_return("ClassBodyDeclaration");
     }
   }
 
   static final public void VariableDeclaration() throws ParseException {
-    Type();
-    jj_consume_token(IDENTIFIER);
-    jj_consume_token(SEMICOLON);
+    trace_call("VariableDeclaration");
+    try {
+      Type();
+      jj_consume_token(IDENTIFIER);
+      jj_consume_token(SEMICOLON);
+    } finally {
+      trace_return("VariableDeclaration");
+    }
   }
 
   static final public void MethodDeclaration() throws ParseException {
-    jj_consume_token(PUBLIC);
-    Type();
-    MethodDeclarator();
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case LBRACE:
-      ClassBlock();
-      break;
-    case SEMICOLON:
-      jj_consume_token(SEMICOLON);
-      break;
-    default:
-      jj_la1[5] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+    trace_call("MethodDeclaration");
+    try {
+      jj_consume_token(PUBLIC);
+      Type();
+      MethodDeclarator();
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case LBRACE:
+        ClassBlock();
+        break;
+      case SEMICOLON:
+        jj_consume_token(SEMICOLON);
+        break;
+      default:
+        jj_la1[5] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    } finally {
+      trace_return("MethodDeclaration");
     }
   }
 
   static final public void MethodDeclarator() throws ParseException {
-    jj_consume_token(IDENTIFIER);
-    FormalList();
+    trace_call("MethodDeclarator");
+    try {
+      jj_consume_token(IDENTIFIER);
+      FormalList();
+    } finally {
+      trace_return("MethodDeclarator");
+    }
   }
 
   static final public void FormalList() throws ParseException {
-    jj_consume_token(LPAREN);
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case BOOLEAN:
-    case INT:
-      FormalRest();
-      label_4:
-      while (true) {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case COMMA:
-          ;
-          break;
-        default:
-          jj_la1[6] = jj_gen;
-          break label_4;
-        }
-        jj_consume_token(COMMA);
+    trace_call("FormalList");
+    try {
+      jj_consume_token(LPAREN);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case BOOLEAN:
+      case INT:
         FormalRest();
+        label_4:
+        while (true) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case COMMA:
+            ;
+            break;
+          default:
+            jj_la1[6] = jj_gen;
+            break label_4;
+          }
+          jj_consume_token(COMMA);
+          FormalRest();
+        }
+        break;
+      default:
+        jj_la1[7] = jj_gen;
+        ;
       }
-      break;
-    default:
-      jj_la1[7] = jj_gen;
-      ;
+      jj_consume_token(RPAREN);
+    } finally {
+      trace_return("FormalList");
     }
-    jj_consume_token(RPAREN);
   }
 
   static final public void FormalRest() throws ParseException {
-    Type();
-    jj_consume_token(IDENTIFIER);
+    trace_call("FormalRest");
+    try {
+      Type();
+      jj_consume_token(IDENTIFIER);
+    } finally {
+      trace_return("FormalRest");
+    }
   }
 
 /*
  * Type, name and expression syntax follows.
  */
   static final public void Type() throws ParseException {
-    if (jj_2_2(2)) {
-      ReferenceType();
-    } else {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case BOOLEAN:
-      case INT:
-        PrimitiveType();
-        break;
-      default:
-        jj_la1[8] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
+    trace_call("Type");
+    try {
+      if (jj_2_2(2)) {
+        ReferenceType();
+      } else {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case BOOLEAN:
+        case INT:
+          PrimitiveType();
+          break;
+        default:
+          jj_la1[8] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
       }
+    } finally {
+      trace_return("Type");
     }
   }
 
   static final public void ReferenceType() throws ParseException {
-    PrimitiveTypeArray();
-    label_5:
-    while (true) {
-      jj_consume_token(LBRACKET);
-      jj_consume_token(RBRACKET);
-      if (jj_2_3(2)) {
-        ;
-      } else {
-        break label_5;
+    trace_call("ReferenceType");
+    try {
+      PrimitiveTypeArray();
+      label_5:
+      while (true) {
+        jj_consume_token(LBRACKET);
+        jj_consume_token(RBRACKET);
+        if (jj_2_3(2)) {
+          ;
+        } else {
+          break label_5;
+        }
       }
+    } finally {
+      trace_return("ReferenceType");
     }
   }
 
   static final public void PrimitiveTypeArray() throws ParseException {
-    jj_consume_token(INT);
+    trace_call("PrimitiveTypeArray");
+    try {
+      jj_consume_token(INT);
+    } finally {
+      trace_return("PrimitiveTypeArray");
+    }
   }
 
   static final public void PrimitiveType() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case BOOLEAN:
-      jj_consume_token(BOOLEAN);
-      break;
-    case INT:
-      jj_consume_token(INT);
-      break;
-    default:
-      jj_la1[9] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+    trace_call("PrimitiveType");
+    try {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case BOOLEAN:
+        jj_consume_token(BOOLEAN);
+        break;
+      case INT:
+        jj_consume_token(INT);
+        break;
+      default:
+        jj_la1[9] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    } finally {
+      trace_return("PrimitiveType");
     }
   }
 
   static final public void ResultType() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case VOID:
-      jj_consume_token(VOID);
-      break;
-    case BOOLEAN:
-    case INT:
-      Type();
-      break;
-    default:
-      jj_la1[10] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+    trace_call("ResultType");
+    try {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case VOID:
+        jj_consume_token(VOID);
+        break;
+      case BOOLEAN:
+      case INT:
+        Type();
+        break;
+      default:
+        jj_la1[10] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    } finally {
+      trace_return("ResultType");
     }
   }
 
@@ -295,48 +380,73 @@ public static void main(String args[]) {
  * Statement syntax follows.
  */
   static final public void AssignmentOperator() throws ParseException {
-    jj_consume_token(ASSIGN);
+    trace_call("AssignmentOperator");
+    try {
+      jj_consume_token(ASSIGN);
+    } finally {
+      trace_return("AssignmentOperator");
+    }
   }
 
   static final public void Operator() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case SC_AND:
-      ConditionalAndExpression();
-      break;
-    case LT:
-      RelationalExpression();
-      break;
-    case PLUS:
-    case MINUS:
-      UnaryExpression();
-      break;
-    default:
-      jj_la1[11] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+    trace_call("Operator");
+    try {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case SC_AND:
+        ConditionalAndExpression();
+        break;
+      case LT:
+        RelationalExpression();
+        break;
+      case PLUS:
+      case MINUS:
+        UnaryExpression();
+        break;
+      default:
+        jj_la1[11] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    } finally {
+      trace_return("Operator");
     }
   }
 
   static final public void ConditionalAndExpression() throws ParseException {
-    jj_consume_token(SC_AND);
+    trace_call("ConditionalAndExpression");
+    try {
+      jj_consume_token(SC_AND);
+    } finally {
+      trace_return("ConditionalAndExpression");
+    }
   }
 
   static final public void RelationalExpression() throws ParseException {
-    jj_consume_token(LT);
+    trace_call("RelationalExpression");
+    try {
+      jj_consume_token(LT);
+    } finally {
+      trace_return("RelationalExpression");
+    }
   }
 
   static final public void UnaryExpression() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case PLUS:
-      jj_consume_token(PLUS);
-      break;
-    case MINUS:
-      jj_consume_token(MINUS);
-      break;
-    default:
-      jj_la1[12] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+    trace_call("UnaryExpression");
+    try {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case PLUS:
+        jj_consume_token(PLUS);
+        break;
+      case MINUS:
+        jj_consume_token(MINUS);
+        break;
+      default:
+        jj_la1[12] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    } finally {
+      trace_return("UnaryExpression");
     }
   }
 
@@ -354,10 +464,81 @@ public static void main(String args[]) {
  * Statement syntax follows.
  */
   static final public void Statement() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case LBRACE:
+    trace_call("Statement");
+    try {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case LBRACE:
+        jj_consume_token(LBRACE);
+        label_6:
+        while (true) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case IF:
+          case WHILE:
+          case SYSOUT_PRINTLN:
+          case IDENTIFIER:
+          case LBRACE:
+            ;
+            break;
+          default:
+            jj_la1[13] = jj_gen;
+            break label_6;
+          }
+          Statement();
+        }
+        jj_consume_token(RBRACE);
+        break;
+      case IF:
+        IfStatement();
+        break;
+      case WHILE:
+        WhileStatement();
+        break;
+      case SYSOUT_PRINTLN:
+        jj_consume_token(SYSOUT_PRINTLN);
+        jj_consume_token(LPAREN);
+        Expression();
+        jj_consume_token(RPAREN);
+        jj_consume_token(SEMICOLON);
+        break;
+      default:
+        jj_la1[14] = jj_gen;
+        if (jj_2_4(2)) {
+          jj_consume_token(IDENTIFIER);
+          AssignmentOperator();
+          Expression();
+          jj_consume_token(SEMICOLON);
+        } else if (jj_2_5(2)) {
+          jj_consume_token(IDENTIFIER);
+          jj_consume_token(LBRACKET);
+          Expression();
+          jj_consume_token(RBRACKET);
+          AssignmentOperator();
+          Expression();
+          jj_consume_token(SEMICOLON);
+        } else {
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+      }
+    } finally {
+      trace_return("Statement");
+    }
+  }
+
+  static final public void MainBlock() throws ParseException {
+    trace_call("MainBlock");
+    try {
       jj_consume_token(LBRACE);
-      label_6:
+      label_7:
+      while (true) {
+        if (jj_2_6(2147483647)) {
+          ;
+        } else {
+          break label_7;
+        }
+        VariableDeclaration();
+      }
+      label_8:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IF:
@@ -368,277 +549,261 @@ public static void main(String args[]) {
           ;
           break;
         default:
-          jj_la1[13] = jj_gen;
-          break label_6;
+          jj_la1[15] = jj_gen;
+          break label_8;
         }
         Statement();
       }
       jj_consume_token(RBRACE);
-      break;
-    case IF:
-      IfStatement();
-      break;
-    case WHILE:
-      WhileStatement();
-      break;
-    case SYSOUT_PRINTLN:
-      jj_consume_token(SYSOUT_PRINTLN);
-      jj_consume_token(LPAREN);
-      Expression();
-      jj_consume_token(RPAREN);
-      jj_consume_token(SEMICOLON);
-      break;
-    default:
-      jj_la1[14] = jj_gen;
-      if (jj_2_4(2)) {
-        jj_consume_token(IDENTIFIER);
-        AssignmentOperator();
-        Expression();
-        jj_consume_token(SEMICOLON);
-      } else if (jj_2_5(2)) {
-        jj_consume_token(IDENTIFIER);
-        jj_consume_token(LBRACKET);
-        Expression();
-        jj_consume_token(RBRACKET);
-        AssignmentOperator();
-        Expression();
-        jj_consume_token(SEMICOLON);
-      } else {
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
+    } finally {
+      trace_return("MainBlock");
     }
-  }
-
-  static final public void MainBlock() throws ParseException {
-    jj_consume_token(LBRACE);
-    label_7:
-    while (true) {
-      if (jj_2_6(2147483647)) {
-        ;
-      } else {
-        break label_7;
-      }
-      VariableDeclaration();
-    }
-    label_8:
-    while (true) {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case IF:
-      case WHILE:
-      case SYSOUT_PRINTLN:
-      case IDENTIFIER:
-      case LBRACE:
-        ;
-        break;
-      default:
-        jj_la1[15] = jj_gen;
-        break label_8;
-      }
-      Statement();
-    }
-    jj_consume_token(RBRACE);
   }
 
   static final public void ClassBlock() throws ParseException {
-    jj_consume_token(LBRACE);
-    label_9:
-    while (true) {
-      if (jj_2_7(2147483647)) {
-        ;
-      } else {
-        break label_9;
+    trace_call("ClassBlock");
+    try {
+      jj_consume_token(LBRACE);
+      label_9:
+      while (true) {
+        if (jj_2_7(2147483647)) {
+          ;
+        } else {
+          break label_9;
+        }
+        VariableDeclaration();
       }
-      VariableDeclaration();
-    }
-    label_10:
-    while (true) {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case IF:
-      case WHILE:
-      case SYSOUT_PRINTLN:
-      case IDENTIFIER:
-      case LBRACE:
-        ;
-        break;
-      default:
-        jj_la1[16] = jj_gen;
-        break label_10;
+      label_10:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case IF:
+        case WHILE:
+        case SYSOUT_PRINTLN:
+        case IDENTIFIER:
+        case LBRACE:
+          ;
+          break;
+        default:
+          jj_la1[16] = jj_gen;
+          break label_10;
+        }
+        Statement();
       }
-      Statement();
+      ReturnStatement();
+      jj_consume_token(RBRACE);
+    } finally {
+      trace_return("ClassBlock");
     }
-    ReturnStatement();
-    jj_consume_token(RBRACE);
   }
 
   static final public void IfStatement() throws ParseException {
-    jj_consume_token(IF);
-    jj_consume_token(LPAREN);
-    Expression();
-    jj_consume_token(RPAREN);
-    Statement();
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case ELSE:
-      jj_consume_token(ELSE);
+    trace_call("IfStatement");
+    try {
+      jj_consume_token(IF);
+      jj_consume_token(LPAREN);
+      Expression();
+      jj_consume_token(RPAREN);
       Statement();
-      break;
-    default:
-      jj_la1[17] = jj_gen;
-      ;
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case ELSE:
+        jj_consume_token(ELSE);
+        Statement();
+        break;
+      default:
+        jj_la1[17] = jj_gen;
+        ;
+      }
+    } finally {
+      trace_return("IfStatement");
     }
   }
 
   static final public void WhileStatement() throws ParseException {
-    jj_consume_token(WHILE);
-    jj_consume_token(LPAREN);
-    Expression();
-    jj_consume_token(RPAREN);
-    Statement();
+    trace_call("WhileStatement");
+    try {
+      jj_consume_token(WHILE);
+      jj_consume_token(LPAREN);
+      Expression();
+      jj_consume_token(RPAREN);
+      Statement();
+    } finally {
+      trace_return("WhileStatement");
+    }
   }
 
   static final public void ReturnStatement() throws ParseException {
-    jj_consume_token(RETURN);
-    Expression();
-    jj_consume_token(SEMICOLON);
+    trace_call("ReturnStatement");
+    try {
+      jj_consume_token(RETURN);
+      Expression();
+      jj_consume_token(SEMICOLON);
+    } finally {
+      trace_return("ReturnStatement");
+    }
   }
 
 /*
  * Expression syntax follows.
  */
   static final public void Expression() throws ParseException {
-    if (jj_2_8(3)) {
-      Operator();
-      Expression();
-    } else if (jj_2_9(2)) {
-      jj_consume_token(LBRACKET);
-      Expression();
-      jj_consume_token(RBRACKET);
-    } else if (jj_2_10(3)) {
-      jj_consume_token(DOT);
-      jj_consume_token(LENGTH);
-    } else if (jj_2_11(3)) {
-      jj_consume_token(DOT);
-      jj_consume_token(IDENTIFIER);
-      ExpressionList();
-    } else {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case FALSE:
-      case TRUE:
-      case INTEGER_LITERAL:
-        Literal();
-        break;
-      case IDENTIFIER:
+    trace_call("Expression");
+    try {
+      if (jj_2_8(3)) {
+        Operator();
+        Expression();
+      } else if (jj_2_9(2)) {
+        jj_consume_token(LBRACKET);
+        Expression();
+        jj_consume_token(RBRACKET);
+      } else if (jj_2_10(3)) {
+        jj_consume_token(DOT);
+        jj_consume_token(LENGTH);
+      } else if (jj_2_11(3)) {
+        jj_consume_token(DOT);
         jj_consume_token(IDENTIFIER);
-        break;
-      case THIS:
-        jj_consume_token(THIS);
-        break;
-      default:
-        jj_la1[18] = jj_gen;
-        if (jj_2_12(2)) {
-          jj_consume_token(NEW);
-          jj_consume_token(INT);
-          jj_consume_token(LBRACKET);
-          Expression();
-          jj_consume_token(RBRACKET);
-        } else if (jj_2_13(2)) {
-          jj_consume_token(NEW);
+        ExpressionList();
+      } else {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case FALSE:
+        case TRUE:
+        case INTEGER_LITERAL:
+          Literal();
+          break;
+        case IDENTIFIER:
           jj_consume_token(IDENTIFIER);
-          jj_consume_token(LBRACKET);
-          Expression();
-          jj_consume_token(RBRACKET);
-        } else {
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 44:
-            jj_consume_token(44);
+          break;
+        case THIS:
+          jj_consume_token(THIS);
+          break;
+        default:
+          jj_la1[18] = jj_gen;
+          if (jj_2_12(2)) {
+            jj_consume_token(NEW);
+            jj_consume_token(INT);
+            jj_consume_token(LBRACKET);
             Expression();
-            break;
-          case LPAREN:
-            jj_consume_token(LPAREN);
+            jj_consume_token(RBRACKET);
+          } else if (jj_2_13(2)) {
+            jj_consume_token(NEW);
+            jj_consume_token(IDENTIFIER);
+            jj_consume_token(LBRACKET);
             Expression();
-            jj_consume_token(RPAREN);
-            break;
-          default:
-            jj_la1[19] = jj_gen;
-            jj_consume_token(-1);
-            throw new ParseException();
+            jj_consume_token(RBRACKET);
+          } else {
+            switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+            case 44:
+              jj_consume_token(44);
+              Expression();
+              break;
+            case LPAREN:
+              jj_consume_token(LPAREN);
+              Expression();
+              jj_consume_token(RPAREN);
+              break;
+            default:
+              jj_la1[19] = jj_gen;
+              jj_consume_token(-1);
+              throw new ParseException();
+            }
           }
         }
       }
+    } finally {
+      trace_return("Expression");
     }
   }
 
   static final public void ExpressionList() throws ParseException {
-    jj_consume_token(LPAREN);
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case FALSE:
-    case NEW:
-    case THIS:
-    case TRUE:
-    case INTEGER_LITERAL:
-    case IDENTIFIER:
-    case LPAREN:
-    case LBRACKET:
-    case DOT:
-    case LT:
-    case SC_AND:
-    case PLUS:
-    case MINUS:
-    case 44:
-      Expression();
-      label_11:
-      while (true) {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case COMMA:
-          ;
-          break;
-        default:
-          jj_la1[20] = jj_gen;
-          break label_11;
+    trace_call("ExpressionList");
+    try {
+      jj_consume_token(LPAREN);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case FALSE:
+      case NEW:
+      case THIS:
+      case TRUE:
+      case INTEGER_LITERAL:
+      case IDENTIFIER:
+      case LPAREN:
+      case LBRACKET:
+      case DOT:
+      case LT:
+      case SC_AND:
+      case PLUS:
+      case MINUS:
+      case 44:
+        Expression();
+        label_11:
+        while (true) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case COMMA:
+            ;
+            break;
+          default:
+            jj_la1[20] = jj_gen;
+            break label_11;
+          }
+          ExpressionRest();
         }
-        ExpressionRest();
+        break;
+      default:
+        jj_la1[21] = jj_gen;
+        ;
       }
-      break;
-    default:
-      jj_la1[21] = jj_gen;
-      ;
+      jj_consume_token(RPAREN);
+    } finally {
+      trace_return("ExpressionList");
     }
-    jj_consume_token(RPAREN);
   }
 
   static final public void ExpressionRest() throws ParseException {
-    jj_consume_token(COMMA);
-    Expression();
+    trace_call("ExpressionRest");
+    try {
+      jj_consume_token(COMMA);
+      Expression();
+    } finally {
+      trace_return("ExpressionRest");
+    }
   }
 
   static final public void Literal() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case INTEGER_LITERAL:
-      jj_consume_token(INTEGER_LITERAL);
-      break;
-    case FALSE:
-    case TRUE:
-      BooleanLiteral();
-      break;
-    default:
-      jj_la1[22] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+    trace_call("Literal");
+    try {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case INTEGER_LITERAL:
+        jj_consume_token(INTEGER_LITERAL);
+        break;
+      case FALSE:
+      case TRUE:
+        BooleanLiteral();
+        break;
+      default:
+        jj_la1[22] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    } finally {
+      trace_return("Literal");
     }
   }
 
   static final public void BooleanLiteral() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case TRUE:
-      jj_consume_token(TRUE);
-      break;
-    case FALSE:
-      jj_consume_token(FALSE);
-      break;
-    default:
-      jj_la1[23] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+    trace_call("BooleanLiteral");
+    try {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case TRUE:
+        jj_consume_token(TRUE);
+        break;
+      case FALSE:
+        jj_consume_token(FALSE);
+        break;
+      default:
+        jj_la1[23] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    } finally {
+      trace_return("BooleanLiteral");
     }
   }
 
@@ -1099,6 +1264,7 @@ public static void main(String args[]) {
           }
         }
       }
+      trace_token(token, "");
       return token;
     }
     token = oldToken;
@@ -1136,6 +1302,7 @@ public static void main(String args[]) {
     else token = token.next = token_source.getNextToken();
     jj_ntk = -1;
     jj_gen++;
+      trace_token(token, " (in getNextToken)");
     return token;
   }
 
@@ -1224,12 +1391,55 @@ public static void main(String args[]) {
     return new ParseException(token, exptokseq, tokenImage);
   }
 
-  /** Enable tracing. */
+  static private int trace_indent = 0;
+  static private boolean trace_enabled = true;
+
+/** Enable tracing. */
   static final public void enable_tracing() {
+    trace_enabled = true;
   }
 
-  /** Disable tracing. */
+/** Disable tracing. */
   static final public void disable_tracing() {
+    trace_enabled = false;
+  }
+
+  static private void trace_call(String s) {
+    if (trace_enabled) {
+      for (int i = 0; i < trace_indent; i++) { System.out.print(" "); }
+      System.out.println("Call:   " + s);
+    }
+    trace_indent = trace_indent + 2;
+  }
+
+  static private void trace_return(String s) {
+    trace_indent = trace_indent - 2;
+    if (trace_enabled) {
+      for (int i = 0; i < trace_indent; i++) { System.out.print(" "); }
+      System.out.println("Return: " + s);
+    }
+  }
+
+  static private void trace_token(Token t, String where) {
+    if (trace_enabled) {
+      for (int i = 0; i < trace_indent; i++) { System.out.print(" "); }
+      System.out.print("Consumed token: <" + tokenImage[t.kind]);
+      if (t.kind != 0 && !tokenImage[t.kind].equals("\"" + t.image + "\"")) {
+        System.out.print(": \"" + t.image + "\"");
+      }
+      System.out.println(" at line " + t.beginLine + " column " + t.beginColumn + ">" + where);
+    }
+  }
+
+  static private void trace_scan(Token t1, int t2) {
+    if (trace_enabled) {
+      for (int i = 0; i < trace_indent; i++) { System.out.print(" "); }
+      System.out.print("Visited token: <" + tokenImage[t1.kind]);
+      if (t1.kind != 0 && !tokenImage[t1.kind].equals("\"" + t1.image + "\"")) {
+        System.out.print(": \"" + t1.image + "\"");
+      }
+      System.out.println(" at line " + t1.beginLine + " column " + t1.beginColumn + ">; Expected token: <" + tokenImage[t2] + ">");
+    }
   }
 
   static private void jj_rescan_token() {
