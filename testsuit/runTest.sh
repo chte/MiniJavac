@@ -13,7 +13,6 @@ FILES=./testsuit/compile/*
 #Iterate over the files
 for f in $FILES
 do
-	#echo "File: $f"
   	OUTPUT=$(java -jar ./build/jar/MiniJava.jar $f)
   	RESULT=$(echo $OUTPUT | tail -c 49)
     ((TOTAL_TEST++))
@@ -57,7 +56,6 @@ do
 done
 
 #Test summary
-
 echo ""
 echo "==== SUMMARY ===="
 
