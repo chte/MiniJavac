@@ -63,9 +63,9 @@ echo "==== SUMMARY ===="
 
 if [ $TOTAL_ERRORS -eq 0 ];
 then
-    echo "All $TOTAL_TEST passed"
+    echo "All $TOTAL_TEST test(s) passed"
 else
-    echo "$TOTAL_ERRORS test failed"
+    echo "$TOTAL_ERRORS test(s) failed"
     
     #Check if errors was from compile
     if [ $ERRORS_COMPILE -gt 0 ];
