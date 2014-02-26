@@ -136,6 +136,7 @@ TOKEN :
 | < SEMICOLON: ";" >
 | < COMMA: "," >
 | < DOT: "." >
+| < NOT: "!" >
 }
 
 /* OPERATORS */
@@ -178,9 +179,7 @@ void CompilationUnit():
 void MainDeclaration():
 {}
 {
-  ";"
-|	
-  ( "class" )
+  <CLASS>
   <IDENTIFIER>
   MainBody()
 }
@@ -188,9 +187,7 @@ void MainDeclaration():
 void ClassDeclaration():
 {}
 {
-  ";"
-|	
-  ( "class" )
+  <CLASS>
   <IDENTIFIER>
   ClassBody()
 }
@@ -198,47 +195,35 @@ void ClassDeclaration():
 void MainBody():
 {}
 {
-  "{" MainBodyDeclaration() "}"
-}
-
-void MainBodyDeclaration():
-{}
-{
-  <PUBLIC> <STATIC> <VOID> <MAIN> "(" <STRING> "[" "]" <IDENTIFIER> ")" MainBlock()
+  <LBRACE>
+      <PUBLIC> <STATIC> <VOID> <MAIN> <LPAREN> <STRING> <LBRACKET> <RBRACKET> <IDENTIFIER> <RPAREN>
+      MainBlock() 
+  <RBRACE>
 }
 
 void ClassBody():
 {}
 {
-  "{" ClassBodyDeclaration() "}"
-}
-
-void ClassBodyDeclaration():
-{}
-{
-	LOOKAHEAD( VariableDeclaration() )
-   ( VariableDeclaration() )*
-|
-	LOOKAHEAD( MethodDeclaration() )
-   ( MethodDeclaration() )*
-|
-  ";"
+  <LBRACE>
+      (LOOKAHEAD(2) VariableDeclaration() )* 
+      ( MethodDeclaration() )* 
+  <RBRACE>
 }
 
 void VariableDeclaration():
 {}
 {
-  Type() <IDENTIFIER> ";"
+  Type() <IDENTIFIER> <SEMICOLON>
 }
 
 
 void MethodDeclaration():
 {}
 {
-  "public"
+  <PUBLIC>
   Type()
   MethodDeclarator()
-  ( ClassBlock() | ";" )
+  ClassBlock()
 }
 
 void MethodDeclarator():
@@ -250,7 +235,7 @@ void MethodDeclarator():
 void FormalList():
 {}
 {
-  "(" [ FormalRest() ( "," FormalRest() )* ] ")"
+  <LPAREN> [ FormalRest() ( "," FormalRest() )* ] <RPAREN>
 }
 
 void FormalRest():
@@ -269,12 +254,14 @@ void Type():
    LOOKAHEAD(2) ReferenceType()
  |
    PrimitiveType()
+ |
+   <IDENTIFIER>
 }
 
 void ReferenceType():
 {}
 {
-   PrimitiveTypeArray() ( LOOKAHEAD(2) "[" "]" )+
+   PrimitiveTypeArray() ( LOOKAHEAD(2) <LBRACKET> <RBRACKET> )+
 }
 
 
@@ -358,39 +345,39 @@ void UnaryExpression():
 void Statement():
 {}
 {
-  "{" ( Statement() )* "}"
+  <LBRACE> ( Statement() )* <RBRACE>
 |
   IfStatement()
 |
   WhileStatement() 
 |
-  <SYSOUT_PRINTLN> "(" Expression() ")" ";"
+  <SYSOUT_PRINTLN> <LPAREN> Expression() <RPAREN> <SEMICOLON>
 |
   LOOKAHEAD(2)
-  <IDENTIFIER> AssignmentOperator() Expression() ";"
+  <IDENTIFIER> AssignmentOperator() Expression() <SEMICOLON>
 |
   LOOKAHEAD(2)
-  <IDENTIFIER> "[" Expression() "]" AssignmentOperator() Expression() ";"
+  <IDENTIFIER> <LBRACKET> Expression() <RBRACKET> AssignmentOperator() Expression() <SEMICOLON> 
 }
 
 void MainBlock():
 {}
 {
-  "{" 
+  <LBRACE>
   ( LOOKAHEAD( Type() <IDENTIFIER> ) VariableDeclaration() )* 
   ( Statement() )* 
-  "}"
+  <RBRACE>
 }
 
 void ClassBlock():
 {}
 {
-  "{" 
-  ( LOOKAHEAD( Type() <IDENTIFIER> ) 
-  VariableDeclaration() )* 
-  ( Statement() )*  
-  ReturnStatement() 
-  "}"
+  <LBRACE> 
+    ( LOOKAHEAD( Type() <IDENTIFIER> ) 
+    VariableDeclaration() )* 
+    ( Statement() )*  
+    ReturnStatement() 
+  <RBRACE>
 }
 
 void IfStatement():
@@ -401,19 +388,19 @@ void IfStatement():
  */
 {}
 {
-  "if" "(" Expression() ")" Statement() [ LOOKAHEAD(1) "else" Statement() ]
+  <IF> <LPAREN> Expression() <RPAREN> Statement() [ LOOKAHEAD(1) <ELSE> Statement() ]
 }
 
 void WhileStatement():
 {}
 {
-  "while" "(" Expression() ")" Statement()
+  <WHILE> <LPAREN> Expression() <RPAREN> Statement()
 }
 
 void ReturnStatement():
 {}
 {
-  "return" Expression() ";"
+  <RETURN> Expression() <SEMICOLON>
 }
 
 /*
@@ -427,34 +414,55 @@ void Expression():
  */
 {}
 {
-    LOOKAHEAD(3)
-    Operator() Expression()
-|
-    LOOKAHEAD(2)
-	"[" Expression() "]"
-|
-    LOOKAHEAD(3)
-	"." <LENGTH>
-|
-    LOOKAHEAD(3)
-	"." <IDENTIFIER> ExpressionList()
-|
-	Literal()
-|
-	<IDENTIFIER>
-|
-	<THIS>	
-|	
-    LOOKAHEAD(2)
-	<NEW> <INT> "[" Expression() "]"
-|
-    LOOKAHEAD(2)
-	<NEW> <IDENTIFIER>  "[" Expression() "]"
-|
-	"!" Expression()
-|
-	"(" Expression() ")"
+  PrefixExpression() ( SuffixExpression() )*
 }
+
+
+void PrefixExpression():
+/*
+ * This expansion has been written with 3 lookahead,
+ * can be performance issues, maybe try 2 lookahead. 
+ */
+{}
+{
+  <INTEGER_LITERAL>
+  |
+  <TRUE>
+  |
+  <FALSE>
+  |
+  <IDENTIFIER>
+  |
+  <THIS>
+  |
+  LOOKAHEAD(2)
+  <NEW> <INT> <LBRACKET> Expression() <RBRACKET> 
+  |
+  LOOKAHEAD(2)
+  <NEW> <IDENTIFIER> <LPAREN> <RPAREN>
+  |
+  <NOT> Expression()
+  |
+  <LPAREN> Expression() <RPAREN>
+}
+
+void SuffixExpression():
+{}
+{
+    Operator() SuffixExpression()
+| 
+    <LBRACKET> SuffixExpression() <RBRACKET> 
+|
+    LOOKAHEAD(2)
+    "." <LENGTH>
+|
+    LOOKAHEAD(2)
+    "." <IDENTIFIER> ExpressionList()
+|
+    Expression()
+}
+
+
 
 void ExpressionList():
 /*
@@ -463,7 +471,7 @@ void ExpressionList():
  */
 {}
 {
-	"(" [ Expression() ( ExpressionRest() )* ] ")"
+	<LPAREN> [ Expression() ( ExpressionRest() )* ] <RPAREN>
 }
 
 void ExpressionRest():
@@ -471,7 +479,6 @@ void ExpressionRest():
 {
 	"," Expression()
 }
-
 
 void Literal():
 {}
@@ -484,9 +491,9 @@ void Literal():
 void BooleanLiteral():
 {}
 {
-  "true"
+  <TRUE>
 |
-  "false"
+  <FALSE>
 }
 
 

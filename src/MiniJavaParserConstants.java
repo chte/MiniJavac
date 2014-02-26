@@ -43,45 +43,49 @@ public interface MiniJavaParserConstants {
   /** RegularExpression Id. */
   int STRING = 22;
   /** RegularExpression Id. */
-  int SYSOUT_PRINTLN = 23;
+  int MAIN = 23;
   /** RegularExpression Id. */
-  int INTEGER_LITERAL = 24;
+  int SYSOUT_PRINTLN = 24;
   /** RegularExpression Id. */
-  int IDENTIFIER = 25;
+  int INTEGER_LITERAL = 25;
   /** RegularExpression Id. */
-  int LETTER = 26;
+  int IDENTIFIER = 26;
   /** RegularExpression Id. */
-  int PART_LETTER = 27;
+  int LETTER = 27;
   /** RegularExpression Id. */
-  int LPAREN = 28;
+  int PART_LETTER = 28;
   /** RegularExpression Id. */
-  int RPAREN = 29;
+  int LPAREN = 29;
   /** RegularExpression Id. */
-  int LBRACE = 30;
+  int RPAREN = 30;
   /** RegularExpression Id. */
-  int RBRACE = 31;
+  int LBRACE = 31;
   /** RegularExpression Id. */
-  int LBRACKET = 32;
+  int RBRACE = 32;
   /** RegularExpression Id. */
-  int RBRACKET = 33;
+  int LBRACKET = 33;
   /** RegularExpression Id. */
-  int SEMICOLON = 34;
+  int RBRACKET = 34;
   /** RegularExpression Id. */
-  int COMMA = 35;
+  int SEMICOLON = 35;
   /** RegularExpression Id. */
-  int DOT = 36;
+  int COMMA = 36;
   /** RegularExpression Id. */
-  int ASSIGN = 37;
+  int DOT = 37;
   /** RegularExpression Id. */
-  int LT = 38;
+  int NOT = 38;
   /** RegularExpression Id. */
-  int SC_AND = 39;
+  int ASSIGN = 39;
   /** RegularExpression Id. */
-  int PLUS = 40;
+  int LT = 40;
   /** RegularExpression Id. */
-  int MINUS = 41;
+  int SC_AND = 41;
   /** RegularExpression Id. */
-  int STAR = 42;
+  int PLUS = 42;
+  /** RegularExpression Id. */
+  int MINUS = 43;
+  /** RegularExpression Id. */
+  int STAR = 44;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -110,7 +114,8 @@ public interface MiniJavaParserConstants {
     "\"void\"",
     "\"while\"",
     "\"length\"",
-    "\"string\"",
+    "\"String\"",
+    "\"main\"",
     "\"System.out.println\"",
     "<INTEGER_LITERAL>",
     "<IDENTIFIER>",
@@ -125,14 +130,13 @@ public interface MiniJavaParserConstants {
     "\";\"",
     "\",\"",
     "\".\"",
+    "\"!\"",
     "\"=\"",
     "\"<\"",
     "\"&&\"",
     "\"+\"",
     "\"-\"",
     "\"*\"",
-    "\"main\"",
-    "\"!\"",
   };
 
 }
