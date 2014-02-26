@@ -5,7 +5,7 @@ class program{
 }
 
 class program2{
-	public boolean method(int a, boolean b, Identifier c){
+	public boolean method(int a, boolean b, Identifier c, int[] d){
 		return true;
 	}
 }

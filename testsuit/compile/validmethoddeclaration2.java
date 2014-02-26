@@ -5,10 +5,7 @@ class program{
 }
 
 class program2{
-	public boolean method(){
-		return true;
-	}
-	public boolean method2(){
+	public boolean method(int a){
 		return true;
 	}
 }
