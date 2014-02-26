@@ -1,20 +1,15 @@
 #!/bin/bash
 
+
+echo "==COMPILE=="
 #Test that should compile
 FILES=./testsuit/compile/*
 #Iterate over the files
 for f in $FILES
 do
-  	# echo "Processing $f file..."
-  	# take action on each file. $f store current file name
-  	#cat $f
+	echo "File: $f"
   	OUTPUT=$(java -jar ./build/jar/MiniJava.jar $f)
-  	# echo $OUTPUT
   	RESULT=$(echo $OUTPUT | tail -c 49)
-  	#echo $RESULT
-   	# echo $TAILOUTPUT
-  	# TAILOUTPUT= "$($OUTPUT | tail -c 39)"
-  	# echo $TAILOUTPUT
 
   	if [ "$RESULT"  == "MiniJavac 1.0: Java program parsed successfully." ]; 
   	then
@@ -22,16 +17,24 @@ do
 	else
 	    echo "[FAIL] $f"
 	fi
+done
 
-  	#TAILOUTPUT= "$($OUTPUT | tail -c 49)"
-  	#echo $TAILOUTPUT
-  	#echo $OUTPUT
-  	# S="MiniJavac 1.0: Java program parsed successfully."
-	# if [[ "$S" == *def ]]
-	# then
-	#     echo true
-	# else
-	#     echo false
-	# fi
-	#cat $OUTPUT
+echo ""
+echo "==NON COMPILE=="
+
+#Test that should NOT Compile
+FILES=./testsuit/noncompile/*
+#Iterate over the files
+for f in $FILES
+do
+	echo "File: $f"
+  	OUTPUT=$(java -jar ./build/jar/MiniJava.jar $f)
+  	RESULT=$(echo $OUTPUT | tail -c 49)
+
+  	if [ "$RESULT"  == "MiniJavac 1.0: Java program parsed successfully." ]; 
+  	then
+  	    echo "[FAIL] $f"
+	else
+	    echo "[OK] $f"
+	fi
 done
