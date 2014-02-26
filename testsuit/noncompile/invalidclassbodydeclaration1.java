@@ -5,7 +5,7 @@ class program{
 }
 
 class program2{
-	public int print(){
+	public boolean method(){
 		return true;
 	}
 	int i;

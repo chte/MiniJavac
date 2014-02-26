@@ -1,6 +1,11 @@
 class program{
+}
+
+class program2{
 	public static void main(String [] args){
-		int id;
-		id = boolean[];
+		
 	}
+}
+
+class program3{
 }

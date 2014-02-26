@@ -1,6 +1,6 @@
 class program{
+	int i;
 	public static void main(String [] args){
-		int id;
-		id = boolean[];
+		
 	}
 }
