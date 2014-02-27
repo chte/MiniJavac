@@ -410,17 +410,22 @@ public static void main(String args[]) {
           AssignmentOperator();
           Expression();
           jj_consume_token(SEMICOLON);
-        } else if (jj_2_5(2)) {
-          jj_consume_token(IDENTIFIER);
-          jj_consume_token(LBRACKET);
-          Expression();
-          jj_consume_token(RBRACKET);
-          AssignmentOperator();
-          Expression();
-          jj_consume_token(SEMICOLON);
         } else {
-          jj_consume_token(-1);
-          throw new ParseException();
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case IDENTIFIER:
+            jj_consume_token(IDENTIFIER);
+            jj_consume_token(LBRACKET);
+            Expression();
+            jj_consume_token(RBRACKET);
+            AssignmentOperator();
+            Expression();
+            jj_consume_token(SEMICOLON);
+            break;
+          default:
+            jj_la1[10] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+          }
         }
       }
     } finally {
@@ -434,7 +439,7 @@ public static void main(String args[]) {
       jj_consume_token(LBRACE);
       label_7:
       while (true) {
-        if (jj_2_6(2147483647)) {
+        if (jj_2_5(2147483647)) {
           ;
         } else {
           break label_7;
@@ -452,7 +457,7 @@ public static void main(String args[]) {
           ;
           break;
         default:
-          jj_la1[10] = jj_gen;
+          jj_la1[11] = jj_gen;
           break label_8;
         }
         Statement();
@@ -469,7 +474,7 @@ public static void main(String args[]) {
       jj_consume_token(LBRACE);
       label_9:
       while (true) {
-        if (jj_2_7(2147483647)) {
+        if (jj_2_6(2147483647)) {
           ;
         } else {
           break label_9;
@@ -487,7 +492,7 @@ public static void main(String args[]) {
           ;
           break;
         default:
-          jj_la1[11] = jj_gen;
+          jj_la1[12] = jj_gen;
           break label_10;
         }
         Statement();
@@ -513,7 +518,7 @@ public static void main(String args[]) {
         Statement();
         break;
       default:
-        jj_la1[12] = jj_gen;
+        jj_la1[13] = jj_gen;
         ;
       }
     } finally {
@@ -573,7 +578,7 @@ public static void main(String args[]) {
           ;
           break;
         default:
-          jj_la1[13] = jj_gen;
+          jj_la1[14] = jj_gen;
           break label_11;
         }
         SuffixExpression();
@@ -603,20 +608,21 @@ public static void main(String args[]) {
         jj_consume_token(THIS);
         break;
       default:
-        jj_la1[14] = jj_gen;
-        if (jj_2_8(2)) {
+        jj_la1[15] = jj_gen;
+        if (jj_2_7(2)) {
           jj_consume_token(NEW);
           jj_consume_token(INT);
           jj_consume_token(LBRACKET);
           Expression();
           jj_consume_token(RBRACKET);
-        } else if (jj_2_9(2)) {
-          jj_consume_token(NEW);
-          jj_consume_token(IDENTIFIER);
-          jj_consume_token(LPAREN);
-          jj_consume_token(RPAREN);
         } else {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case NEW:
+            jj_consume_token(NEW);
+            jj_consume_token(IDENTIFIER);
+            jj_consume_token(LPAREN);
+            jj_consume_token(RPAREN);
+            break;
           case NOT:
             jj_consume_token(NOT);
             Expression();
@@ -627,7 +633,7 @@ public static void main(String args[]) {
             jj_consume_token(RPAREN);
             break;
           default:
-            jj_la1[15] = jj_gen;
+            jj_la1[16] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
@@ -656,11 +662,11 @@ public static void main(String args[]) {
         jj_consume_token(RBRACKET);
         break;
       default:
-        jj_la1[16] = jj_gen;
-        if (jj_2_10(2)) {
+        jj_la1[17] = jj_gen;
+        if (jj_2_8(2)) {
           jj_consume_token(DOT);
           jj_consume_token(LENGTH);
-        } else if (jj_2_11(2)) {
+        } else if (jj_2_9(2)) {
           jj_consume_token(DOT);
           jj_consume_token(IDENTIFIER);
           ExpressionList();
@@ -677,7 +683,7 @@ public static void main(String args[]) {
             Expression();
             break;
           default:
-            jj_la1[17] = jj_gen;
+            jj_la1[18] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
@@ -709,14 +715,14 @@ public static void main(String args[]) {
             ;
             break;
           default:
-            jj_la1[18] = jj_gen;
+            jj_la1[19] = jj_gen;
             break label_12;
           }
           ExpressionRest();
         }
         break;
       default:
-        jj_la1[19] = jj_gen;
+        jj_la1[20] = jj_gen;
         ;
       }
       jj_consume_token(RPAREN);
@@ -747,7 +753,7 @@ public static void main(String args[]) {
         BooleanLiteral();
         break;
       default:
-        jj_la1[20] = jj_gen;
+        jj_la1[21] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -767,7 +773,7 @@ public static void main(String args[]) {
         jj_consume_token(FALSE);
         break;
       default:
-        jj_la1[21] = jj_gen;
+        jj_la1[22] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -839,27 +845,13 @@ public static void main(String args[]) {
     finally { jj_save(8, xla); }
   }
 
-  static private boolean jj_2_10(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_10(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(9, xla); }
-  }
-
-  static private boolean jj_2_11(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_11(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(10, xla); }
-  }
-
-  static private boolean jj_3_7() {
+  static private boolean jj_3_6() {
     if (jj_3R_15()) return true;
     if (jj_scan_token(IDENTIFIER)) return true;
     return false;
   }
 
-  static private boolean jj_3_10() {
+  static private boolean jj_3_8() {
     if (jj_scan_token(DOT)) return true;
     if (jj_scan_token(LENGTH)) return true;
     return false;
@@ -882,19 +874,13 @@ public static void main(String args[]) {
     return false;
   }
 
-  static private boolean jj_3_5() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    if (jj_scan_token(LBRACKET)) return true;
-    return false;
-  }
-
   static private boolean jj_3R_13() {
     if (jj_3R_15()) return true;
     if (jj_scan_token(IDENTIFIER)) return true;
     return false;
   }
 
-  static private boolean jj_3_6() {
+  static private boolean jj_3_5() {
     if (jj_3R_15()) return true;
     if (jj_scan_token(IDENTIFIER)) return true;
     return false;
@@ -944,21 +930,15 @@ public static void main(String args[]) {
     return false;
   }
 
-  static private boolean jj_3_9() {
-    if (jj_scan_token(NEW)) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_11() {
-    if (jj_scan_token(DOT)) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_8() {
+  static private boolean jj_3_7() {
     if (jj_scan_token(NEW)) return true;
     if (jj_scan_token(INT)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_9() {
+    if (jj_scan_token(DOT)) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
     return false;
   }
 
@@ -974,7 +954,7 @@ public static void main(String args[]) {
   static private Token jj_scanpos, jj_lastpos;
   static private int jj_la;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[22];
+  static final private int[] jj_la1 = new int[23];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -982,12 +962,12 @@ public static void main(String args[]) {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x80,0x4000,0x0,0x4000840,0x4000840,0x840,0x4080840,0x0,0x85100400,0x81100400,0x85100400,0x85100400,0x100,0x26062200,0x6060200,0x20000000,0x0,0x26062200,0x0,0x26062200,0x2040200,0x40200,};
+      jj_la1_0 = new int[] {0x80,0x4000,0x0,0x4000840,0x4000840,0x840,0x4080840,0x0,0x85100400,0x81100400,0x4000000,0x85100400,0x85100400,0x100,0x26062200,0x6060200,0x20002000,0x0,0x26062200,0x0,0x26062200,0x2040200,0x40200,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x10,0x0,0x0,0x0,0x0,0x1f00,0x0,0x0,0x0,0x0,0x0,0x1f62,0x0,0x40,0x1f02,0x40,0x10,0x40,0x0,0x0,};
+      jj_la1_1 = new int[] {0x0,0x0,0x10,0x0,0x0,0x0,0x0,0x1f00,0x0,0x0,0x0,0x0,0x0,0x0,0x1f62,0x0,0x40,0x1f02,0x40,0x10,0x40,0x0,0x0,};
    }
-  static final private JJCalls[] jj_2_rtns = new JJCalls[11];
+  static final private JJCalls[] jj_2_rtns = new JJCalls[9];
   static private boolean jj_rescan = false;
   static private int jj_gc = 0;
 
@@ -1009,7 +989,7 @@ public static void main(String args[]) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 23; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1024,7 +1004,7 @@ public static void main(String args[]) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 23; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1042,7 +1022,7 @@ public static void main(String args[]) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 23; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1053,7 +1033,7 @@ public static void main(String args[]) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 23; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1070,7 +1050,7 @@ public static void main(String args[]) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 23; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1080,7 +1060,7 @@ public static void main(String args[]) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 23; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1199,7 +1179,7 @@ public static void main(String args[]) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 22; i++) {
+    for (int i = 0; i < 23; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -1281,7 +1261,7 @@ public static void main(String args[]) {
 
   static private void jj_rescan_token() {
     jj_rescan = true;
-    for (int i = 0; i < 11; i++) {
+    for (int i = 0; i < 9; i++) {
     try {
       JJCalls p = jj_2_rtns[i];
       do {
@@ -1297,8 +1277,6 @@ public static void main(String args[]) {
             case 6: jj_3_7(); break;
             case 7: jj_3_8(); break;
             case 8: jj_3_9(); break;
-            case 9: jj_3_10(); break;
-            case 10: jj_3_11(); break;
           }
         }
         p = p.next;

@@ -329,7 +329,7 @@ void Statement():
   LOOKAHEAD(2)
   <IDENTIFIER> AssignmentOperator() Expression() <SEMICOLON>
 |
-  LOOKAHEAD(2)
+  // LOOKAHEAD(2)
   <IDENTIFIER> <LBRACKET> Expression() <RBRACKET> AssignmentOperator() Expression() <SEMICOLON> 
 }
 
@@ -412,7 +412,6 @@ void PrefixExpression():
   LOOKAHEAD(2)
   <NEW> <INT> <LBRACKET> Expression() <RBRACKET> 
   |
-  LOOKAHEAD(2)
   <NEW> <IDENTIFIER> <LPAREN> <RPAREN>
   |
   <NOT> Expression()
