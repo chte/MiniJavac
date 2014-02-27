@@ -299,43 +299,16 @@ void AssignmentOperator():
 void Operator():
 {}
 {
-	ConditionalAndExpression()
+  <SC_AND>
 |
-// 	EqualityExpression()
-// |
-	RelationalExpression()
+  <LT>
 |
-	UnaryExpression()
-}
-
-void ConditionalAndExpression():
-{}
-{
-	"&&"
-}
-
-void RelationalExpression():
-{}
-{
-	"<"
-}
-
-void UnaryExpression():
-{}
-{
-	"+"
+  <PLUS>
 |
-	"-"
+  <MINUS>
+|
+  <STAR>
 }
-
-// void EqualityExpression():
-// {}
-// {
-//   "==" 
-// | 
-//   "!=" 
-// }
-
 
 
 /*
@@ -414,6 +387,7 @@ void Expression():
  */
 {}
 {
+  //LOOKAHEAD()
   PrefixExpression() ( SuffixExpression() )*
 }
 
