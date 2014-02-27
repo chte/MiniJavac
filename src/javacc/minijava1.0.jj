@@ -290,11 +290,11 @@ void ResultType():
  * Statement syntax follows.
  */
 
-void AssignmentOperator():
-{}
-{
-	"="
-}
+// void AssignmentOperator():
+// {}
+// {
+// 	"="
+// }
 
 void Operator():
 {}
@@ -320,17 +320,17 @@ void Statement():
 {
   <LBRACE> ( Statement() )* <RBRACE>
 |
-  IfStatement()
+  <IF> <LPAREN> Expression() <RPAREN> Statement() <ELSE> Statement()
 |
-  WhileStatement() 
+  <WHILE> <LPAREN> Expression() <RPAREN> Statement()
 |
   <SYSOUT_PRINTLN> <LPAREN> Expression() <RPAREN> <SEMICOLON>
 |
   LOOKAHEAD(2)
-  <IDENTIFIER> AssignmentOperator() Expression() <SEMICOLON>
+  <IDENTIFIER> <ASSIGN> Expression() <SEMICOLON>
 |
-  // LOOKAHEAD(2)
-  <IDENTIFIER> <LBRACKET> Expression() <RBRACKET> AssignmentOperator() Expression() <SEMICOLON> 
+  LOOKAHEAD(2)
+  <IDENTIFIER> <LBRACKET> Expression() <RBRACKET> <ASSIGN> Expression() <SEMICOLON> 
 }
 
 void MainBlock():
@@ -353,16 +353,16 @@ void ClassBlock():
   <RBRACE>
 }
 
-void IfStatement():
-/*
- * The disambiguating algorithm of JavaCC automatically binds dangling
- * else's to the innermost if statement.  The LOOKAHEAD specification
- * is to tell JavaCC that we know what we are doing.
- */
-{}
-{
-  <IF> <LPAREN> Expression() <RPAREN> Statement() [ LOOKAHEAD(1) <ELSE> Statement() ]
-}
+// void IfStatement():
+
+//  * The disambiguating algorithm of JavaCC automatically binds dangling
+//  * else's to the innermost if statement.  The LOOKAHEAD specification
+//  * is to tell JavaCC that we know what we are doing.
+ 
+// {}
+// {
+//   <IF> <LPAREN> Expression() <RPAREN> Statement() [ LOOKAHEAD(1) <ELSE> Statement() ]
+// }
 
 void WhileStatement():
 {}
