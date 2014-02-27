@@ -381,59 +381,87 @@ void ReturnStatement():
  */
 
 void Expression():
-/*
- * This expansion has been written with 3 lookahead,
- * can be performance issues, maybe try 2 lookahead. 
- */
 {}
 {
-  //LOOKAHEAD()
-  PrefixExpression() ( SuffixExpression() )*
-}
-
-
-void PrefixExpression():
-/*
- * This expansion has been written with 3 lookahead,
- * can be performance issues, maybe try 2 lookahead. 
- */
-{}
-{
-  <INTEGER_LITERAL>
+  <INTEGER_LITERAL> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <TRUE>
+  <TRUE> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <FALSE>
+  <FALSE> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <IDENTIFIER>
+  <IDENTIFIER> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <THIS>
+  <THIS> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
   LOOKAHEAD(2)
-  <NEW> <INT> <LBRACKET> Expression() <RBRACKET> 
+  <NEW> <INT> <LBRACKET> Expression() <RBRACKET> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <NEW> <IDENTIFIER> <LPAREN> <RPAREN>
+  LOOKAHEAD(2)
+  <NEW> <IDENTIFIER> <LPAREN> <RPAREN> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <NOT> Expression()
+  <NOT> Expression() ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <LPAREN> Expression() <RPAREN>
+  <LPAREN> Expression() <RPAREN> ( LOOKAHEAD(2) ExpressionPrim() )*
 }
 
-void SuffixExpression():
+void ExpressionPrim():
 {}
 {
-    Operator() SuffixExpression()
-| 
-    <LBRACKET> SuffixExpression() <RBRACKET> 
-|
-    LOOKAHEAD(2)
-    "." <LENGTH>
-|
-    LOOKAHEAD(2)
-    "." <IDENTIFIER> ExpressionList()
-|
-    Expression()
+  LOOKAHEAD(2)
+  Operator() Expression()
+  | 
+  <LBRACKET> Expression() <RBRACKET> 
+  |
+  LOOKAHEAD(2)
+  "." <LENGTH>
+  |
+  LOOKAHEAD(2)
+  "." <IDENTIFIER> ExpressionList()
 }
+
+
+// void PrefixExpression():
+// /*
+//  * This expansion has been written with 3 lookahead,
+//  * can be performance issues, maybe try 2 lookahead. 
+//  */
+// {}
+// {
+//   <INTEGER_LITERAL>
+//   |
+//   <TRUE>
+//   |
+//   <FALSE>
+//   |
+//   <IDENTIFIER>
+//   |
+//   <THIS>
+//   |
+//   LOOKAHEAD(2)
+//   <NEW> <INT> <LBRACKET> Expression() <RBRACKET> 
+//   |
+//   <NEW> <IDENTIFIER> <LPAREN> <RPAREN>
+//   |
+//   <NOT> Expression()
+//   |
+//   <LPAREN> Expression() <RPAREN>
+// }
+
+// void SuffixExpression():
+// {}
+// {
+//     Operator() SuffixExpression()
+// | 
+//     <LBRACKET> SuffixExpression() <RBRACKET> 
+// |
+//     LOOKAHEAD(2)
+//     "." <LENGTH>
+// |
+//     LOOKAHEAD(2)
+//     "." <IDENTIFIER> ExpressionList()
+// |
+//     Expression()
+// }
 
 
 
