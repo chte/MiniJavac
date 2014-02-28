@@ -279,23 +279,6 @@ void PrimitiveType():
   "int"
 }
 
-void ResultType():
-{}
-{
-  "void"
-|
-  Type()
-}
-/*
- * Statement syntax follows.
- */
-
-// void AssignmentOperator():
-// {}
-// {
-// 	"="
-// }
-
 void Operator():
 {}
 {
@@ -309,7 +292,6 @@ void Operator():
 |
   <STAR>
 }
-
 
 /*
  * Statement syntax follows.
@@ -352,17 +334,6 @@ void ClassBlock():
     ReturnStatement() 
   <RBRACE>
 }
-
-// void IfStatement():
-
-//  * The disambiguating algorithm of JavaCC automatically binds dangling
-//  * else's to the innermost if statement.  The LOOKAHEAD specification
-//  * is to tell JavaCC that we know what we are doing.
- 
-// {}
-// {
-//   <IF> <LPAREN> Expression() <RPAREN> Statement() [ LOOKAHEAD(1) <ELSE> Statement() ]
-// }
 
 void WhileStatement():
 {}
@@ -418,52 +389,6 @@ void ExpressionPrim():
   LOOKAHEAD(2)
   "." <IDENTIFIER> ExpressionList()
 }
-
-
-// void PrefixExpression():
-// /*
-//  * This expansion has been written with 3 lookahead,
-//  * can be performance issues, maybe try 2 lookahead. 
-//  */
-// {}
-// {
-//   <INTEGER_LITERAL>
-//   |
-//   <TRUE>
-//   |
-//   <FALSE>
-//   |
-//   <IDENTIFIER>
-//   |
-//   <THIS>
-//   |
-//   LOOKAHEAD(2)
-//   <NEW> <INT> <LBRACKET> Expression() <RBRACKET> 
-//   |
-//   <NEW> <IDENTIFIER> <LPAREN> <RPAREN>
-//   |
-//   <NOT> Expression()
-//   |
-//   <LPAREN> Expression() <RPAREN>
-// }
-
-// void SuffixExpression():
-// {}
-// {
-//     Operator() SuffixExpression()
-// | 
-//     <LBRACKET> SuffixExpression() <RBRACKET> 
-// |
-//     LOOKAHEAD(2)
-//     "." <LENGTH>
-// |
-//     LOOKAHEAD(2)
-//     "." <IDENTIFIER> ExpressionList()
-// |
-//     Expression()
-// }
-
-
 
 void ExpressionList():
 /*
