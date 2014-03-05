@@ -57,8 +57,6 @@ SKIP :
 | "\f"
 }
 
-
-
 /* RESERVED WORDS AND LITERALS */
 
 TOKEN :
@@ -162,6 +160,7 @@ TOKEN :
  * THE MINI JAVA LANGUAGE GRAMMAR STARTS HERE *
  **********************************************/
 
+
 /*
  * Program structuring syntax follows.
  */
@@ -169,14 +168,14 @@ TOKEN :
 void CompilationUnit():
 {}
 {
-  MainDeclaration() ( ClassDeclaration() )*
+  MainClass() ( ClassDecl() )*
   <EOF>
 }
 /*
  * Declaration syntax follows.
  */
 
-void MainDeclaration():
+void MainClass():
 {}
 {
   <CLASS>
@@ -184,7 +183,7 @@ void MainDeclaration():
   MainBody()
 }
 
-void ClassDeclaration():
+void ClassDecl():
 {}
 {
   <CLASS>
@@ -205,30 +204,24 @@ void ClassBody():
 {}
 {
   <LBRACE>
-      (LOOKAHEAD(2) VariableDeclaration() )* 
-      ( MethodDeclaration() )* 
+      (LOOKAHEAD(2) VarDecl() )* 
+      ( MethodDecl() )* 
   <RBRACE>
 }
 
-void VariableDeclaration():
+void VarDecl():
 {}
 {
   Type() <IDENTIFIER> <SEMICOLON>
 }
 
-void MethodDeclaration():
+void MethodDecl():
 {}
 {
   <PUBLIC>
   Type()
-  MethodDeclarator()
-  ClassBlock()
-}
-
-void MethodDeclarator():
-{}
-{
   <IDENTIFIER> FormalList()
+  ClassBlock()
 }
 
 void FormalList():
@@ -318,7 +311,7 @@ void MainBlock():
 {}
 {
   <LBRACE>
-  ( LOOKAHEAD( Type() <IDENTIFIER> ) VariableDeclaration() )* 
+  ( LOOKAHEAD( Type() <IDENTIFIER> ) VarDecl() )* 
   ( Statement() )* 
   <RBRACE>
 }
@@ -328,7 +321,7 @@ void ClassBlock():
 {
   <LBRACE> 
     ( LOOKAHEAD( Type() <IDENTIFIER> ) 
-    VariableDeclaration() )* 
+    VarDecl() )* 
     ( Statement() )*  
     ReturnStatement() 
   <RBRACE>

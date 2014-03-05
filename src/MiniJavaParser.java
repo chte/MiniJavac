@@ -46,13 +46,14 @@ public static void main(String args[]) {
  * THE MINI JAVA LANGUAGE GRAMMAR STARTS HERE *
  **********************************************/
 
+
 /*
  * Program structuring syntax follows.
  */
   static final public void CompilationUnit() throws ParseException {
     trace_call("CompilationUnit");
     try {
-      MainDeclaration();
+      MainClass();
       label_1:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -63,7 +64,7 @@ public static void main(String args[]) {
           jj_la1[0] = jj_gen;
           break label_1;
         }
-        ClassDeclaration();
+        ClassDecl();
       }
       jj_consume_token(0);
     } finally {
@@ -74,25 +75,25 @@ public static void main(String args[]) {
 /*
  * Declaration syntax follows.
  */
-  static final public void MainDeclaration() throws ParseException {
-    trace_call("MainDeclaration");
+  static final public void MainClass() throws ParseException {
+    trace_call("MainClass");
     try {
       jj_consume_token(CLASS);
       jj_consume_token(IDENTIFIER);
       MainBody();
     } finally {
-      trace_return("MainDeclaration");
+      trace_return("MainClass");
     }
   }
 
-  static final public void ClassDeclaration() throws ParseException {
-    trace_call("ClassDeclaration");
+  static final public void ClassDecl() throws ParseException {
+    trace_call("ClassDecl");
     try {
       jj_consume_token(CLASS);
       jj_consume_token(IDENTIFIER);
       ClassBody();
     } finally {
-      trace_return("ClassDeclaration");
+      trace_return("ClassDecl");
     }
   }
 
@@ -128,7 +129,7 @@ public static void main(String args[]) {
         } else {
           break label_2;
         }
-        VariableDeclaration();
+        VarDecl();
       }
       label_3:
       while (true) {
@@ -140,7 +141,7 @@ public static void main(String args[]) {
           jj_la1[1] = jj_gen;
           break label_3;
         }
-        MethodDeclaration();
+        MethodDecl();
       }
       jj_consume_token(RBRACE);
     } finally {
@@ -148,36 +149,27 @@ public static void main(String args[]) {
     }
   }
 
-  static final public void VariableDeclaration() throws ParseException {
-    trace_call("VariableDeclaration");
+  static final public void VarDecl() throws ParseException {
+    trace_call("VarDecl");
     try {
       Type();
       jj_consume_token(IDENTIFIER);
       jj_consume_token(SEMICOLON);
     } finally {
-      trace_return("VariableDeclaration");
+      trace_return("VarDecl");
     }
   }
 
-  static final public void MethodDeclaration() throws ParseException {
-    trace_call("MethodDeclaration");
+  static final public void MethodDecl() throws ParseException {
+    trace_call("MethodDecl");
     try {
       jj_consume_token(PUBLIC);
       Type();
-      MethodDeclarator();
-      ClassBlock();
-    } finally {
-      trace_return("MethodDeclaration");
-    }
-  }
-
-  static final public void MethodDeclarator() throws ParseException {
-    trace_call("MethodDeclarator");
-    try {
       jj_consume_token(IDENTIFIER);
       FormalList();
+      ClassBlock();
     } finally {
-      trace_return("MethodDeclarator");
+      trace_return("MethodDecl");
     }
   }
 
@@ -415,7 +407,7 @@ public static void main(String args[]) {
         } else {
           break label_7;
         }
-        VariableDeclaration();
+        VarDecl();
       }
       label_8:
       while (true) {
@@ -450,7 +442,7 @@ public static void main(String args[]) {
         } else {
           break label_9;
         }
-        VariableDeclaration();
+        VarDecl();
       }
       label_10:
       while (true) {
@@ -906,6 +898,64 @@ public static void main(String args[]) {
     finally { jj_save(20, xla); }
   }
 
+  static private boolean jj_3R_28() {
+    if (jj_scan_token(LBRACKET)) return true;
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_3() {
+    if (jj_scan_token(LBRACKET)) return true;
+    if (jj_scan_token(RBRACKET)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_19() {
+    if (jj_3R_25()) return true;
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_24() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_19()) {
+    jj_scanpos = xsp;
+    if (jj_3R_28()) {
+    jj_scanpos = xsp;
+    if (jj_3_20()) {
+    jj_scanpos = xsp;
+    if (jj_3_21()) return true;
+    }
+    }
+    }
+    return false;
+  }
+
+  static private boolean jj_3R_25() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(41)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(40)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(42)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(43)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(44)) return true;
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  static private boolean jj_3_11() {
+    if (jj_3R_24()) return true;
+    return false;
+  }
+
   static private boolean jj_3_8() {
     if (jj_3R_24()) return true;
     return false;
@@ -1065,6 +1115,17 @@ public static void main(String args[]) {
     return false;
   }
 
+  static private boolean jj_3R_21() {
+    if (jj_3R_23()) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_1() {
+    if (jj_3R_21()) return true;
+    return false;
+  }
+
   static private boolean jj_3_14() {
     if (jj_3R_24()) return true;
     return false;
@@ -1081,20 +1142,9 @@ public static void main(String args[]) {
     return false;
   }
 
-  static private boolean jj_3R_21() {
-    if (jj_3R_23()) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
   static private boolean jj_3_4() {
     if (jj_scan_token(IDENTIFIER)) return true;
     if (jj_scan_token(ASSIGN)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_1() {
-    if (jj_3R_21()) return true;
     return false;
   }
 
@@ -1112,64 +1162,6 @@ public static void main(String args[]) {
   static private boolean jj_3_20() {
     if (jj_scan_token(DOT)) return true;
     if (jj_scan_token(LENGTH)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_28() {
-    if (jj_scan_token(LBRACKET)) return true;
-    if (jj_3R_26()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_3() {
-    if (jj_scan_token(LBRACKET)) return true;
-    if (jj_scan_token(RBRACKET)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_19() {
-    if (jj_3R_25()) return true;
-    if (jj_3R_26()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_24() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_19()) {
-    jj_scanpos = xsp;
-    if (jj_3R_28()) {
-    jj_scanpos = xsp;
-    if (jj_3_20()) {
-    jj_scanpos = xsp;
-    if (jj_3_21()) return true;
-    }
-    }
-    }
-    return false;
-  }
-
-  static private boolean jj_3R_25() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(41)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(40)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(42)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(43)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(44)) return true;
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  static private boolean jj_3_11() {
-    if (jj_3R_24()) return true;
     return false;
   }
 
