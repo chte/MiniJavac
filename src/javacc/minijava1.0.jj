@@ -216,7 +216,6 @@ void VariableDeclaration():
   Type() <IDENTIFIER> <SEMICOLON>
 }
 
-
 void MethodDeclaration():
 {}
 {
@@ -421,5 +420,3 @@ void BooleanLiteral():
 |
   <FALSE>
 }
-
-
