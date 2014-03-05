@@ -216,7 +216,6 @@ void VariableDeclaration():
   Type() <IDENTIFIER> <SEMICOLON>
 }
 
-
 void MethodDeclaration():
 {}
 {
@@ -279,64 +278,19 @@ void PrimitiveType():
   "int"
 }
 
-void ResultType():
-{}
-{
-  "void"
-|
-  Type()
-}
-/*
- * Statement syntax follows.
- */
-
-void AssignmentOperator():
-{}
-{
-	"="
-}
-
 void Operator():
 {}
 {
-	ConditionalAndExpression()
+  <SC_AND>
 |
-// 	EqualityExpression()
-// |
-	RelationalExpression()
+  <LT>
 |
-	UnaryExpression()
-}
-
-void ConditionalAndExpression():
-{}
-{
-	"&&"
-}
-
-void RelationalExpression():
-{}
-{
-	"<"
-}
-
-void UnaryExpression():
-{}
-{
-	"+"
+  <PLUS>
 |
-	"-"
+  <MINUS>
+|
+  <STAR>
 }
-
-// void EqualityExpression():
-// {}
-// {
-//   "==" 
-// | 
-//   "!=" 
-// }
-
-
 
 /*
  * Statement syntax follows.
@@ -347,17 +301,17 @@ void Statement():
 {
   <LBRACE> ( Statement() )* <RBRACE>
 |
-  IfStatement()
+  <IF> <LPAREN> Expression() <RPAREN> Statement() <ELSE> Statement()
 |
-  WhileStatement() 
+  <WHILE> <LPAREN> Expression() <RPAREN> Statement()
 |
   <SYSOUT_PRINTLN> <LPAREN> Expression() <RPAREN> <SEMICOLON>
 |
   LOOKAHEAD(2)
-  <IDENTIFIER> AssignmentOperator() Expression() <SEMICOLON>
+  <IDENTIFIER> <ASSIGN> Expression() <SEMICOLON>
 |
   LOOKAHEAD(2)
-  <IDENTIFIER> <LBRACKET> Expression() <RBRACKET> AssignmentOperator() Expression() <SEMICOLON> 
+  <IDENTIFIER> <LBRACKET> Expression() <RBRACKET> <ASSIGN> Expression() <SEMICOLON> 
 }
 
 void MainBlock():
@@ -380,17 +334,6 @@ void ClassBlock():
   <RBRACE>
 }
 
-void IfStatement():
-/*
- * The disambiguating algorithm of JavaCC automatically binds dangling
- * else's to the innermost if statement.  The LOOKAHEAD specification
- * is to tell JavaCC that we know what we are doing.
- */
-{}
-{
-  <IF> <LPAREN> Expression() <RPAREN> Statement() [ LOOKAHEAD(1) <ELSE> Statement() ]
-}
-
 void WhileStatement():
 {}
 {
@@ -408,61 +351,43 @@ void ReturnStatement():
  */
 
 void Expression():
-/*
- * This expansion has been written with 3 lookahead,
- * can be performance issues, maybe try 2 lookahead. 
- */
 {}
 {
-  PrefixExpression() ( SuffixExpression() )*
-}
-
-
-void PrefixExpression():
-/*
- * This expansion has been written with 3 lookahead,
- * can be performance issues, maybe try 2 lookahead. 
- */
-{}
-{
-  <INTEGER_LITERAL>
+  <INTEGER_LITERAL> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <TRUE>
+  <TRUE> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <FALSE>
+  <FALSE> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <IDENTIFIER>
+  <IDENTIFIER> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <THIS>
+  <THIS> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
   LOOKAHEAD(2)
-  <NEW> <INT> <LBRACKET> Expression() <RBRACKET> 
+  <NEW> <INT> <LBRACKET> Expression() <RBRACKET> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
   LOOKAHEAD(2)
-  <NEW> <IDENTIFIER> <LPAREN> <RPAREN>
+  <NEW> <IDENTIFIER> <LPAREN> <RPAREN> ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <NOT> Expression()
+  <NOT> Expression() ( LOOKAHEAD(2) ExpressionPrim() )*
   |
-  <LPAREN> Expression() <RPAREN>
+  <LPAREN> Expression() <RPAREN> ( LOOKAHEAD(2) ExpressionPrim() )*
 }
 
-void SuffixExpression():
+void ExpressionPrim():
 {}
 {
-    Operator() SuffixExpression()
-| 
-    <LBRACKET> SuffixExpression() <RBRACKET> 
-|
-    LOOKAHEAD(2)
-    "." <LENGTH>
-|
-    LOOKAHEAD(2)
-    "." <IDENTIFIER> ExpressionList()
-|
-    Expression()
+  LOOKAHEAD(2)
+  Operator() Expression()
+  | 
+  <LBRACKET> Expression() <RBRACKET> 
+  |
+  LOOKAHEAD(2)
+  "." <LENGTH>
+  |
+  LOOKAHEAD(2)
+  "." <IDENTIFIER> ExpressionList()
 }
-
-
 
 void ExpressionList():
 /*
@@ -495,5 +420,3 @@ void BooleanLiteral():
 |
   <FALSE>
 }
-
-
