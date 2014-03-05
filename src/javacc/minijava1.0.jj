@@ -1,6 +1,11 @@
 PARSER_BEGIN(MiniJavaParser)
 
 import java.io.*;
+import syntaxtree.*;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.io.PrintStream;
 
 /**
  * Grammar to parse MiniJava language 
@@ -36,7 +41,7 @@ public static void main(String args[]) {
 		return;
 	}
 	try {
-		parser.CompilationUnit();
+		parser.Program();
 		System.out.println("MiniJavac 1.0: Java program parsed successfully.");
 	} catch (ParseException e) {
 		System.out.println(e.getMessage());
@@ -46,9 +51,7 @@ public static void main(String args[]) {
 }
 PARSER_END(MiniJavaParser)
 
-/* WHITE SPACE */
-
-SKIP :
+SKIP: /* WHITE SPACE */
 {
   " "
 | "\t"
@@ -57,9 +60,7 @@ SKIP :
 | "\f"
 }
 
-/* RESERVED WORDS AND LITERALS */
-
-TOKEN :
+TOKEN:  /* RESERVED WORDS AND LITERALS */
 {
   < BOOLEAN: "boolean" >
 | < CLASS: "class" >
@@ -82,48 +83,14 @@ TOKEN :
 | < SYSOUT_PRINTLN : "System.out.println" >
 }
 
-/* LITERALS */
-/*	
-	int lit := 0 | [1-9][0-9]*
-	long lit := 0[lL] | [1-9][0-9]*[lL]	
-*/
-
-TOKEN :
+TOKEN: /* LITERALS */
 {
-  < INTEGER_LITERAL:
-  	"0" | (["1"-"9"] (["0"-"9"])*)
-  >
+  < INTEGER_LITERAL:	"0" | (["1"-"9"] (["0"-"9"])*) >
+|
+  < LONG_LITERAL: "0" | ["1"-"9"](["0"-"9"])* ["l", "L"] >
 }
 
-/* IDENTIFIERS */
-
-TOKEN :
-{	//	id := [a-zA-Z ][a-zA-Z0-9 ]*
-  < IDENTIFIER: <LETTER> (<PART_LETTER>)* >
-|
-  < #LETTER:
-      [
-         "A"-"Z",
-         "_",
-         "a"-"z"
-      ]
-  >
-|
-  < #PART_LETTER:
-      [
-      	 "0"-"9",
-         "A"-"Z",
-         "_",
-         "a"-"z"
-      ]
-  >
-}
-
-
-
-/* SEPARATORS */
-
-TOKEN :
+TOKEN: /* SEPARATORS */
 {
   < LPAREN: "(" >
 | < RPAREN: ")" >
@@ -137,9 +104,16 @@ TOKEN :
 | < NOT: "!" >
 }
 
-/* OPERATORS */
+TOKEN: /* IDENTIFIERS */
+{
+  < IDENTIFIER: < LETTER > (< DIGIT >|< LETTER >)* >
+| 
+  < #LETTER: ["a"-"z", "A"-"Z", "_"] >
+| 
+  < #DIGIT: "0" | ["1"-"9"](["0"-"9"])* >
+}
 
-TOKEN :
+TOKEN: /* OPERATORS */
 {
   < ASSIGN: "=" >
 | < LT: "<" >
@@ -165,251 +139,303 @@ TOKEN :
  * Program structuring syntax follows.
  */
 
-void CompilationUnit():
-{}
+/* Top level production */
+Program Program():
 {
-  MainClass() ( ClassDecl() )*
-  <EOF>
+  MainClass mc;
+  ClassDeclList cdl;
 }
-/*
- * Declaration syntax follows.
- */
+{
+  /* The first class must be the main class */
+  mc=MainClass()
 
-void MainClass():
-{}
+  /* Then zero or more other class declarations */
+  cdl = ClassDeclList()
+
+  /* And nothing else can be in the file */
+  < EOF >
+  { return new Program(mc, cdl); }
+}
+
+ClassDeclList ClassDeclList():
+{ 
+  ClassDecl c; 
+  ClassDeclList cdl; 
+}
+{
+  (c = ClassDecl() { cdl.addElement(c); })*
+  { return cdl.size() > 0 ? cdl : null; }
+}
+
+MainClass MainClass():
+{
+  Token t;
+  Identifier id1;
+  Identifier id2;
+  VarDecl v;
+  VarDeclList vdl;
+  Statement stmt;
+  StatementList sl;
+}
 {
   <CLASS>
-  <IDENTIFIER>
-  MainBody()
+  t = <IDENTIFIER> { id1 = new Identifier(t.image); }
+  <LBRACE>
+      <PUBLIC> <STATIC> <VOID> <MAIN> <LPAREN> <STRING> <LBRACKET> <RBRACKET> t = <IDENTIFIER> { id2 = new Identifier(t.image); } <RPAREN>
+      <LBRACE>
+      ( LOOKAHEAD( Type() <IDENTIFIER> ) v = VarDecl() { vdl.addElement(v); } )* 
+      ( stmt = Stmt() { sl.addElement(stmt); } )* 
+      <RBRACE>
+  <RBRACE>
+  { return new MainClass(id1, id2, vdl, sl); }
 }
 
-void ClassDecl():
-{}
+ClassDeclSimple ClassDecl():
+{
+  Token t;
+  Id id; 
+  VarDecl v;
+  VarDeclList vl;
+  MethodDecl m;
+  MethodDeclList ml;
+}
 {
   <CLASS>
-  <IDENTIFIER>
-  ClassBody()
-}
-
-void MainBody():
-{}
-{
+  t = <IDENTIFIER> { id = new Identifier(t.image); }
   <LBRACE>
-      <PUBLIC> <STATIC> <VOID> <MAIN> <LPAREN> <STRING> <LBRACKET> <RBRACKET> <IDENTIFIER> <RPAREN>
-      MainBlock() 
+      ( LOOKAHEAD(2) v = VarDecl() {vl.addElement(v); } )* 
+      ( m = MethodDecl() { ml.addElement(m); } )* 
   <RBRACE>
+  { return new ClassDeclSimple(id, vl, ml); }
 }
 
-void ClassBody():
-{}
+/* Variable declaration */
+VarDecl VarDecl() :
+{ 
+  Token t;
+  Type type; 
+  Id id;
+}
 {
-  <LBRACE>
-      (LOOKAHEAD(2) VarDecl() )* 
-      ( MethodDecl() )* 
-  <RBRACE>
+  type=Type() ( t = <IDENTIFIER> { id=Identifier(); } ) <SEMICOLON>
+  { return new VarDecl(type, id); }
 }
 
-void VarDecl():
-{}
+MethodDecl MethodDecl():
 {
-  Type() <IDENTIFIER> <SEMICOLON>
+  Token t;
+  Type type;
+  Identifier id; 
+  FormalList fl;
+  VarDecl v;
+  VarDeclList vl;
+  Statement s;
+  StatementList sl;
+  Exp e;
 }
-
-void MethodDecl():
-{}
 {
   <PUBLIC>
-  Type()
-  <IDENTIFIER> FormalList()
-  ClassBlock()
+  type = Type()
+  ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) 
+  fl = FormalList()
+  <LBRACE> 
+    ( LOOKAHEAD( Type() <IDENTIFIER> ) v = VarDecl() { vl.addElement(v); } )* 
+    ( s = Stmt() { sl.addElement(s); } )*  
+  <RETURN> e = Exp() <SEMICOLON>
+  <RBRACE>
+  { return new MethodDecl(type, id, fl, vl, sl, e); }
 }
 
-void FormalList():
-{}
+FormalList FormalList():
 {
-  <LPAREN> [ FormalRest() ( "," FormalRest() )* ] <RPAREN>
+  Token t;
+  Type type;
+  Identifier id;
+  Formal f;
+  FormalList fl;
+}
+{
+  <LPAREN> 
+          [ 
+              (
+                type=Type() 
+                t=<IDENTIFIER> { id=Identifier(t.image); } 
+                { f = new Formal(type, id); fl.addElement(f); }
+              ) 
+              ( "," f=FormalRest() { fl.addElement(f); } )* 
+           ] 
+  <RPAREN>
+  { return fl; }
 }
 
-void FormalRest():
-{}
+Formal FormalRest():
 {
-  Type() <IDENTIFIER>
+  Token t;
+  Type type;
+  Identifier id; 
+}
+{
+  type=Type() ( t=<IDENTIFIER> { id=new Identifier(t.image); } )
+  { return new Formal(type, id); }
 }
 
 /*
  * Type, name and expression syntax follows.
  */
-
-void Type():
-{}
+Type Type() :
 {
-   LOOKAHEAD(2) ReferenceType()
- |
-   PrimitiveType()
- |
-   <IDENTIFIER>
+  Token t;
+  Type type; 
+}
+{
+    (
+      LOOKAHEAD(2)
+      <INT> <LBRACKET> <RBRACKET> { type=new IntArrayType(); }
+    |   
+      <INT> { type=new IntegerType(); }
+    |   
+      <BOOLEAN> { type=new BooleanType(); }  
+    |   
+      t=<IDENTIFIER> { type=new IdentifierType(t.image); }
+    )
+
+  { return type; }
 }
 
-void ReferenceType():
+
+int Op():
 {}
 {
-   PrimitiveTypeArray() ( LOOKAHEAD(2) <LBRACKET> <RBRACKET> )+
-}
-
-
-void PrimitiveTypeArray():
-{}
-{
-  "int"
-}
-
-void PrimitiveType():
-{}
-{
-  "boolean"
+  <SC_AND> { return SC_AND; }
 |
-  "int"
-}
-
-void Operator():
-{}
-{
-  <SC_AND>
+  <LT> { return LT; }
 |
-  <LT>
+  <PLUS> { return PLUS; }
 |
-  <PLUS>
+  <MINUS> { return MINUS; }
 |
-  <MINUS>
-|
-  <STAR>
+  <STAR> { return STAR; }
 }
 
 /*
- * Statement syntax follows.
+ * Stmt syntax follows.
  */
 
-void Statement():
-{}
+Statement Stmt():
 {
-  <LBRACE> ( Statement() )* <RBRACE>
-|
-  <IF> <LPAREN> Expression() <RPAREN> Statement() <ELSE> Statement()
-|
-  <WHILE> <LPAREN> Expression() <RPAREN> Statement()
-|
-  <SYSOUT_PRINTLN> <LPAREN> Expression() <RPAREN> <SEMICOLON>
-|
-  LOOKAHEAD(2)
-  <IDENTIFIER> <ASSIGN> Expression() <SEMICOLON>
-|
-  LOOKAHEAD(2)
-  <IDENTIFIER> <LBRACKET> Expression() <RBRACKET> <ASSIGN> Expression() <SEMICOLON> 
+  Token t;
+  Exp e1;
+  Exp e2;
+  Identifier id;
+  Statement rs;
+  Statement s1;
+  Statement s2;
+  StatementList sl;
+}
+{
+  (
+      ( <LBRACE> ( s1=Stmt() { sl.addElement(s1); } )* <RBRACE> { rs = new Block(sl); } )
+    |
+      ( <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() <ELSE> s2=Stmt() { rs = new If(e1, s1, s2); } )
+    |
+      ( <WHILE> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() { rs = new While(e1, s1); } )
+    |
+      ( <SYSOUT_PRINTLN> <LPAREN> e1=Exp() <RPAREN> <SEMICOLON> { rs = new Print(e1); } )
+    |
+      ( LOOKAHEAD(2)
+      ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) <ASSIGN> e1=Exp() <SEMICOLON>  { rs = new Assign(id,e1); } )
+    |
+      ( LOOKAHEAD(2)
+      ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) <LBRACKET> e1=Exp() <RBRACKET> <ASSIGN> e2=Exp() <SEMICOLON> { rs = new ArrayAssign(id,e1,e2); } )
+  )
+  { return rs; }
 }
 
-void MainBlock():
-{}
-{
-  <LBRACE>
-  ( LOOKAHEAD( Type() <IDENTIFIER> ) VarDecl() )* 
-  ( Statement() )* 
-  <RBRACE>
-}
-
-void ClassBlock():
-{}
-{
-  <LBRACE> 
-    ( LOOKAHEAD( Type() <IDENTIFIER> ) 
-    VarDecl() )* 
-    ( Statement() )*  
-    ReturnStatement() 
-  <RBRACE>
-}
-
-void WhileStatement():
-{}
-{
-  <WHILE> <LPAREN> Expression() <RPAREN> Statement()
-}
-
-void ReturnStatement():
-{}
-{
-  <RETURN> Expression() <SEMICOLON>
-}
 
 /*
- * Expression syntax follows.
+ * Exp syntax follows.
  */
 
-void Expression():
-{}
+Exp Exp():
 {
-  <INTEGER_LITERAL> ( LOOKAHEAD(2) ExpressionPrim() )*
-  |
-  <TRUE> ( LOOKAHEAD(2) ExpressionPrim() )*
-  |
-  <FALSE> ( LOOKAHEAD(2) ExpressionPrim() )*
-  |
-  <IDENTIFIER> ( LOOKAHEAD(2) ExpressionPrim() )*
-  |
-  <THIS> ( LOOKAHEAD(2) ExpressionPrim() )*
-  |
-  LOOKAHEAD(2)
-  <NEW> <INT> <LBRACKET> Expression() <RBRACKET> ( LOOKAHEAD(2) ExpressionPrim() )*
-  |
-  LOOKAHEAD(2)
-  <NEW> <IDENTIFIER> <LPAREN> <RPAREN> ( LOOKAHEAD(2) ExpressionPrim() )*
-  |
-  <NOT> Expression() ( LOOKAHEAD(2) ExpressionPrim() )*
-  |
-  <LPAREN> Expression() <RPAREN> ( LOOKAHEAD(2) ExpressionPrim() )*
+  Token t;
+  Exp e;
+}
+{
+  (
+      <INTEGER_LITERAL> { e = new IntegerLiteral(); } 
+    |
+      <TRUE>  { e = new True(); }
+    |
+      <FALSE> { e = new False(); }
+    |
+      <IDENTIFIER> { e = new IdentifierExp(); }
+    |
+      <THIS> { e = new This(); } 
+    |
+      LOOKAHEAD(2)
+      <NEW> <INT> <LBRACKET> ( e=Exp() { e = new NewArray(e); } ) <RBRACKET> 
+    |
+      LOOKAHEAD(2)
+      <NEW> ( t = <IDENTIFIER> { e = new NewObject(new IdentifierExp(t.image)); } ) <LPAREN> <RPAREN> 
+    |
+      <NOT> ( e = Exp() { e = new Not(e); } ) 
+    |
+      <LPAREN> e = Exp() <RPAREN> 
+  )
+  ( LOOKAHEAD(2) e=ExpPrim(e) )*
+  { return e; }
 }
 
-void ExpressionPrim():
-{}
+Exp ExpPrim(Exp e1):
 {
-  LOOKAHEAD(2)
-  Operator() Expression()
+  Token t;
+  Exp e2;
+  int op;
+  Identifier id;
+  ExpList el;
+}
+{
+    LOOKAHEAD(2)
+    op=Op() e2=Exp()
+    {
+      switch (op) {
+        case SC_AND: return new And(e1, e2);
+        case LT: return new LessThan(e1, e2);
+        case PLUS: return new Plus(e1, e2); 
+        case MINUS: return new Minus(e1, e2); 
+        case STAR: return new Times(e1, e2);
+      }
+    }
   | 
-  <LBRACKET> Expression() <RBRACKET> 
+    <LBRACKET> e2=Exp() <RBRACKET> 
+    { return new ArrayLookup(e1, e2); }
   |
-  LOOKAHEAD(2)
-  "." <LENGTH>
+    LOOKAHEAD(2)
+    <DOT> <LENGTH> 
+    { return new ArrayLength(e1); }
   |
-  LOOKAHEAD(2)
-  "." <IDENTIFIER> ExpressionList()
+    LOOKAHEAD(2)
+    <DOT> (t = <IDENTIFIER> { id = new IdentifierExp(t.image); } ) el=ExpList()
+    { return new Call(e1, id, el); }
 }
 
-void ExpressionList():
-/*
- * This expansion has been written with 3 lookahead,
- * can be performance issues, maybe try 2 lookahead. 
- */
-{}
+ExpList ExpList():
 {
-	<LPAREN> [ Expression() ( ExpressionRest() )* ] <RPAREN>
+  Exp e;
+  ExpList el;
+}
+{
+	<LPAREN> [ e=Exp() { el.addElement(e); } ( e=ExpRest() { el.addElement(e); } )* ] <RPAREN>
+  { return el; }
 }
 
-void ExpressionRest():
-{}
+Exp ExpRest():
 {
-	"," Expression()
+  Exp e;
+}
+{
+	"," e=Exp()
+  { return t; }
 }
 
-void Literal():
-{}
-{
-  <INTEGER_LITERAL>
-|
-  BooleanLiteral()
-}
-
-void BooleanLiteral():
-{}
-{
-  <TRUE>
-|
-  <FALSE>
-}
