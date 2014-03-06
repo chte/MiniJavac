@@ -22,6 +22,8 @@ public MiniJavaParser (String fileName){
 
 public static void main(String args[]) {
 	MiniJavaParser parser;
+  SyntaxTreePrinter stp;
+  Program program;
 	if (args.length == 0) {
 		System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
 		parser = new MiniJavaParser(System.in);
@@ -41,7 +43,10 @@ public static void main(String args[]) {
 		return;
 	}
 	try {
-		parser.Program();
+		program = parser.Program();
+    stp = new SyntaxTreePrinter(System.out);
+    stp.visit(program);
+
 		System.out.println("MiniJavac 1.0: Java program parsed successfully.");
 	} catch (ParseException e) {
 		System.out.println(e.getMessage());
@@ -150,7 +155,7 @@ Program Program():
   mc=MainClass()
 
   /* Then zero or more other class declarations */
-  cdl = ClassDeclList()
+  cdl = ClassDeclList() 
 
   /* And nothing else can be in the file */
   < EOF >
@@ -164,7 +169,7 @@ ClassDeclList ClassDeclList():
 }
 {
   (c = ClassDecl() { cdl.addElement(c); })*
-  { return cdl.size() > 0 ? cdl : null; }
+  { return cdl; }
 }
 
 MainClass MainClass():

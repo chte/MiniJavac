@@ -20,6 +20,8 @@ public MiniJavaParser (String fileName){
 
 public static void main(String args[]) {
         MiniJavaParser parser;
+  SyntaxTreePrinter stp;
+  Program program;
         if (args.length == 0) {
                 System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
                 parser = new MiniJavaParser(System.in);
@@ -39,7 +41,10 @@ public static void main(String args[]) {
                 return;
         }
         try {
-                parser.Program();
+                program = parser.Program();
+    stp = new SyntaxTreePrinter(System.out);
+    stp.visit(program);
+
                 System.out.println("MiniJavac 1.0: Java program parsed successfully.");
         } catch (ParseException e) {
                 System.out.println(e.getMessage());
@@ -92,7 +97,7 @@ public static void main(String args[]) {
         c = ClassDecl();
                      cdl.addElement(c);
       }
-    {if (true) return cdl.size() > 0 ? cdl : null;}
+    {if (true) return cdl;}
     throw new Error("Missing return statement in function");
     } finally {
       trace_return("ClassDeclList");
@@ -777,43 +782,6 @@ public static void main(String args[]) {
     finally { jj_save(11, xla); }
   }
 
-  static private boolean jj_3R_20() {
-    if (jj_scan_token(LBRACKET)) return true;
-    if (jj_3R_16()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_16() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_26()) {
-    jj_scanpos = xsp;
-    if (jj_3R_27()) {
-    jj_scanpos = xsp;
-    if (jj_3R_28()) {
-    jj_scanpos = xsp;
-    if (jj_3R_29()) {
-    jj_scanpos = xsp;
-    if (jj_3R_30()) {
-    jj_scanpos = xsp;
-    if (jj_3_7()) {
-    jj_scanpos = xsp;
-    if (jj_3_8()) {
-    jj_scanpos = xsp;
-    if (jj_3R_31()) {
-    jj_scanpos = xsp;
-    if (jj_3R_32()) return true;
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    return false;
-  }
-
   static private boolean jj_3R_25() {
     if (jj_scan_token(STAR)) return true;
     return false;
@@ -1014,6 +982,43 @@ public static void main(String args[]) {
   static private boolean jj_3_11() {
     if (jj_scan_token(DOT)) return true;
     if (jj_scan_token(LENGTH)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_20() {
+    if (jj_scan_token(LBRACKET)) return true;
+    if (jj_3R_16()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_16() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_26()) {
+    jj_scanpos = xsp;
+    if (jj_3R_27()) {
+    jj_scanpos = xsp;
+    if (jj_3R_28()) {
+    jj_scanpos = xsp;
+    if (jj_3R_29()) {
+    jj_scanpos = xsp;
+    if (jj_3R_30()) {
+    jj_scanpos = xsp;
+    if (jj_3_7()) {
+    jj_scanpos = xsp;
+    if (jj_3_8()) {
+    jj_scanpos = xsp;
+    if (jj_3R_31()) {
+    jj_scanpos = xsp;
+    if (jj_3R_32()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
     return false;
   }
 
