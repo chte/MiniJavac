@@ -2,7 +2,6 @@ PARSER_BEGIN(MiniJavaParser)
 
 import java.io.*;
 import syntaxtree.*;
-import syntaxtree.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
