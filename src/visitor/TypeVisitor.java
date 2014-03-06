@@ -14,13 +14,13 @@ public interface TypeVisitor
 	public Type visit(Call x);
 	public Type visit(ClassDecl x);
 	public Type visit(ClassDeclExtends x);
-	public Type visit(ClassDeclList x);
+	// public Type visit(ClassDeclList x);
 	public Type visit(ClassDeclSimple x);
 	public Type visit(Exp x);
 	public Type visit(ExpList x);
 	public Type visit(False x);
 	public Type visit(Formal x );
-	public Type visit(FormalList x);	
+	// public Type visit(FormalList x);	
 	public Type visit(Identifier x);
 	public Type visit(IdentifierExp x);
 	public Type visit(IdentifierType x);
@@ -31,7 +31,7 @@ public interface TypeVisitor
 	public Type visit(LessThan x);
 	public Type visit(MainClass x);
 	public Type visit(MethodDecl x);
-	public Type visit(MethodDeclList x);
+	// public Type visit(MethodDeclList x);
 	public Type visit(Minus x);
 	public Type visit(NewArray x);
 	public Type visit(NewObject x);
@@ -40,13 +40,13 @@ public interface TypeVisitor
 	public Type visit(Print x);
 	public Type visit(Program x);
 	public Type visit(Statement x);
-	public Type visit(StatementList x);
+	// public Type visit(StatementList x);
 	public Type visit(SyntaxTreePrinter x);
 	public Type visit(This x);
 	public Type visit(Times x);
 	public Type visit(True x);
 	public Type visit(Type x);
 	public Type visit(VarDecl x);
-	public Type visit(VarDeclList x);
+	// public Type visit(VarDeclList x);
 	public Type visit(While x);
 }

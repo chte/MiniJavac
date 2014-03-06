@@ -33,7 +33,13 @@ public class DepthFirstVisitor implements Visitor {
 	System.out.print(", ");
 	n.i2.accept(this);
 	System.out.print(", ");
-	n.s.accept(this);
+	for (int i = 0; i < n.vdl.size() ;++i){
+		n.vdl.elementAt(i).accept(this);
+	}
+	System.out.print(", ");
+	for(int i = 0; i < n.sl.size(); ++i){
+		n.sl.elementAt(i).accept(this);
+	}
 	System.out.println(")");
     }
 
