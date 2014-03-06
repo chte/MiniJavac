@@ -49,43 +49,45 @@ public interface MiniJavaParserConstants {
   /** RegularExpression Id. */
   int INTEGER_LITERAL = 25;
   /** RegularExpression Id. */
-  int IDENTIFIER = 26;
+  int LONG_LITERAL = 26;
   /** RegularExpression Id. */
-  int LETTER = 27;
+  int LPAREN = 27;
   /** RegularExpression Id. */
-  int PART_LETTER = 28;
+  int RPAREN = 28;
   /** RegularExpression Id. */
-  int LPAREN = 29;
+  int LBRACE = 29;
   /** RegularExpression Id. */
-  int RPAREN = 30;
+  int RBRACE = 30;
   /** RegularExpression Id. */
-  int LBRACE = 31;
+  int LBRACKET = 31;
   /** RegularExpression Id. */
-  int RBRACE = 32;
+  int RBRACKET = 32;
   /** RegularExpression Id. */
-  int LBRACKET = 33;
+  int SEMICOLON = 33;
   /** RegularExpression Id. */
-  int RBRACKET = 34;
+  int COMMA = 34;
   /** RegularExpression Id. */
-  int SEMICOLON = 35;
+  int DOT = 35;
   /** RegularExpression Id. */
-  int COMMA = 36;
+  int NOT = 36;
   /** RegularExpression Id. */
-  int DOT = 37;
+  int IDENTIFIER = 37;
   /** RegularExpression Id. */
-  int NOT = 38;
+  int LETTER = 38;
   /** RegularExpression Id. */
-  int ASSIGN = 39;
+  int DIGIT = 39;
   /** RegularExpression Id. */
-  int LT = 40;
+  int ASSIGN = 40;
   /** RegularExpression Id. */
-  int SC_AND = 41;
+  int LT = 41;
   /** RegularExpression Id. */
-  int PLUS = 42;
+  int SC_AND = 42;
   /** RegularExpression Id. */
-  int MINUS = 43;
+  int PLUS = 43;
   /** RegularExpression Id. */
-  int STAR = 44;
+  int MINUS = 44;
+  /** RegularExpression Id. */
+  int STAR = 45;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -118,9 +120,7 @@ public interface MiniJavaParserConstants {
     "\"main\"",
     "\"System.out.println\"",
     "<INTEGER_LITERAL>",
-    "<IDENTIFIER>",
-    "<LETTER>",
-    "<PART_LETTER>",
+    "<LONG_LITERAL>",
     "\"(\"",
     "\")\"",
     "\"{\"",
@@ -131,6 +131,9 @@ public interface MiniJavaParserConstants {
     "\",\"",
     "\".\"",
     "\"!\"",
+    "<IDENTIFIER>",
+    "<LETTER>",
+    "<DIGIT>",
     "\"=\"",
     "\"<\"",
     "\"&&\"",

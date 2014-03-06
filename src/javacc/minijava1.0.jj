@@ -160,7 +160,7 @@ Program Program():
 ClassDeclList ClassDeclList():
 { 
   ClassDecl c; 
-  ClassDeclList cdl; 
+  ClassDeclList cdl = new ClassDeclList(); 
 }
 {
   (c = ClassDecl() { cdl.addElement(c); })*
@@ -173,9 +173,9 @@ MainClass MainClass():
   Identifier id1;
   Identifier id2;
   VarDecl v;
-  VarDeclList vdl;
+  VarDeclList vdl = new VarDeclList();
   Statement stmt;
-  StatementList sl;
+  StatementList sl = new StatementList();
 }
 {
   <CLASS>
@@ -193,11 +193,11 @@ MainClass MainClass():
 ClassDeclSimple ClassDecl():
 {
   Token t;
-  Id id; 
+  Identifier id; 
   VarDecl v;
-  VarDeclList vl;
+  VarDeclList vl = new VarDeclList();
   MethodDecl m;
-  MethodDeclList ml;
+  MethodDeclList ml = new MethodDeclList();
 }
 {
   <CLASS>
@@ -214,10 +214,10 @@ VarDecl VarDecl() :
 { 
   Token t;
   Type type; 
-  Id id;
+  Identifier id;
 }
 {
-  type=Type() ( t = <IDENTIFIER> { id=Identifier(); } ) <SEMICOLON>
+  type=Type() ( t = <IDENTIFIER> { id=new Identifier(t.image); } ) <SEMICOLON>
   { return new VarDecl(type, id); }
 }
 
@@ -228,9 +228,9 @@ MethodDecl MethodDecl():
   Identifier id; 
   FormalList fl;
   VarDecl v;
-  VarDeclList vl;
+  VarDeclList vl = new VarDeclList();
   Statement s;
-  StatementList sl;
+  StatementList sl = new StatementList();
   Exp e;
 }
 {
@@ -252,14 +252,14 @@ FormalList FormalList():
   Type type;
   Identifier id;
   Formal f;
-  FormalList fl;
+  FormalList fl = new FormalList();
 }
 {
   <LPAREN> 
           [ 
               (
                 type=Type() 
-                t=<IDENTIFIER> { id=Identifier(t.image); } 
+                t=<IDENTIFIER> { id=new Identifier(t.image); } 
                 { f = new Formal(type, id); fl.addElement(f); }
               ) 
               ( "," f=FormalRest() { fl.addElement(f); } )* 
@@ -330,23 +330,29 @@ Statement Stmt():
   Statement rs;
   Statement s1;
   Statement s2;
-  StatementList sl;
+  StatementList sl = new StatementList();
 }
 {
   (
-      ( <LBRACE> ( s1=Stmt() { sl.addElement(s1); } )* <RBRACE> { rs = new Block(sl); } )
+      <LBRACE> ( s1=Stmt() { sl.addElement(s1); } )* <RBRACE>
+      { rs = new Block(sl); }
     |
-      ( <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() <ELSE> s2=Stmt() { rs = new If(e1, s1, s2); } )
+      <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() <ELSE> s2=Stmt() 
+      { rs = new If(e1, s1, s2); }
     |
-      ( <WHILE> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() { rs = new While(e1, s1); } )
+      <WHILE> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() 
+      { rs = new While(e1, s1); }
     |
-      ( <SYSOUT_PRINTLN> <LPAREN> e1=Exp() <RPAREN> <SEMICOLON> { rs = new Print(e1); } )
+      <SYSOUT_PRINTLN> <LPAREN> e1=Exp() <RPAREN> <SEMICOLON> 
+      { rs = new Print(e1); }
     |
-      ( LOOKAHEAD(2)
-      ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) <ASSIGN> e1=Exp() <SEMICOLON>  { rs = new Assign(id,e1); } )
+      LOOKAHEAD(2)
+      ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) <ASSIGN> e1=Exp() <SEMICOLON>  
+      { rs = new Assign(id,e1); } 
     |
-      ( LOOKAHEAD(2)
-      ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) <LBRACKET> e1=Exp() <RBRACKET> <ASSIGN> e2=Exp() <SEMICOLON> { rs = new ArrayAssign(id,e1,e2); } )
+      LOOKAHEAD(2)
+      ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) <LBRACKET> e1=Exp() <RBRACKET> <ASSIGN> e2=Exp() <SEMICOLON> 
+      { rs = new ArrayAssign(id,e1,e2); } 
   )
   { return rs; }
 }
@@ -363,13 +369,13 @@ Exp Exp():
 }
 {
   (
-      <INTEGER_LITERAL> { e = new IntegerLiteral(); } 
+      (t = <INTEGER_LITERAL> { e = new IntegerLiteral(Integer.parseInt(t.image)); } ) 
     |
       <TRUE>  { e = new True(); }
     |
       <FALSE> { e = new False(); }
     |
-      <IDENTIFIER> { e = new IdentifierExp(); }
+      (t = <IDENTIFIER> { e = new IdentifierExp(t.image); } )
     |
       <THIS> { e = new This(); } 
     |
@@ -377,7 +383,7 @@ Exp Exp():
       <NEW> <INT> <LBRACKET> ( e=Exp() { e = new NewArray(e); } ) <RBRACKET> 
     |
       LOOKAHEAD(2)
-      <NEW> ( t = <IDENTIFIER> { e = new NewObject(new IdentifierExp(t.image)); } ) <LPAREN> <RPAREN> 
+      <NEW> ( t = <IDENTIFIER> { e = new NewObject(new Identifier(t.image)); } ) <LPAREN> <RPAREN> 
     |
       <NOT> ( e = Exp() { e = new Not(e); } ) 
     |
@@ -416,17 +422,17 @@ Exp ExpPrim(Exp e1):
     { return new ArrayLength(e1); }
   |
     LOOKAHEAD(2)
-    <DOT> (t = <IDENTIFIER> { id = new IdentifierExp(t.image); } ) el=ExpList()
+    <DOT> (t = <IDENTIFIER> { id = new Identifier(t.image); } ) <LPAREN> el=ExpList() <RPAREN>
     { return new Call(e1, id, el); }
 }
 
 ExpList ExpList():
 {
   Exp e;
-  ExpList el;
+  ExpList el = new ExpList();
 }
 {
-	<LPAREN> [ e=Exp() { el.addElement(e); } ( e=ExpRest() { el.addElement(e); } )* ] <RPAREN>
+	[ e=Exp() { el.addElement(e); } ( e=ExpRest() { el.addElement(e); } )* ]
   { return el; }
 }
 
@@ -436,6 +442,6 @@ Exp ExpRest():
 }
 {
 	"," e=Exp()
-  { return t; }
+  { return e; }
 }
 
