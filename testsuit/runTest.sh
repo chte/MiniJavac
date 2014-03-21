@@ -13,7 +13,7 @@ FILES=./testsuit/compile/*
 #Iterate over the files
 for f in $FILES
 do
-  	OUTPUT=$(java -jar ./build/jar/MiniJava.jar $f)
+  	OUTPUT=$(java -jar ./mjc.jar $f)
   	RESULT=$(echo $OUTPUT | tail -c 49)
     ((TOTAL_TEST++))
 
@@ -38,7 +38,7 @@ FILES=./testsuit/noncompile/*
 #Iterate over the files
 for f in $FILES
 do
-  	OUTPUT=$(java -jar ./build/jar/MiniJava.jar $f)
+  	OUTPUT=$(java -jar ./mjc.jar $f)
   	RESULT=$(echo $OUTPUT | tail -c 49)
     ((TOTAL_TEST++))
 
