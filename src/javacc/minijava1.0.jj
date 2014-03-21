@@ -35,6 +35,15 @@ public static void main(String args[]) {
 			System.out.println("MiniJavac 1.0: File " + args[0] + " not found.");
 			return;
 		}
+  } else if (args.length == 2){
+    System.out.println("MiniJavac 1.0:  Reading from file " + args[1] + " . . .");
+    try {
+      parser = new MiniJavaParser(new java.io.FileInputStream(args[1]));
+    } catch (java.io.FileNotFoundException e) {
+      System.out.println("MiniJavac 1.0: File " + args[1] + " not found.");
+      return;
+    }  
+  }
 	} else {
 		System.out.println("MiniJavac 1.0:  Usage is one of:");
 		System.out.println("         java JavaParser < inputfile");
