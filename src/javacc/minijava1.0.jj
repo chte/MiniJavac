@@ -43,7 +43,6 @@ public static void main(String args[]) {
       System.out.println("MiniJavac 1.0: File " + args[1] + " not found.");
       return;
     }  
-  }
 	} else {
 		System.out.println("MiniJavac 1.0:  Usage is one of:");
 		System.out.println("         java JavaParser < inputfile");

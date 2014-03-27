@@ -33,15 +33,14 @@ public static void main(String args[]) {
                         System.out.println("MiniJavac 1.0: File " + args[0] + " not found.");
                         return;
                 }
-        } else if (args.length == 2) {
-          System.out.println("MiniJavac 1.0:  Reading from file " + args[1] + " . . .");
-          try {
-            parser = new MiniJavaParser(new java.io.FileInputStream(args[0]));
-          } catch (java.io.FileNotFoundException e) {
-            System.out.println("MiniJavac 1.0: File " + args[1] + " not found.");
-            return;
-          }  
-        }
+  } else if (args.length == 2){
+    System.out.println("MiniJavac 1.0:  Reading from file " + args[1] + " . . .");
+    try {
+      parser = new MiniJavaParser(new java.io.FileInputStream(args[1]));
+    } catch (java.io.FileNotFoundException e) {
+      System.out.println("MiniJavac 1.0: File " + args[1] + " not found.");
+      return;
+    }
         } else {
                 System.out.println("MiniJavac 1.0:  Usage is one of:");
                 System.out.println("         java JavaParser < inputfile");
@@ -791,49 +790,6 @@ public static void main(String args[]) {
     finally { jj_save(11, xla); }
   }
 
-  static private boolean jj_3R_25() {
-    if (jj_scan_token(STAR)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_24() {
-    if (jj_scan_token(MINUS)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_13() {
-    if (jj_3R_12()) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_23() {
-    if (jj_scan_token(PLUS)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_10() {
-    if (jj_3R_15()) return true;
-    if (jj_3R_16()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_14() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_10()) {
-    jj_scanpos = xsp;
-    if (jj_3R_20()) {
-    jj_scanpos = xsp;
-    if (jj_3_11()) {
-    jj_scanpos = xsp;
-    if (jj_3_12()) return true;
-    }
-    }
-    }
-    return false;
-  }
-
   static private boolean jj_3R_22() {
     if (jj_scan_token(LT)) return true;
     return false;
@@ -869,14 +825,14 @@ public static void main(String args[]) {
     return false;
   }
 
-  static private boolean jj_3_2() {
-    if (jj_3R_13()) return true;
-    return false;
-  }
-
   static private boolean jj_3_5() {
     if (jj_scan_token(IDENTIFIER)) return true;
     if (jj_scan_token(ASSIGN)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_2() {
+    if (jj_3R_13()) return true;
     return false;
   }
 
@@ -1025,6 +981,49 @@ public static void main(String args[]) {
     }
     }
     }
+    }
+    }
+    }
+    return false;
+  }
+
+  static private boolean jj_3R_25() {
+    if (jj_scan_token(STAR)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_24() {
+    if (jj_scan_token(MINUS)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_13() {
+    if (jj_3R_12()) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_23() {
+    if (jj_scan_token(PLUS)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_10() {
+    if (jj_3R_15()) return true;
+    if (jj_3R_16()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_14() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_10()) {
+    jj_scanpos = xsp;
+    if (jj_3R_20()) {
+    jj_scanpos = xsp;
+    if (jj_3_11()) {
+    jj_scanpos = xsp;
+    if (jj_3_12()) return true;
     }
     }
     }
