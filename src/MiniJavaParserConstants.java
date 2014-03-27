@@ -81,13 +81,25 @@ public interface MiniJavaParserConstants {
   /** RegularExpression Id. */
   int LT = 41;
   /** RegularExpression Id. */
-  int SC_AND = 42;
+  int GT = 42;
   /** RegularExpression Id. */
-  int PLUS = 43;
+  int EQ = 43;
   /** RegularExpression Id. */
-  int MINUS = 44;
+  int LE = 44;
   /** RegularExpression Id. */
-  int STAR = 45;
+  int GE = 45;
+  /** RegularExpression Id. */
+  int NE = 46;
+  /** RegularExpression Id. */
+  int SC_OR = 47;
+  /** RegularExpression Id. */
+  int SC_AND = 48;
+  /** RegularExpression Id. */
+  int PLUS = 49;
+  /** RegularExpression Id. */
+  int MINUS = 50;
+  /** RegularExpression Id. */
+  int STAR = 51;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -136,6 +148,12 @@ public interface MiniJavaParserConstants {
     "<DIGIT>",
     "\"=\"",
     "\"<\"",
+    "\">\"",
+    "\"==\"",
+    "\"<=\"",
+    "\">=\"",
+    "\"!=\"",
+    "\"||\"",
     "\"&&\"",
     "\"+\"",
     "\"-\"",

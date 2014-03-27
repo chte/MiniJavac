@@ -120,7 +120,9 @@ public class DepthFirstVisitor implements Visitor {
     public void visit(If n) {
 	n.e.accept(this);
 	n.s1.accept(this);
-	n.s2.accept(this);
+    if(n.s2 != null){
+	   n.s2.accept(this);
+    }
     }
 
     // Exp e;
@@ -160,6 +162,36 @@ public class DepthFirstVisitor implements Visitor {
     public void visit(LessThan n) {
 	n.e1.accept(this);
 	n.e2.accept(this);
+    }
+
+    // Exp e1,e2;
+    public void visit(LessThanOrEqual n) {
+    n.e1.accept(this);
+    n.e2.accept(this);
+    }
+
+    // Exp e1,e2;
+    public void visit(GreaterThan n) {
+    n.e1.accept(this);
+    n.e2.accept(this);
+    }
+
+    // Exp e1,e2;
+    public void visit(GreaterThanOrEqual n) {
+    n.e1.accept(this);
+    n.e2.accept(this);
+    }
+
+    // Exp e1,e2;
+    public void visit(Equal n) {
+    n.e1.accept(this);
+    n.e2.accept(this);
+    }
+
+    // Exp e1,e2;
+    public void visit(NotEqual n) {
+    n.e1.accept(this);
+    n.e2.accept(this);
     }
 
     // Exp e1,e2;

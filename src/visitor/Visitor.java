@@ -16,11 +16,14 @@ public interface Visitor
 	public void visit(ClassDeclExtends x);
 	// public void visit(ClassDeclList x);
 	public void visit(ClassDeclSimple x);
+	public void visit(Equal x);
 	//public void visit(Exp x);
 	//public void visit(ExpList x);
 	public void visit(False x);
 	public void visit(Formal x );
 	// public void visit(FormalList x);	
+	public void visit(GreaterThan x);
+	public void visit(GreaterThanOrEqual x);
 	public void visit(Identifier x);
 	public void visit(IdentifierExp x);
 	public void visit(IdentifierType x);
@@ -29,6 +32,7 @@ public interface Visitor
 	public void visit(IntegerLiteral x);
 	public void visit(IntegerType x);
 	public void visit(LessThan x);
+	public void visit(LessThanOrEqual x);
 	public void visit(MainClass x);
 	public void visit(MethodDecl x);
 	// public void visit(MethodDeclList x);
@@ -36,6 +40,7 @@ public interface Visitor
 	public void visit(NewArray x);
 	public void visit(NewObject x);
 	public void visit(Not x);
+	public void visit(NotEqual x);
 	public void visit(Plus x);
 	public void visit(Print x);
 	public void visit(Program x);
