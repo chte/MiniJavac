@@ -1,0 +1,3 @@
+[submodule "komp14-testsuite"]
+	path = komp14-testsuite
+	url = https://github.com/Wneh/komp14-testsuite.git

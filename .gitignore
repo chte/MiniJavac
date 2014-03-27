@@ -1,3 +1,4 @@
 *.class
 /build
+/komp14-testsuite
 *.jar

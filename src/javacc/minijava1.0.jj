@@ -2,6 +2,7 @@ PARSER_BEGIN(MiniJavaParser)
 
 import java.io.*;
 import syntaxtree.*;
+import symboltree.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public static void main(String args[]) {
 	MiniJavaParser parser;
   SyntaxTreePrinter stp;
   Program program;
+  SymbolTreeVisitor stv;
 	if (args.length == 0) {
 		System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
 		parser = new MiniJavaParser(System.in);
@@ -54,6 +56,10 @@ public static void main(String args[]) {
 		program = parser.Program();
     stp = new SyntaxTreePrinter(System.out);
     stp.visit(program);
+
+    //Symbol table
+    stv = new SymbolTreeVisitor();
+    stv.visit(program);
 
 		System.out.println("MiniJavac 1.0: Java program parsed successfully.");
 	} catch (ParseException e) {
