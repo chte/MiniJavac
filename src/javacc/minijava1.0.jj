@@ -102,13 +102,6 @@ TOKEN:  /* RESERVED WORDS AND LITERALS */
 | < SYSOUT_PRINTLN : "System.out.println" >
 }
 
-TOKEN: /* LITERALS */
-{
-  < INTEGER_LITERAL:	"0" | (["1"-"9"] (["0"-"9"])*) >
-|
-  < LONG_LITERAL: "0" | ["1"-"9"](["0"-"9"])* ["l", "L"] >
-}
-
 TOKEN: /* SEPARATORS */
 {
   < LPAREN: "(" >
@@ -123,7 +116,16 @@ TOKEN: /* SEPARATORS */
 | < NOT: "!" >
 }
 
-TOKEN: /* IDENTIFIERS */
+
+TOKEN: /* LITERALS */
+{
+  < INTEGER_LITERAL:  "0" | (["1"-"9"] (["0"-"9"])*) >
+//|
+//  < LONG_LITERAL: "0" | ["1"-"9"](["0"-"9"])* ["l", "L"] >
+}
+
+
+TOKEN: /* IDENTIFIER LITTERAL */
 {
   < IDENTIFIER: < LETTER > (< DIGIT >|< LETTER >)* >
 | 
@@ -136,10 +138,11 @@ TOKEN: /* OPERATORS */
 {
   < ASSIGN: "=" >
 | < LT: "<" >
-//| < EQ: "==" > /* Bonus 1p */
-//| < LE: "<=" > /* Bonus 1p */
-//| < GE: ">=" > /* Bonus 1p */
-//| < NE: "!=" > /* Bonus 1p */
+//| < GT: ">" >
+// | < EQ: "==" > /* Bonus 1p */
+// | < LE: "<=" > /* Bonus 1p */
+// | < GE: ">=" > /* Bonus 1p */
+// | < NE: "!=" > /* Bonus 1p */
 //| < SC_OR: "||" > /* Bonus 2p */
 | < SC_AND: "&&" >
 | < PLUS: "+" >
@@ -328,6 +331,18 @@ int Op():
   <SC_AND> { return SC_AND; }
 |
   <LT> { return LT; }
+// |
+//   <GT> { return GT; }
+// |
+//   <LE> { return LE; }
+// |
+//   <GE> { return GE; }
+// |
+//   <EQ> { return EQ; }
+// |
+//   <NE> { return NE; }
+// |
+//   <SC_OR> { return SC_OR; }
 |
   <PLUS> { return PLUS; }
 |
@@ -356,8 +371,11 @@ Statement Stmt():
       <LBRACE> ( s1=Stmt() { sl.addElement(s1); } )* <RBRACE>
       { rs = new Block(sl); }
     |
+      // /* Extension */
+      // <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() { rs = new If(e1, s1); }
+      // [ LOOKAHEAD(1) <ELSE> s2=Stmt() { rs = new If(e1, s1, s2); } ]
       <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() <ELSE> s2=Stmt() 
-      { rs = new If(e1, s1, s2); }
+      { rs = new If(e1, s1, s2); } 
     |
       <WHILE> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() 
       { rs = new While(e1, s1); }
@@ -366,11 +384,11 @@ Statement Stmt():
       { rs = new Print(e1); }
     |
       LOOKAHEAD(2)
-      ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) <ASSIGN> e1=Exp() <SEMICOLON>  
+      t = <IDENTIFIER> { id = new Identifier(t.image); } <ASSIGN> e1=Exp() <SEMICOLON>  
       { rs = new Assign(id,e1); } 
     |
       LOOKAHEAD(2)
-      ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) <LBRACKET> e1=Exp() <RBRACKET> <ASSIGN> e2=Exp() <SEMICOLON> 
+      t = <IDENTIFIER> { id = new Identifier(t.image); } <LBRACKET> e1=Exp() <RBRACKET> <ASSIGN> e2=Exp() <SEMICOLON> 
       { rs = new ArrayAssign(id,e1,e2); } 
   )
   { return rs; }
@@ -427,6 +445,12 @@ Exp ExpPrim(Exp e1):
       switch (op) {
         case SC_AND: return new And(e1, e2);
         case LT: return new LessThan(e1, e2);
+        // case SC_OR: return new Or(e1, e2);
+        // case GT: return new GreaterThan(e1, e2);
+        // case LE: return new LessThanOrEqual(e1, e2);
+        // case GE: return new GreaterThanOrEqual(e1, e2);
+        // case EQ: return new Equal(e1, e2);
+        // case NE: return new NotEqual(e1, e2);
         case PLUS: return new Plus(e1, e2); 
         case MINUS: return new Minus(e1, e2); 
         case STAR: return new Times(e1, e2);

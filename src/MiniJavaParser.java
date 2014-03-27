@@ -500,14 +500,14 @@ public static void main(String args[]) {
         jj_la1[9] = jj_gen;
         if (jj_2_5(2)) {
           t = jj_consume_token(IDENTIFIER);
-                           id = new Identifier(t.image);
+                         id = new Identifier(t.image);
           jj_consume_token(ASSIGN);
           e1 = Exp();
           jj_consume_token(SEMICOLON);
         rs = new Assign(id,e1);
         } else if (jj_2_6(2)) {
           t = jj_consume_token(IDENTIFIER);
-                           id = new Identifier(t.image);
+                         id = new Identifier(t.image);
           jj_consume_token(LBRACKET);
           e1 = Exp();
           jj_consume_token(RBRACKET);
@@ -620,6 +620,12 @@ public static void main(String args[]) {
       switch (op) {
         case SC_AND: {if (true) return new And(e1, e2);}
         case LT: {if (true) return new LessThan(e1, e2);}
+        // case SC_OR: return new Or(e1, e2);
+        // case GT: return new GreaterThan(e1, e2);
+        // case LE: return new LessThanOrEqual(e1, e2);
+        // case GE: return new GreaterThanOrEqual(e1, e2);
+        // case EQ: return new Equal(e1, e2);
+        // case NE: return new NotEqual(e1, e2);
         case PLUS: {if (true) return new Plus(e1, e2);}
         case MINUS: {if (true) return new Minus(e1, e2);}
         case STAR: {if (true) return new Times(e1, e2);}
@@ -668,9 +674,9 @@ public static void main(String args[]) {
       case NEW:
       case THIS:
       case TRUE:
-      case INTEGER_LITERAL:
       case LPAREN:
       case NOT:
+      case INTEGER_LITERAL:
       case IDENTIFIER:
         e = Exp();
                     el.addElement(e);
@@ -796,19 +802,7 @@ public static void main(String args[]) {
     finally { jj_save(11, xla); }
   }
 
-  static private boolean jj_3_2() {
-    if (jj_3R_13()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_5() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    if (jj_scan_token(ASSIGN)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_3() {
-    if (jj_3R_12()) return true;
+  static private boolean jj_3R_29() {
     if (jj_scan_token(IDENTIFIER)) return true;
     return false;
   }
@@ -818,18 +812,30 @@ public static void main(String args[]) {
     return false;
   }
 
+  static private boolean jj_3_11() {
+    if (jj_scan_token(DOT)) return true;
+    if (jj_scan_token(LENGTH)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_28() {
+    if (jj_scan_token(FALSE)) return true;
+    return false;
+  }
+
   static private boolean jj_3R_18() {
     if (jj_scan_token(BOOLEAN)) return true;
     return false;
   }
 
-  static private boolean jj_3R_32() {
-    if (jj_scan_token(LPAREN)) return true;
+  static private boolean jj_3R_27() {
+    if (jj_scan_token(TRUE)) return true;
     return false;
   }
 
-  static private boolean jj_3_9() {
-    if (jj_3R_14()) return true;
+  static private boolean jj_3R_20() {
+    if (jj_scan_token(LBRACKET)) return true;
+    if (jj_3R_16()) return true;
     return false;
   }
 
@@ -838,8 +844,8 @@ public static void main(String args[]) {
     return false;
   }
 
-  static private boolean jj_3R_31() {
-    if (jj_scan_token(NOT)) return true;
+  static private boolean jj_3R_26() {
+    if (jj_scan_token(INTEGER_LITERAL)) return true;
     return false;
   }
 
@@ -856,12 +862,6 @@ public static void main(String args[]) {
     return false;
   }
 
-  static private boolean jj_3_8() {
-    if (jj_scan_token(NEW)) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
   static private boolean jj_3R_12() {
     Token xsp;
     xsp = jj_scanpos;
@@ -875,55 +875,6 @@ public static void main(String args[]) {
     }
     }
     }
-    return false;
-  }
-
-  static private boolean jj_3_7() {
-    if (jj_scan_token(NEW)) return true;
-    if (jj_scan_token(INT)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_30() {
-    if (jj_scan_token(THIS)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_29() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_28() {
-    if (jj_scan_token(FALSE)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_12() {
-    if (jj_scan_token(DOT)) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_27() {
-    if (jj_scan_token(TRUE)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_26() {
-    if (jj_scan_token(INTEGER_LITERAL)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_11() {
-    if (jj_scan_token(DOT)) return true;
-    if (jj_scan_token(LENGTH)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_20() {
-    if (jj_scan_token(LBRACKET)) return true;
-    if (jj_3R_16()) return true;
     return false;
   }
 
@@ -963,22 +914,6 @@ public static void main(String args[]) {
     return false;
   }
 
-  static private boolean jj_3R_24() {
-    if (jj_scan_token(MINUS)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_13() {
-    if (jj_3R_12()) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_23() {
-    if (jj_scan_token(PLUS)) return true;
-    return false;
-  }
-
   static private boolean jj_3_10() {
     if (jj_3R_15()) return true;
     if (jj_3R_16()) return true;
@@ -1001,14 +936,57 @@ public static void main(String args[]) {
     return false;
   }
 
-  static private boolean jj_3R_22() {
-    if (jj_scan_token(LT)) return true;
+  static private boolean jj_3R_24() {
+    if (jj_scan_token(MINUS)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_23() {
+    if (jj_scan_token(PLUS)) return true;
     return false;
   }
 
   static private boolean jj_3_6() {
     if (jj_scan_token(IDENTIFIER)) return true;
     if (jj_scan_token(LBRACKET)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_5() {
+    if (jj_scan_token(IDENTIFIER)) return true;
+    if (jj_scan_token(ASSIGN)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_32() {
+    if (jj_scan_token(LPAREN)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_9() {
+    if (jj_3R_14()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_13() {
+    if (jj_3R_12()) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_31() {
+    if (jj_scan_token(NOT)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_22() {
+    if (jj_scan_token(LT)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_8() {
+    if (jj_scan_token(NEW)) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
     return false;
   }
 
@@ -1036,6 +1014,34 @@ public static void main(String args[]) {
     return false;
   }
 
+  static private boolean jj_3_7() {
+    if (jj_scan_token(NEW)) return true;
+    if (jj_scan_token(INT)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_2() {
+    if (jj_3R_13()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_12() {
+    if (jj_scan_token(DOT)) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_30() {
+    if (jj_scan_token(THIS)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_3() {
+    if (jj_3R_12()) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
   static private boolean jj_initialized_once = false;
   /** Generated Token Manager. */
   static public MiniJavaParserTokenManager token_source;
@@ -1056,10 +1062,10 @@ public static void main(String args[]) {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x80,0x21100400,0x4000,0x21100400,0x0,0x840,0x840,0x0,0x21100400,0x21100400,0x2060200,0x8000000,0x80000000,0x0,0xa062200,};
+      jj_la1_0 = new int[] {0x80,0x9100400,0x4000,0x9100400,0x0,0x840,0x840,0x0,0x9100400,0x9100400,0x60200,0x2000000,0x20000000,0x0,0x2062200,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x20,0x0,0x20,0x4,0x20,0x20,0x3e00,0x20,0x0,0x20,0x10,0x0,0x4,0x30,};
+      jj_la1_1 = new int[] {0x0,0x10,0x0,0x10,0x1,0x10,0x10,0x1f00,0x10,0x0,0x18,0x4,0x0,0x1,0x1c,};
    }
   static final private JJCalls[] jj_2_rtns = new JJCalls[12];
   static private boolean jj_rescan = false;
@@ -1268,7 +1274,7 @@ public static void main(String args[]) {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[46];
+    boolean[] la1tokens = new boolean[45];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -1285,7 +1291,7 @@ public static void main(String args[]) {
         }
       }
     }
-    for (int i = 0; i < 46; i++) {
+    for (int i = 0; i < 45; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

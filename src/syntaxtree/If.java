@@ -10,6 +10,10 @@ public class If extends Statement {
     e=ae; s1=as1; s2=as2;
   }
 
+  public If(Exp ae, Statement as1) {
+    e=ae; s1=as1;
+  }
+
   public void accept(Visitor v) {
     v.visit(this);
   }

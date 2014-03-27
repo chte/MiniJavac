@@ -47,47 +47,45 @@ public interface MiniJavaParserConstants {
   /** RegularExpression Id. */
   int SYSOUT_PRINTLN = 24;
   /** RegularExpression Id. */
-  int INTEGER_LITERAL = 25;
+  int LPAREN = 25;
   /** RegularExpression Id. */
-  int LONG_LITERAL = 26;
+  int RPAREN = 26;
   /** RegularExpression Id. */
-  int LPAREN = 27;
+  int LBRACE = 27;
   /** RegularExpression Id. */
-  int RPAREN = 28;
+  int RBRACE = 28;
   /** RegularExpression Id. */
-  int LBRACE = 29;
+  int LBRACKET = 29;
   /** RegularExpression Id. */
-  int RBRACE = 30;
+  int RBRACKET = 30;
   /** RegularExpression Id. */
-  int LBRACKET = 31;
+  int SEMICOLON = 31;
   /** RegularExpression Id. */
-  int RBRACKET = 32;
+  int COMMA = 32;
   /** RegularExpression Id. */
-  int SEMICOLON = 33;
+  int DOT = 33;
   /** RegularExpression Id. */
-  int COMMA = 34;
+  int NOT = 34;
   /** RegularExpression Id. */
-  int DOT = 35;
+  int INTEGER_LITERAL = 35;
   /** RegularExpression Id. */
-  int NOT = 36;
+  int IDENTIFIER = 36;
   /** RegularExpression Id. */
-  int IDENTIFIER = 37;
+  int LETTER = 37;
   /** RegularExpression Id. */
-  int LETTER = 38;
+  int DIGIT = 38;
   /** RegularExpression Id. */
-  int DIGIT = 39;
+  int ASSIGN = 39;
   /** RegularExpression Id. */
-  int ASSIGN = 40;
+  int LT = 40;
   /** RegularExpression Id. */
-  int LT = 41;
+  int SC_AND = 41;
   /** RegularExpression Id. */
-  int SC_AND = 42;
+  int PLUS = 42;
   /** RegularExpression Id. */
-  int PLUS = 43;
+  int MINUS = 43;
   /** RegularExpression Id. */
-  int MINUS = 44;
-  /** RegularExpression Id. */
-  int STAR = 45;
+  int STAR = 44;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -119,8 +117,6 @@ public interface MiniJavaParserConstants {
     "\"String\"",
     "\"main\"",
     "\"System.out.println\"",
-    "<INTEGER_LITERAL>",
-    "<LONG_LITERAL>",
     "\"(\"",
     "\")\"",
     "\"{\"",
@@ -131,6 +127,7 @@ public interface MiniJavaParserConstants {
     "\",\"",
     "\".\"",
     "\"!\"",
+    "<INTEGER_LITERAL>",
     "<IDENTIFIER>",
     "<LETTER>",
     "<DIGIT>",
