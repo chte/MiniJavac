@@ -41,6 +41,7 @@ public interface Visitor
 	public void visit(NewObject x);
 	public void visit(Not x);
 	public void visit(NotEqual x);
+	public void visit(Or x);
 	public void visit(Plus x);
 	public void visit(Print x);
 	public void visit(Program x);

@@ -195,6 +195,12 @@ public class DepthFirstVisitor implements Visitor {
     }
 
     // Exp e1,e2;
+    public void visit(Or n) {
+    n.e1.accept(this);
+    n.e2.accept(this);
+    }
+
+    // Exp e1,e2;
     public void visit(Plus n) {
 	n.e1.accept(this);
 	n.e2.accept(this);

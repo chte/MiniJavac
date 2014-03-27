@@ -41,6 +41,7 @@ public interface TypeVisitor
 	public Type visit(NewObject n);
 	public Type visit(Not n);
 	public Type visit(NotEqual x);
+	public Type visit(Or x);
 	public Type visit(Plus n);
 	public Type visit(Print n);
 	public Type visit(Program n);
