@@ -147,12 +147,12 @@ TOKEN: /* OPERATORS */
 {
   < ASSIGN: "=" >
 | < LT: "<" >
-//| < GT: ">" >
+// | < GT: ">" >
 // | < EQ: "==" > /* Bonus 1p */
 // | < LE: "<=" > /* Bonus 1p */
 // | < GE: ">=" > /* Bonus 1p */
 // | < NE: "!=" > /* Bonus 1p */
-//| < SC_OR: "||" > /* Bonus 2p */
+// | < SC_OR: "||" > /* Bonus 2p */
 | < SC_AND: "&&" >
 | < PLUS: "+" >
 | < MINUS: "-" >
