@@ -13,7 +13,7 @@ import java.io.PrintStream;
  */
 public class MiniJavaParser implements MiniJavaParserConstants {
 
-public final static boolean VERBOSE = false;
+public final static boolean VERBOSE = true;
 
 public MiniJavaParser (String fileName){
         this(System.in);
@@ -25,7 +25,7 @@ public static void main(String args[]) {
         MiniJavaParser parser;
   Program program;
   SyntaxTreePrinter stp;
-  SymbolTableBuilder stv;
+  SymbolTableBuilder stb;
         if (args.length == 0) {
                 System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
                 parser = new MiniJavaParser(System.in);
@@ -63,8 +63,14 @@ public static void main(String args[]) {
     }
 
     //Symbol table
-    stv = new SymbolTableBuilder();
-    stv.visit(program);
+    stb = new SymbolTableBuilder();
+    stb.visit(program);
+
+    // VERBOSE: Output symbol table
+    if(VERBOSE) {
+      SymbolTable st = stb.lookupTable.get(program);
+      System.out.println(st.toString(0));
+    }
 
                 System.out.println("MiniJavac 1.0: Java program parsed successfully.");
         } catch (ParseException e) {
@@ -816,37 +822,6 @@ public static void main(String args[]) {
     finally { jj_save(11, xla); }
   }
 
-  static private boolean jj_3R_22() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_25()) {
-    jj_scanpos = xsp;
-    if (jj_3R_26()) {
-    jj_scanpos = xsp;
-    if (jj_3R_27()) {
-    jj_scanpos = xsp;
-    if (jj_3R_28()) {
-    jj_scanpos = xsp;
-    if (jj_3R_29()) {
-    jj_scanpos = xsp;
-    if (jj_3_10()) {
-    jj_scanpos = xsp;
-    if (jj_3R_30()) {
-    jj_scanpos = xsp;
-    if (jj_3R_31()) {
-    jj_scanpos = xsp;
-    if (jj_3R_32()) return true;
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    return false;
-  }
-
   static private boolean jj_3R_17() {
     if (jj_3R_22()) return true;
     return false;
@@ -1039,6 +1014,37 @@ public static void main(String args[]) {
     return false;
   }
 
+  static private boolean jj_3R_22() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_25()) {
+    jj_scanpos = xsp;
+    if (jj_3R_26()) {
+    jj_scanpos = xsp;
+    if (jj_3R_27()) {
+    jj_scanpos = xsp;
+    if (jj_3R_28()) {
+    jj_scanpos = xsp;
+    if (jj_3R_29()) {
+    jj_scanpos = xsp;
+    if (jj_3_10()) {
+    jj_scanpos = xsp;
+    if (jj_3R_30()) {
+    jj_scanpos = xsp;
+    if (jj_3R_31()) {
+    jj_scanpos = xsp;
+    if (jj_3R_32()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
   static private boolean jj_initialized_once = false;
   /** Generated Token Manager. */
   static public MiniJavaParserTokenManager token_source;
@@ -1062,7 +1068,7 @@ public static void main(String args[]) {
       jj_la1_0 = new int[] {0x80,0x9100400,0x4000,0x840,0x9100400,0x0,0x840,0x9100400,0x9100400,0x0,0x0,0x0,0x60200,0x2002000,0x20000000,0x0,0x0,0x2062200,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x10,0x0,0x10,0x10,0x1,0x10,0x10,0x0,0x10,0x800,0xc00,0x18,0x4,0x0,0x2,0x1,0x1c,};
+      jj_la1_1 = new int[] {0x0,0x10,0x0,0x10,0x10,0x1,0x10,0x10,0x0,0x10,0x200,0x300,0x18,0x4,0x0,0x2,0x1,0x1c,};
    }
   static final private JJCalls[] jj_2_rtns = new JJCalls[12];
   static private boolean jj_rescan = false;
@@ -1271,7 +1277,7 @@ public static void main(String args[]) {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[45];
+    boolean[] la1tokens = new boolean[43];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -1288,7 +1294,7 @@ public static void main(String args[]) {
         }
       }
     }
-    for (int i = 0; i < 45; i++) {
+    for (int i = 0; i < 43; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

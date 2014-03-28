@@ -15,7 +15,7 @@ import java.io.PrintStream;
 public class MiniJavaParser
 {
 
-public final static boolean VERBOSE = false;
+public final static boolean VERBOSE = true;
 
 public MiniJavaParser (String fileName){
 	this(System.in);
@@ -27,7 +27,7 @@ public static void main(String args[]) {
 	MiniJavaParser parser;
   Program program;
   SyntaxTreePrinter stp;
-  SymbolTableBuilder stv;
+  SymbolTableBuilder stb;
 	if (args.length == 0) {
 		System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
 		parser = new MiniJavaParser(System.in);
@@ -65,8 +65,14 @@ public static void main(String args[]) {
     }
 
     //Symbol table
-    stv = new SymbolTableBuilder();
-    stv.visit(program);
+    stb = new SymbolTableBuilder();
+    stb.visit(program);
+
+    // VERBOSE: Output symbol table
+    if(VERBOSE) {
+      SymbolTable st = stb.lookupTable.get(program);
+      System.out.println(st.toString(0));
+    }
 
 		System.out.println("MiniJavac 1.0: Java program parsed successfully.");
 	} catch (ParseException e) {
@@ -126,7 +132,7 @@ TOKEN: /* SEPARATORS */
 
 TOKEN: /* LITERALS */
 {
-  < INTEGER_LITERAL:  "0" | (["1"-"9"] (["0"-"9"])*) >
+  < INTEGER_LITERAL: ( ["0"] | ["1"-"9"](["0"-"9"])*) >
 //|
 //  < LONG_LITERAL: "0" | ["1"-"9"](["0"-"9"])* ["l", "L"] >
 }
@@ -134,11 +140,7 @@ TOKEN: /* LITERALS */
 
 TOKEN: /* IDENTIFIER LITTERAL */
 {
-  < IDENTIFIER: < LETTER > (< DIGIT >|< LETTER >)* >
-| 
-  < #LETTER: ["a"-"z", "A"-"Z", "_"] >
-| 
-  < #DIGIT: "0" | ["1"-"9"](["0"-"9"])* >
+  < IDENTIFIER: (["a"-"z", "A"-"Z", "_"]) (["a"-"z", "A"-"Z", "0"-"9", "_"])* >
 }
 
 TOKEN: /* OPERATORS */
