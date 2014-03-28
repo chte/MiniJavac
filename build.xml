@@ -41,8 +41,8 @@
 	<target name="clean-build" depends="clean,jar"/>
 
 	<target name="test">
-		<exec executable="/bin/bash">
-			<arg value="runTestSuit.sh"/>
+		<exec executable="/bin/sh">
+			<arg value="./testsuit/run.sh"/>
 		</exec>
 	</target>
 

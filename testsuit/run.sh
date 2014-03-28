@@ -9,12 +9,12 @@ echo "${WHITE}Testing minijava compiler. Please wait...\n"
 echo "${WHITE}Testing compilable files..."
 
 FOLDER=./testsuit/compile/*
-#rm $FOLDER.java~ >/dev/null 2>&1 #Clear temp files
+rm $FOLDER.java~ >/dev/null 2>&1 #Clear temp files
 
 CFAILS=0
 for file in $FOLDER
 do
-	OUTPUT=$(java -jar mjc.jar $file) >/dev/null 2>&1
+	OUTPUT=$(java -jar ./../mjc.jar $file) >/dev/null 2>&1
 	STATUS=$?
 	if [ $STATUS -eq 0 ]
 	then
@@ -30,12 +30,12 @@ done
 echo "\n${WHITE}Testing noncompilable files..."
 
 FOLDER=./testsuit/noncompile/*
-#rm $FOLDER.java~ >/dev/null 2>&1 #Clear temp files
+rm $FOLDER.java~ >/dev/null 2>&1 #Clear temp files
 
 NCFAILS=0
 for file in $FOLDER
 do
-	OUTPUT=$(java -jar mjc.jar $file) >/dev/null 2>&1
+	OUTPUT=$(java -jar ./../mjc.jar $file) >/dev/null 2>&1
 	STATUS=$?
 	if [ $STATUS -ne 0 ]
 	then
