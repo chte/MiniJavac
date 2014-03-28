@@ -2,7 +2,7 @@ PARSER_BEGIN(MiniJavaParser)
 
 import java.io.*;
 import syntaxtree.*;
-import symboltree.*;
+//import symboltree.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public static void main(String args[]) {
 	MiniJavaParser parser;
   SyntaxTreePrinter stp;
   Program program;
-  SymbolTreeVisitor stv;
+  //SymbolTreeVisitor stv;
 	if (args.length == 0) {
 		System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
 		parser = new MiniJavaParser(System.in);
@@ -54,12 +54,14 @@ public static void main(String args[]) {
 	}
 	try {
 		program = parser.Program();
+
+    //Syntax Tree Printer
     stp = new SyntaxTreePrinter(System.out);
     stp.visit(program);
 
     //Symbol table
-    stv = new SymbolTreeVisitor();
-    stv.visit(program);
+    //stv = new SymbolTreeVisitor();
+    //stv.visit(program);
 
 		System.out.println("MiniJavac 1.0: Java program parsed successfully.");
 	} catch (ParseException e) {
@@ -192,8 +194,7 @@ ClassDeclList ClassDeclList():
 MainClass MainClass():
 {
   Token t;
-  Identifier id1;
-  Identifier id2;
+  Identifier id1, id2;
   VarDecl v;
   VarDeclList vdl = new VarDeclList();
   Statement stmt;
@@ -311,44 +312,14 @@ Type Type() :
 }
 {
     (
-      LOOKAHEAD(2)
-      <INT> <LBRACKET> <RBRACKET> { type=new IntArrayType(); }
-    |   
-      <INT> { type=new IntegerType(); }
-    |   
-      <BOOLEAN> { type=new BooleanType(); }  
-    |   
-      t=<IDENTIFIER> { type=new IdentifierType(t.image); }
+        LOOKAHEAD(2)
+        <INT> <LBRACKET> <RBRACKET> { type=new IntArrayType(); }
+      | <INT> { type=new IntegerType(); }
+      | <BOOLEAN> { type=new BooleanType(); }  
+      | t=<IDENTIFIER> { type=new IdentifierType(t.image); }
     )
 
   { return type; }
-}
-
-
-int Op():
-{}
-{
-  <SC_AND> { return SC_AND; }
-|
-  <LT> { return LT; }
-// |
-//   <GT> { return GT; }
-// |
-//   <LE> { return LE; }
-// |
-//   <GE> { return GE; }
-// |
-//   <EQ> { return EQ; }
-// |
-//   <NE> { return NE; }
-// |
-//   <SC_OR> { return SC_OR; }
-|
-  <PLUS> { return PLUS; }
-|
-  <MINUS> { return MINUS; }
-|
-  <STAR> { return STAR; }
 }
 
 /*
@@ -361,35 +332,21 @@ Statement Stmt():
   Exp e1;
   Exp e2;
   Identifier id;
-  Statement rs;
-  Statement s1;
-  Statement s2;
+  Statement rs, s1, s2;
   StatementList sl = new StatementList();
 }
 {
   (
-      <LBRACE> ( s1=Stmt() { sl.addElement(s1); } )* <RBRACE>
-      { rs = new Block(sl); }
-    |
-      // /* Extension */
+      <LBRACE> ( s1=Stmt() { sl.addElement(s1); } )* <RBRACE> { rs = new Block(sl); }
+    | // /* Extension */
       // <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() { rs = new If(e1, s1); }
       // [ LOOKAHEAD(1) <ELSE> s2=Stmt() { rs = new If(e1, s1, s2); } ]
-      <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() <ELSE> s2=Stmt() 
-      { rs = new If(e1, s1, s2); } 
-    |
-      <WHILE> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() 
-      { rs = new While(e1, s1); }
-    |
-      <SYSOUT_PRINTLN> <LPAREN> e1=Exp() <RPAREN> <SEMICOLON> 
-      { rs = new Print(e1); }
-    |
-      LOOKAHEAD(2)
-      t = <IDENTIFIER> { id = new Identifier(t.image); } <ASSIGN> e1=Exp() <SEMICOLON>  
-      { rs = new Assign(id,e1); } 
-    |
-      LOOKAHEAD(2)
-      t = <IDENTIFIER> { id = new Identifier(t.image); } <LBRACKET> e1=Exp() <RBRACKET> <ASSIGN> e2=Exp() <SEMICOLON> 
-      { rs = new ArrayAssign(id,e1,e2); } 
+      <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() <ELSE> s2=Stmt() { rs = new If(e1, s1, s2); } 
+    | <WHILE> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() { rs = new While(e1, s1); }
+    | <SYSOUT_PRINTLN> <LPAREN> e1=Exp() <RPAREN> <SEMICOLON>  { rs = new Print(e1); }
+    | LOOKAHEAD(2)
+      t = <IDENTIFIER> { id = new Identifier(t.image); } <ASSIGN> e1=Exp() <SEMICOLON>  { rs = new Assign(id,e1); } 
+    | t = <IDENTIFIER> { id = new Identifier(t.image); } <LBRACKET> e1=Exp() <RBRACKET> <ASSIGN> e2=Exp() <SEMICOLON> { rs = new ArrayAssign(id,e1,e2); } 
   )
   { return rs; }
 }
@@ -399,7 +356,46 @@ Statement Stmt():
  * Exp syntax follows.
  */
 
-Exp Exp():
+Exp Exp() : //Or expression with lowest precedence (weakest)
+{ 
+  Exp e1, e2; 
+}
+{
+  e1 = RelExp() [LOOKAHEAD(2) <SC_AND> e2 = Exp() { return new Or(e1, e2); }] { return e1; }
+}
+
+Exp RelExp() :
+{ 
+  Exp e1, e2; 
+}
+{
+  e1 = AddExp() [LOOKAHEAD(2) <LT> e2 = RelExp() { return new LessThan(e1, e2); }] { return e1; }
+}
+
+Exp AddExp() :
+{ 
+  Exp e1, e2; 
+}
+{
+  e1 = MultExp()
+  [   LOOKAHEAD(2) 
+      <PLUS> e2 = AddExp() { return new Plus(e1, e2); }
+    | 
+      <MINUS> e2 = AddExp() { return new Minus(e1, e2); }
+  ]
+  { return e1; }
+}
+
+Exp MultExp() :
+{ 
+  Exp e1, e2; 
+}
+{
+  e1 = PrimaryExp() [LOOKAHEAD(2) <STAR> e2 = MultExp() { return new Times(e1, e2); }] { return e1; }
+}
+
+
+Exp PrimaryExp():
 {
   Token t;
   Exp e;
@@ -407,24 +403,15 @@ Exp Exp():
 {
   (
       (t = <INTEGER_LITERAL> { e = new IntegerLiteral(Integer.parseInt(t.image)); } ) 
-    |
-      <TRUE>  { e = new True(); }
-    |
-      <FALSE> { e = new False(); }
-    |
-      (t = <IDENTIFIER> { e = new IdentifierExp(t.image); } )
-    |
-      <THIS> { e = new This(); } 
-    |
-      LOOKAHEAD(2)
+    | <TRUE>  { e = new True(); }
+    | <FALSE> { e = new False(); }
+    | (t = <IDENTIFIER> { e = new IdentifierExp(t.image); } )
+    | <THIS> { e = new This(); } 
+    |  LOOKAHEAD(2)
       <NEW> <INT> <LBRACKET> ( e=Exp() { e = new NewArray(e); } ) <RBRACKET> 
-    |
-      LOOKAHEAD(2)
-      <NEW> ( t = <IDENTIFIER> { e = new NewObject(new Identifier(t.image)); } ) <LPAREN> <RPAREN> 
-    |
-      <NOT> ( e = Exp() { e = new Not(e); } ) 
-    |
-      <LPAREN> e = Exp() <RPAREN> 
+    | <NEW> ( t = <IDENTIFIER> { e = new NewObject(new Identifier(t.image)); } ) <LPAREN> <RPAREN> 
+    | <NOT> ( e = Exp() { e = new Not(e); } ) 
+    | <LPAREN> e = Exp() <RPAREN> 
   )
   ( LOOKAHEAD(2) e=ExpPrim(e) )*
   { return e; }
@@ -439,34 +426,10 @@ Exp ExpPrim(Exp e1):
   ExpList el;
 }
 {
-    LOOKAHEAD(2)
-    op=Op() e2=Exp()
-    {
-      switch (op) {
-        case SC_AND: return new And(e1, e2);
-        case LT: return new LessThan(e1, e2);
-        // case SC_OR: return new Or(e1, e2);
-        // case GT: return new GreaterThan(e1, e2);
-        // case LE: return new LessThanOrEqual(e1, e2);
-        // case GE: return new GreaterThanOrEqual(e1, e2);
-        // case EQ: return new Equal(e1, e2);
-        // case NE: return new NotEqual(e1, e2);
-        case PLUS: return new Plus(e1, e2); 
-        case MINUS: return new Minus(e1, e2); 
-        case STAR: return new Times(e1, e2);
-      }
-    }
-  | 
-    <LBRACKET> e2=Exp() <RBRACKET> 
-    { return new ArrayLookup(e1, e2); }
-  |
-    LOOKAHEAD(2)
-    <DOT> <LENGTH> 
-    { return new ArrayLength(e1); }
-  |
-    LOOKAHEAD(2)
-    <DOT> (t = <IDENTIFIER> { id = new Identifier(t.image); } ) <LPAREN> el=ExpList() <RPAREN>
-    { return new Call(e1, id, el); }
+    <LBRACKET> e2=Exp() <RBRACKET> { return new ArrayLookup(e1, e2); }
+  | LOOKAHEAD(2)
+    <DOT> <LENGTH> { return new ArrayLength(e1); }
+  | <DOT> (t = <IDENTIFIER> { id = new Identifier(t.image); } ) <LPAREN> el=ExpList() <RPAREN> { return new Call(e1, id, el); }
 }
 
 ExpList ExpList():
