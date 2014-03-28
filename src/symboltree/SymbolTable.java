@@ -130,7 +130,7 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
 
     private void appendLevels(StringBuilder sb, int level) {
         for (int i = 0; i < level; i++) {
-            sb.append("    ");
+            sb.append("\t");
         }
     }
 

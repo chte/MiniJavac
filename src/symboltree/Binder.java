@@ -80,7 +80,7 @@ public class Binder {
     public String toString() {
       String binding = "<" + symbolType.toString() + ": " + getName(type);
       if(extraTypes != null) {
-        binding += ", Parameters: " + printArrayList(extraTypes);
+        binding += ", METHODPARAMETERS: " + printArrayList(extraTypes);
       }
       binding += ">";
 
