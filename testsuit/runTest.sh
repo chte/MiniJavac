@@ -13,14 +13,23 @@ FILES=./testsuit/compile/*
 #Iterate over the files
 for f in $FILES
 do
-  	OUTPUT=$(java -jar ./mjc.jar $f)
-  	RESULT=$(echo $OUTPUT | tail -c 49)
-    ((TOTAL_TEST++))
+	#OUTPUT=$(java -jar ./mjc.jar $f)
+	OUTPUT=$(java -jar ./mjc.jar $f) > /dev/null 2>&1
+	OUT=$?
 
-  	if [ "$RESULT"  == "MiniJavac 1.0: Java program parsed successfully." ]; 
+	echo $OUT
+
+	#RESULT=$(echo $OUTPUT | tail -c 49)
+    #((TOTAL_TEST++))
+
+    
+
+    #echo $OUT
+
+  	if [ $OUT -eq 0]
   	then
   	    echo "[OK] - $(basename $f)"
-	else
+    else
 	    echo "[FAIL] - $(basename $f)"
         #Increase the counters
         ((ERRORS_COMPILE ++))
@@ -39,6 +48,9 @@ FILES=./testsuit/noncompile/*
 for f in $FILES
 do
   	OUTPUT=$(java -jar ./mjc.jar $f)
+  	OUT=$?
+
+	echo $OUT
   	RESULT=$(echo $OUTPUT | tail -c 49)
     ((TOTAL_TEST++))
 
