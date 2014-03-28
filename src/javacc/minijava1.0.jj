@@ -165,10 +165,7 @@ TOKEN: /* OPERATORS */
 
 /* Top level production */
 Program Program():
-{
-  MainClass mc;
-  ClassDeclList cdl;
-}
+{ MainClass mc; ClassDeclList cdl; }
 {
   /* The first class must be the main class */
   mc=MainClass()
@@ -182,30 +179,20 @@ Program Program():
 }
 
 ClassDeclList ClassDeclList():
-{ 
-  ClassDecl c; 
-  ClassDeclList cdl = new ClassDeclList(); 
-}
+{ ClassDecl c; ClassDeclList cdl = new ClassDeclList(); }
 {
   (c = ClassDecl() { cdl.addElement(c); })*
   { return cdl; }
 }
 
 MainClass MainClass():
-{
-  Token t;
-  Identifier id1, id2;
-  VarDecl v;
-  VarDeclList vdl = new VarDeclList();
-  Statement stmt;
-  StatementList sl = new StatementList();
-}
+{ Token t; Identifier id1, id2; VarDecl v; Statement stmt; VarDeclList vdl = new VarDeclList(); StatementList sl = new StatementList(); }
 {
   <CLASS>
   t = <IDENTIFIER> { id1 = new Identifier(t.image); }
   <LBRACE>
       <PUBLIC> <STATIC> <VOID> <MAIN> <LPAREN> <STRING> <LBRACKET> <RBRACKET> t = <IDENTIFIER> { id2 = new Identifier(t.image); } <RPAREN>
-      <LBRACE>
+      <LBRACE> //Block
       ( LOOKAHEAD( Type() <IDENTIFIER> ) v = VarDecl() { vdl.addElement(v); } )* 
       ( stmt = Stmt() { sl.addElement(stmt); } )* 
       <RBRACE>
@@ -215,110 +202,61 @@ MainClass MainClass():
 
 ClassDeclSimple ClassDecl():
 {
-  Token t;
-  Identifier id; 
-  VarDecl v;
-  VarDeclList vl = new VarDeclList();
-  MethodDecl m;
-  MethodDeclList ml = new MethodDeclList();
+  Token t; Identifier id; VarDecl v; MethodDecl m; VarDeclList vl = new VarDeclList(); MethodDeclList ml = new MethodDeclList();
 }
 {
-  <CLASS>
-  t = <IDENTIFIER> { id = new Identifier(t.image); }
-  <LBRACE>
-      ( LOOKAHEAD(2) v = VarDecl() {vl.addElement(v); } )* 
-      ( m = MethodDecl() { ml.addElement(m); } )* 
+  <CLASS> t = <IDENTIFIER> { id = new Identifier(t.image); }
+  <LBRACE> //Block
+       ( LOOKAHEAD(2) v = VarDecl() {vl.addElement(v); } )* ( m = MethodDecl() { ml.addElement(m); } )* 
   <RBRACE>
   { return new ClassDeclSimple(id, vl, ml); }
 }
 
 /* Variable declaration */
 VarDecl VarDecl() :
-{ 
-  Token t;
-  Type type; 
-  Identifier id;
-}
+{ Token t; Type type; Identifier id; }
 {
-  type=Type() ( t = <IDENTIFIER> { id=new Identifier(t.image); } ) <SEMICOLON>
-  { return new VarDecl(type, id); }
+  type=Type() ( t = <IDENTIFIER> { id=new Identifier(t.image); } ) <SEMICOLON>  { return new VarDecl(type, id); }
 }
 
 MethodDecl MethodDecl():
+{ Exp e; Token t; Type type; Identifier id;  VarDecl v; Statement s; FormalList fl = new FormalList(); VarDeclList vl = new VarDeclList(); StatementList sl = new StatementList(); }
 {
-  Token t;
-  Type type;
-  Identifier id; 
-  FormalList fl;
-  VarDecl v;
-  VarDeclList vl = new VarDeclList();
-  Statement s;
-  StatementList sl = new StatementList();
-  Exp e;
-}
-{
-  <PUBLIC>
-  type = Type()
-  ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) 
-  fl = FormalList()
+  <PUBLIC> type = Type() ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) <LPAREN> [ fl = FormalList() ] <RPAREN>
   <LBRACE> 
-    ( LOOKAHEAD( Type() <IDENTIFIER> ) v = VarDecl() { vl.addElement(v); } )* 
+    ( LOOKAHEAD(2) v = VarDecl() { vl.addElement(v); } )* 
     ( s = Stmt() { sl.addElement(s); } )*  
-  <RETURN> e = Exp() <SEMICOLON>
+    <RETURN> e = Exp() <SEMICOLON>
   <RBRACE>
   { return new MethodDecl(type, id, fl, vl, sl, e); }
 }
 
 FormalList FormalList():
+{ Token t; Type type; Identifier id; Formal f; FormalList fl = new FormalList(); }
 {
-  Token t;
-  Type type;
-  Identifier id;
-  Formal f;
-  FormalList fl = new FormalList();
-}
-{
-  <LPAREN> 
-          [ 
-              (
-                type=Type() 
-                t=<IDENTIFIER> { id=new Identifier(t.image); } 
-                { f = new Formal(type, id); fl.addElement(f); }
-              ) 
-              ( "," f=FormalRest() { fl.addElement(f); } )* 
-           ] 
-  <RPAREN>
+  type=Type() t=<IDENTIFIER> { id=new Identifier(t.image); } { f = new Formal(type, id); fl.addElement(f); } ( f=FormalRest() { fl.addElement(f); } )* 
   { return fl; }
 }
 
 Formal FormalRest():
+{ Token t; Type type; Identifier id; }
 {
-  Token t;
-  Type type;
-  Identifier id; 
-}
-{
-  type=Type() ( t=<IDENTIFIER> { id=new Identifier(t.image); } )
-  { return new Formal(type, id); }
+  <COMMA> type=Type() ( t=<IDENTIFIER> { id=new Identifier(t.image); } ) { return new Formal(type, id); }
 }
 
 /*
  * Type, name and expression syntax follows.
  */
 Type Type() :
+{ Token t; Type type; }
 {
-  Token t;
-  Type type; 
-}
-{
-    (
-        LOOKAHEAD(2)
-        <INT> <LBRACKET> <RBRACKET> { type=new IntArrayType(); }
-      | <INT> { type=new IntegerType(); }
-      | <BOOLEAN> { type=new BooleanType(); }  
-      | t=<IDENTIFIER> { type=new IdentifierType(t.image); }
-    )
-
+  (
+      LOOKAHEAD(2)
+      <INT> <LBRACKET> <RBRACKET> { type=new IntArrayType(); }
+    | <INT> { type=new IntegerType(); }
+    | <BOOLEAN> { type=new BooleanType(); }  
+    | t=<IDENTIFIER> { type=new IdentifierType(t.image); }
+  )
   { return type; }
 }
 
@@ -327,14 +265,7 @@ Type Type() :
  */
 
 Statement Stmt():
-{
-  Token t;
-  Exp e1;
-  Exp e2;
-  Identifier id;
-  Statement rs, s1, s2;
-  StatementList sl = new StatementList();
-}
+{ Token t; Exp e1, e2; Identifier id; Statement rs, s1, s2; StatementList sl = new StatementList(); }
 {
   (
       <LBRACE> ( s1=Stmt() { sl.addElement(s1); } )* <RBRACE> { rs = new Block(sl); }
@@ -357,25 +288,19 @@ Statement Stmt():
  */
 
 Exp Exp() : //Or expression with lowest precedence (weakest)
-{ 
-  Exp e1, e2; 
-}
+{ Exp e1, e2; }
 {
   e1 = RelExp() [LOOKAHEAD(2) <SC_AND> e2 = Exp() { return new Or(e1, e2); }] { return e1; }
 }
 
 Exp RelExp() :
-{ 
-  Exp e1, e2; 
-}
+{ Exp e1, e2; }
 {
   e1 = AddExp() [LOOKAHEAD(2) <LT> e2 = RelExp() { return new LessThan(e1, e2); }] { return e1; }
 }
 
 Exp AddExp() :
-{ 
-  Exp e1, e2; 
-}
+{ Exp e1, e2; }
 {
   e1 = MultExp()
   [   LOOKAHEAD(2) 
@@ -387,19 +312,14 @@ Exp AddExp() :
 }
 
 Exp MultExp() :
-{ 
-  Exp e1, e2; 
-}
+{ Exp e1, e2; }
 {
   e1 = PrimaryExp() [LOOKAHEAD(2) <STAR> e2 = MultExp() { return new Times(e1, e2); }] { return e1; }
 }
 
 
 Exp PrimaryExp():
-{
-  Token t;
-  Exp e;
-}
+{ Token t; Exp e; }
 {
   (
       (t = <INTEGER_LITERAL> { e = new IntegerLiteral(Integer.parseInt(t.image)); } ) 
@@ -418,13 +338,7 @@ Exp PrimaryExp():
 }
 
 Exp ExpPrim(Exp e1):
-{
-  Token t;
-  Exp e2;
-  int op;
-  Identifier id;
-  ExpList el;
-}
+{ Token t; Exp e2; Identifier id; ExpList el; }
 {
     <LBRACKET> e2=Exp() <RBRACKET> { return new ArrayLookup(e1, e2); }
   | LOOKAHEAD(2)
@@ -433,19 +347,14 @@ Exp ExpPrim(Exp e1):
 }
 
 ExpList ExpList():
-{
-  Exp e;
-  ExpList el = new ExpList();
-}
+{ Exp e; ExpList el = new ExpList(); }
 {
 	[ e=Exp() { el.addElement(e); } ( e=ExpRest() { el.addElement(e); } )* ]
   { return el; }
 }
 
 Exp ExpRest():
-{
-  Exp e;
-}
+{ Exp e; }
 {
 	"," e=Exp()
   { return e; }

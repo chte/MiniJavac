@@ -81,8 +81,7 @@ public static void main(String args[]) {
   static final public Program Program() throws ParseException {
     trace_call("Program");
     try {
-  MainClass mc;
-  ClassDeclList cdl;
+  MainClass mc; ClassDeclList cdl;
       /* The first class must be the main class */
         mc = MainClass();
       /* Then zero or more other class declarations */
@@ -98,8 +97,7 @@ public static void main(String args[]) {
   static final public ClassDeclList ClassDeclList() throws ParseException {
     trace_call("ClassDeclList");
     try {
-  ClassDecl c;
-  ClassDeclList cdl = new ClassDeclList();
+  ClassDecl c; ClassDeclList cdl = new ClassDeclList();
       label_1:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -123,12 +121,7 @@ public static void main(String args[]) {
   static final public MainClass MainClass() throws ParseException {
     trace_call("MainClass");
     try {
-  Token t;
-  Identifier id1, id2;
-  VarDecl v;
-  VarDeclList vdl = new VarDeclList();
-  Statement stmt;
-  StatementList sl = new StatementList();
+  Token t; Identifier id1, id2; VarDecl v; Statement stmt; VarDeclList vdl = new VarDeclList(); StatementList sl = new StatementList();
       jj_consume_token(CLASS);
       t = jj_consume_token(IDENTIFIER);
                      id1 = new Identifier(t.image);
@@ -184,15 +177,10 @@ public static void main(String args[]) {
   static final public ClassDeclSimple ClassDecl() throws ParseException {
     trace_call("ClassDecl");
     try {
-  Token t;
-  Identifier id;
-  VarDecl v;
-  VarDeclList vl = new VarDeclList();
-  MethodDecl m;
-  MethodDeclList ml = new MethodDeclList();
+  Token t; Identifier id; VarDecl v; MethodDecl m; VarDeclList vl = new VarDeclList(); MethodDeclList ml = new MethodDeclList();
       jj_consume_token(CLASS);
       t = jj_consume_token(IDENTIFIER);
-                     id = new Identifier(t.image);
+                             id = new Identifier(t.image);
       jj_consume_token(LBRACE);
       label_4:
       while (true) {
@@ -202,7 +190,7 @@ public static void main(String args[]) {
           break label_4;
         }
         v = VarDecl();
-                                    vl.addElement(v);
+                                     vl.addElement(v);
       }
       label_5:
       while (true) {
@@ -215,7 +203,7 @@ public static void main(String args[]) {
           break label_5;
         }
         m = MethodDecl();
-                           ml.addElement(m);
+                                                                                 ml.addElement(m);
       }
       jj_consume_token(RBRACE);
     {if (true) return new ClassDeclSimple(id, vl, ml);}
@@ -229,14 +217,12 @@ public static void main(String args[]) {
   static final public VarDecl VarDecl() throws ParseException {
     trace_call("VarDecl");
     try {
-  Token t;
-  Type type;
-  Identifier id;
+  Token t; Type type; Identifier id;
       type = Type();
       t = jj_consume_token(IDENTIFIER);
                                    id=new Identifier(t.image);
       jj_consume_token(SEMICOLON);
-    {if (true) return new VarDecl(type, id);}
+                                                                                  {if (true) return new VarDecl(type, id);}
     throw new Error("Missing return statement in function");
     } finally {
       trace_return("VarDecl");
@@ -246,30 +232,33 @@ public static void main(String args[]) {
   static final public MethodDecl MethodDecl() throws ParseException {
     trace_call("MethodDecl");
     try {
-  Token t;
-  Type type;
-  Identifier id;
-  FormalList fl;
-  VarDecl v;
-  VarDeclList vl = new VarDeclList();
-  Statement s;
-  StatementList sl = new StatementList();
-  Exp e;
+  Exp e; Token t; Type type; Identifier id;  VarDecl v; Statement s; FormalList fl = new FormalList(); VarDeclList vl = new VarDeclList(); StatementList sl = new StatementList();
       jj_consume_token(PUBLIC);
       type = Type();
       t = jj_consume_token(IDENTIFIER);
-                       id = new Identifier(t.image);
-      fl = FormalList();
+                                              id = new Identifier(t.image);
+      jj_consume_token(LPAREN);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case BOOLEAN:
+      case INT:
+      case IDENTIFIER:
+        fl = FormalList();
+        break;
+      default:
+        jj_la1[3] = jj_gen;
+        ;
+      }
+      jj_consume_token(RPAREN);
       jj_consume_token(LBRACE);
       label_6:
       while (true) {
-        if (jj_2_3(2147483647)) {
+        if (jj_2_3(2)) {
           ;
         } else {
           break label_6;
         }
         v = VarDecl();
-                                                       vl.addElement(v);
+                                   vl.addElement(v);
       }
       label_7:
       while (true) {
@@ -282,7 +271,7 @@ public static void main(String args[]) {
           ;
           break;
         default:
-          jj_la1[3] = jj_gen;
+          jj_la1[4] = jj_gen;
           break label_7;
         }
         s = Stmt();
@@ -302,40 +291,24 @@ public static void main(String args[]) {
   static final public FormalList FormalList() throws ParseException {
     trace_call("FormalList");
     try {
-  Token t;
-  Type type;
-  Identifier id;
-  Formal f;
-  FormalList fl = new FormalList();
-      jj_consume_token(LPAREN);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case BOOLEAN:
-      case INT:
-      case IDENTIFIER:
-        type = Type();
-        t = jj_consume_token(IDENTIFIER);
-                                 id=new Identifier(t.image);
-                  f = new Formal(type, id); fl.addElement(f);
-        label_8:
-        while (true) {
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case COMMA:
-            ;
-            break;
-          default:
-            jj_la1[4] = jj_gen;
-            break label_8;
-          }
-          jj_consume_token(COMMA);
-          f = FormalRest();
-                                     fl.addElement(f);
+  Token t; Type type; Identifier id; Formal f; FormalList fl = new FormalList();
+      type = Type();
+      t = jj_consume_token(IDENTIFIER);
+                               id=new Identifier(t.image);
+                                                               f = new Formal(type, id); fl.addElement(f);
+      label_8:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case COMMA:
+          ;
+          break;
+        default:
+          jj_la1[5] = jj_gen;
+          break label_8;
         }
-        break;
-      default:
-        jj_la1[5] = jj_gen;
-        ;
+        f = FormalRest();
+                                                                                                                                fl.addElement(f);
       }
-      jj_consume_token(RPAREN);
     {if (true) return fl;}
     throw new Error("Missing return statement in function");
     } finally {
@@ -346,13 +319,12 @@ public static void main(String args[]) {
   static final public Formal FormalRest() throws ParseException {
     trace_call("FormalRest");
     try {
-  Token t;
-  Type type;
-  Identifier id;
+  Token t; Type type; Identifier id;
+      jj_consume_token(COMMA);
       type = Type();
       t = jj_consume_token(IDENTIFIER);
-                                 id=new Identifier(t.image);
-    {if (true) return new Formal(type, id);}
+                                         id=new Identifier(t.image);
+                                                                           {if (true) return new Formal(type, id);}
     throw new Error("Missing return statement in function");
     } finally {
       trace_return("FormalRest");
@@ -365,26 +337,25 @@ public static void main(String args[]) {
   static final public Type Type() throws ParseException {
     trace_call("Type");
     try {
-  Token t;
-  Type type;
+  Token t; Type type;
       if (jj_2_4(2)) {
         jj_consume_token(INT);
         jj_consume_token(LBRACKET);
         jj_consume_token(RBRACKET);
-                                      type=new IntArrayType();
+                                    type=new IntArrayType();
       } else {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case INT:
           jj_consume_token(INT);
-                type=new IntegerType();
+              type=new IntegerType();
           break;
         case BOOLEAN:
           jj_consume_token(BOOLEAN);
-                    type=new BooleanType();
+                  type=new BooleanType();
           break;
         case IDENTIFIER:
           t = jj_consume_token(IDENTIFIER);
-                         type=new IdentifierType(t.image);
+                       type=new IdentifierType(t.image);
           break;
         default:
           jj_la1[6] = jj_gen;
@@ -405,12 +376,7 @@ public static void main(String args[]) {
   static final public Statement Stmt() throws ParseException {
     trace_call("Stmt");
     try {
-  Token t;
-  Exp e1;
-  Exp e2;
-  Identifier id;
-  Statement rs, s1, s2;
-  StatementList sl = new StatementList();
+  Token t; Exp e1, e2; Identifier id; Statement rs, s1, s2; StatementList sl = new StatementList();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LBRACE:
         jj_consume_token(LBRACE);
@@ -596,8 +562,7 @@ public static void main(String args[]) {
   static final public Exp PrimaryExp() throws ParseException {
     trace_call("PrimaryExp");
     try {
-  Token t;
-  Exp e;
+  Token t; Exp e;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case INTEGER_LITERAL:
         t = jj_consume_token(INTEGER_LITERAL);
@@ -673,11 +638,7 @@ public static void main(String args[]) {
   static final public Exp ExpPrim(Exp e1) throws ParseException {
     trace_call("ExpPrim");
     try {
-  Token t;
-  Exp e2;
-  int op;
-  Identifier id;
-  ExpList el;
+  Token t; Exp e2; Identifier id; ExpList el;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LBRACKET:
         jj_consume_token(LBRACKET);
@@ -718,8 +679,7 @@ public static void main(String args[]) {
   static final public ExpList ExpList() throws ParseException {
     trace_call("ExpList");
     try {
-  Exp e;
-  ExpList el = new ExpList();
+  Exp e; ExpList el = new ExpList();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case FALSE:
       case NEW:
@@ -853,114 +813,8 @@ public static void main(String args[]) {
     finally { jj_save(11, xla); }
   }
 
-  static private boolean jj_3R_21() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_15() {
-    if (jj_3R_16()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_32() {
-    if (jj_scan_token(LPAREN)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_20() {
-    if (jj_scan_token(BOOLEAN)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_11() {
-    if (jj_3R_18()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_31() {
-    if (jj_scan_token(NOT)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_19() {
-    if (jj_scan_token(INT)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_30() {
-    if (jj_scan_token(NEW)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_4() {
-    if (jj_scan_token(INT)) return true;
-    if (jj_scan_token(LBRACKET)) return true;
-    if (jj_scan_token(RBRACKET)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_10() {
-    if (jj_scan_token(NEW)) return true;
-    if (jj_scan_token(INT)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_1() {
-    if (jj_3R_12()) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_29() {
-    if (jj_scan_token(THIS)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_9() {
-    if (jj_scan_token(STAR)) return true;
-    if (jj_3R_17()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_28() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_27() {
-    if (jj_scan_token(FALSE)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_14() {
-    if (jj_3R_15()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_26() {
-    if (jj_scan_token(TRUE)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_12() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_4()) {
-    jj_scanpos = xsp;
-    if (jj_3R_19()) {
-    jj_scanpos = xsp;
-    if (jj_3R_20()) {
-    jj_scanpos = xsp;
-    if (jj_3R_21()) return true;
-    }
-    }
-    }
-    return false;
-  }
-
-  static private boolean jj_3R_25() {
-    if (jj_scan_token(INTEGER_LITERAL)) return true;
+  static private boolean jj_3_3() {
+    if (jj_3R_13()) return true;
     return false;
   }
 
@@ -995,20 +849,8 @@ public static void main(String args[]) {
     return false;
   }
 
-  static private boolean jj_3_5() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    if (jj_scan_token(ASSIGN)) return true;
-    return false;
-  }
-
   static private boolean jj_3R_17() {
     if (jj_3R_22()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_24() {
-    if (jj_scan_token(DOT)) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
     return false;
   }
 
@@ -1018,8 +860,85 @@ public static void main(String args[]) {
     return false;
   }
 
+  static private boolean jj_3R_13() {
+    if (jj_3R_12()) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_2() {
+    if (jj_3R_13()) return true;
+    return false;
+  }
+
   static private boolean jj_3_8() {
     if (jj_scan_token(PLUS)) return true;
+    if (jj_3R_16()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_21() {
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_20() {
+    if (jj_scan_token(BOOLEAN)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_6() {
+    if (jj_scan_token(SC_AND)) return true;
+    if (jj_3R_14()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_19() {
+    if (jj_scan_token(INT)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_1() {
+    if (jj_3R_12()) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_4() {
+    if (jj_scan_token(INT)) return true;
+    if (jj_scan_token(LBRACKET)) return true;
+    if (jj_scan_token(RBRACKET)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_16() {
+    if (jj_3R_17()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_24() {
+    if (jj_scan_token(DOT)) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_12() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_4()) {
+    jj_scanpos = xsp;
+    if (jj_3R_19()) {
+    jj_scanpos = xsp;
+    if (jj_3R_20()) {
+    jj_scanpos = xsp;
+    if (jj_3R_21()) return true;
+    }
+    }
+    }
+    return false;
+  }
+
+  static private boolean jj_3R_15() {
     if (jj_3R_16()) return true;
     return false;
   }
@@ -1049,31 +968,71 @@ public static void main(String args[]) {
     return false;
   }
 
-  static private boolean jj_3R_13() {
-    if (jj_3R_12()) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
+  static private boolean jj_3R_14() {
+    if (jj_3R_15()) return true;
     return false;
   }
 
-  static private boolean jj_3R_16() {
+  static private boolean jj_3R_32() {
+    if (jj_scan_token(LPAREN)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_11() {
+    if (jj_3R_18()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_31() {
+    if (jj_scan_token(NOT)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_30() {
+    if (jj_scan_token(NEW)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_9() {
+    if (jj_scan_token(STAR)) return true;
     if (jj_3R_17()) return true;
     return false;
   }
 
-  static private boolean jj_3_6() {
-    if (jj_scan_token(SC_AND)) return true;
-    if (jj_3R_14()) return true;
+  static private boolean jj_3_10() {
+    if (jj_scan_token(NEW)) return true;
+    if (jj_scan_token(INT)) return true;
     return false;
   }
 
-  static private boolean jj_3_2() {
-    if (jj_3R_13()) return true;
+  static private boolean jj_3R_29() {
+    if (jj_scan_token(THIS)) return true;
     return false;
   }
 
-  static private boolean jj_3_3() {
-    if (jj_3R_12()) return true;
+  static private boolean jj_3R_28() {
     if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_27() {
+    if (jj_scan_token(FALSE)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_26() {
+    if (jj_scan_token(TRUE)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_25() {
+    if (jj_scan_token(INTEGER_LITERAL)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_5() {
+    if (jj_scan_token(IDENTIFIER)) return true;
+    if (jj_scan_token(ASSIGN)) return true;
     return false;
   }
 
@@ -1097,10 +1056,10 @@ public static void main(String args[]) {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x80,0x9100400,0x4000,0x9100400,0x0,0x840,0x840,0x9100400,0x9100400,0x0,0x0,0x0,0x60200,0x2002000,0x20000000,0x0,0x0,0x2062200,};
+      jj_la1_0 = new int[] {0x80,0x9100400,0x4000,0x840,0x9100400,0x0,0x840,0x9100400,0x9100400,0x0,0x0,0x0,0x60200,0x2002000,0x20000000,0x0,0x0,0x2062200,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x10,0x0,0x10,0x1,0x10,0x10,0x10,0x0,0x10,0x800,0xc00,0x18,0x4,0x0,0x2,0x1,0x1c,};
+      jj_la1_1 = new int[] {0x0,0x10,0x0,0x10,0x10,0x1,0x10,0x10,0x0,0x10,0x800,0xc00,0x18,0x4,0x0,0x2,0x1,0x1c,};
    }
   static final private JJCalls[] jj_2_rtns = new JJCalls[12];
   static private boolean jj_rescan = false;
