@@ -27,17 +27,22 @@ public interface Visitor
 	public void visit(Identifier x);
 	public void visit(IdentifierExp x);
 	public void visit(IdentifierType x);
+	public void visit(IfElse x);
 	public void visit(If x);
 	public void visit(IntArrayType x);
 	public void visit(IntegerLiteral x);
 	public void visit(IntegerType x);
 	public void visit(LessThan x);
 	public void visit(LessThanOrEqual x);
+	public void visit(LongType x);
+	public void visit(LongLiteral x);
+	public void visit(LongArrayType x);
 	public void visit(MainClass x);
 	public void visit(MethodDecl x);
 	// public void visit(MethodDeclList x);
 	public void visit(Minus x);
-	public void visit(NewArray x);
+	public void visit(NewIntArray x);
+	public void visit(NewLongArray x);
 	public void visit(NewObject x);
 	public void visit(Not x);
 	public void visit(NotEqual x);
@@ -55,4 +60,5 @@ public interface Visitor
 	public void visit(VarDecl x);
 	// public void visit(VarDeclList x);
 	public void visit(While x);
+	public void visit(VoidType x);
 }

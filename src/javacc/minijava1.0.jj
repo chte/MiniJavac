@@ -2,7 +2,7 @@ PARSER_BEGIN(MiniJavaParser)
 
 import java.io.*;
 import syntaxtree.*;
-//import symboltree.*;
+import symboltree.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -15,6 +15,8 @@ import java.io.PrintStream;
 public class MiniJavaParser
 {
 
+public final static boolean VERBOSE = false;
+
 public MiniJavaParser (String fileName){
 	this(System.in);
     try { ReInit(new FileInputStream(new File(fileName))); }
@@ -23,9 +25,9 @@ public MiniJavaParser (String fileName){
 
 public static void main(String args[]) {
 	MiniJavaParser parser;
-  SyntaxTreePrinter stp;
   Program program;
-  //SymbolTreeVisitor stv;
+  SyntaxTreePrinter stp;
+  SymbolTableBuilder stv;
 	if (args.length == 0) {
 		System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
 		parser = new MiniJavaParser(System.in);
@@ -55,13 +57,16 @@ public static void main(String args[]) {
 	try {
 		program = parser.Program();
 
-    //Syntax Tree Printer
-    stp = new SyntaxTreePrinter(System.out);
-    stp.visit(program);
+    // VERBOSE: Print abstract syntax tree 
+    if(VERBOSE) {
+      stp = new SyntaxTreePrinter(System.out);
+      stp.visit(program);
+      System.out.println();
+    }
 
     //Symbol table
-    //stv = new SymbolTreeVisitor();
-    //stv.visit(program);
+    stv = new SymbolTableBuilder();
+    stv.visit(program);
 
 		System.out.println("MiniJavac 1.0: Java program parsed successfully.");
 	} catch (ParseException e) {
@@ -152,13 +157,9 @@ TOKEN: /* OPERATORS */
 | < STAR: "*" >
 }
 
-
-
 /**********************************************
  * THE MINI JAVA LANGUAGE GRAMMAR STARTS HERE *
  **********************************************/
-
-
 /*
  * Program structuring syntax follows.
  */
@@ -271,8 +272,8 @@ Statement Stmt():
       <LBRACE> ( s1=Stmt() { sl.addElement(s1); } )* <RBRACE> { rs = new Block(sl); }
     | // /* Extension */
       // <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() { rs = new If(e1, s1); }
-      // [ LOOKAHEAD(1) <ELSE> s2=Stmt() { rs = new If(e1, s1, s2); } ]
-      <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() <ELSE> s2=Stmt() { rs = new If(e1, s1, s2); } 
+      // [ LOOKAHEAD(1) <ELSE> s2=Stmt() { rs = new IfElse(e1, s1, s2); } ]
+      <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() <ELSE> s2=Stmt() { rs = new IfElse(e1, s1, s2); } 
     | <WHILE> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() { rs = new While(e1, s1); }
     | <SYSOUT_PRINTLN> <LPAREN> e1=Exp() <RPAREN> <SEMICOLON>  { rs = new Print(e1); }
     | LOOKAHEAD(2)
@@ -281,7 +282,6 @@ Statement Stmt():
   )
   { return rs; }
 }
-
 
 /*
  * Exp syntax follows.
@@ -328,7 +328,7 @@ Exp PrimaryExp():
     | (t = <IDENTIFIER> { e = new IdentifierExp(t.image); } )
     | <THIS> { e = new This(); } 
     |  LOOKAHEAD(2)
-      <NEW> <INT> <LBRACKET> ( e=Exp() { e = new NewArray(e); } ) <RBRACKET> 
+      <NEW> <INT> <LBRACKET> ( e=Exp() { e = new NewIntArray(e); } ) <RBRACKET> 
     | <NEW> ( t = <IDENTIFIER> { e = new NewObject(new Identifier(t.image)); } ) <LPAREN> <RPAREN> 
     | <NOT> ( e = Exp() { e = new Not(e); } ) 
     | <LPAREN> e = Exp() <RPAREN> 

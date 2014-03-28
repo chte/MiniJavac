@@ -1,10 +1,10 @@
 /** ASTPrintVisitor - prints the abstract syntax tree in a constructor
- * style with parenthesized comma-separated lists. This visitor can
- * help check for the correctness of a MiniJava abstract syntax tree.
- * The implementation is based on that of PrettyPrintVisitor, and the
- * author was tempted to call it UglyPrintVisitor.
- *
- * Author: Todd Neller, Gettysburg College 1/29/04 */ 
+* style with parenthesized comma-separated lists. This visitor can
+* help check for the correctness of a MiniJava abstract syntax tree.
+* The implementation is based on that of PrettyPrintVisitor, and the
+* author was tempted to call it UglyPrintVisitor.
+*
+* Author: Todd Neller, Gettysburg College 1/29/04 */ 
 
 package visitor;
 
@@ -12,87 +12,87 @@ import syntaxtree.*;
 
 public class DepthFirstVisitor implements Visitor {
 
-    // MainClass m;
-    // ClassDeclList cl;
+// MainClass m;
+// ClassDeclList cl;
     public void visit(Program n) {
-	n.m.accept(this);
-	for ( int i = 0; i < n.cl.size(); i++ ) {
-	    n.cl.elementAt(i).accept(this);
-	}
+        n.m.accept(this);
+        for ( int i = 0; i < n.cl.size(); i++ ) {
+            n.cl.elementAt(i).accept(this);
+        }
     }
-  
-    // Identifier i1,i2;
-    // Statement s;
+
+// Identifier i1,i2;
+// Statement s;
     public void visit(MainClass n) {
-	n.i1.accept(this);
-	n.i2.accept(this);
-	for (int i = 0; i < n.vdl.size() ;++i){
-		n.vdl.elementAt(i).accept(this);
-	}
-	for(int i = 0; i < n.sl.size(); ++i){
-		n.sl.elementAt(i).accept(this);
-	}
+        n.i1.accept(this);
+        n.i2.accept(this);
+        for (int i = 0; i < n.vdl.size() ;++i){
+            n.vdl.elementAt(i).accept(this);
+        }
+        for(int i = 0; i < n.sl.size(); ++i){
+            n.sl.elementAt(i).accept(this);
+        }
     }
 
-    // Identifier i;
-    // VarDeclList vl;
-    // MethodDeclList ml;
+// Identifier i;
+// VarDeclList vl;
+// MethodDeclList ml;
     public void visit(ClassDeclSimple n) {
-	n.i.accept(this);
-	for ( int i = 0; i < n.vl.size(); i++ ) {
-	    n.vl.elementAt(i).accept(this);
-	}
-	for ( int i = 0; i < n.ml.size(); i++ ) {
-	    n.ml.elementAt(i).accept(this);
-	}
+        n.i.accept(this);
+        for ( int i = 0; i < n.vl.size(); i++ ) {
+            n.vl.elementAt(i).accept(this);
+        }
+        for ( int i = 0; i < n.ml.size(); i++ ) {
+            n.ml.elementAt(i).accept(this);
+        }
     }
- 
-    // Identifier i;
-    // Identifier j;
-    // VarDeclList vl;
-    // MethodDeclList ml;
+
+// Identifier i;
+// Identifier j;
+// VarDeclList vl;
+// MethodDeclList ml;
     public void visit(ClassDeclExtends n) {
-	n.i.accept(this);
-	n.j.accept(this);
-	for ( int i = 0; i < n.vl.size(); i++ ) {
-	    n.vl.elementAt(i).accept(this);
-	}
+        n.i.accept(this);
+        n.j.accept(this);
+        for ( int i = 0; i < n.vl.size(); i++ ) {
+            n.vl.elementAt(i).accept(this);
+        }
     }
 
-    // Type t;
-    // Identifier i;
+// Type t;
+// Identifier i;
     public void visit(VarDecl n) {
-	n.t.accept(this);
-	n.i.accept(this);
+        n.t.accept(this);
+        n.i.accept(this);
     }
 
-    // Type t;
-    // Identifier i;
-    // FormalList fl;
-    // VarDeclList vl;
-    // StatementList sl;
-    // Exp e;
+// Type t;
+// Identifier i;
+// FormalList fl;
+// VarDeclList vl;
+// StatementList sl;
+// Exp e;
     public void visit(MethodDecl n) {
-	n.t.accept(this);
-	n.i.accept(this);
-	
-	for ( int i = 0; i < n.fl.size(); i++ ) {
-	    n.fl.elementAt(i).accept(this);		
-	}
-	for ( int i = 0; i < n.vl.size(); i++ ) {
-	    n.vl.elementAt(i).accept(this);
-	}
-	for ( int i = 0; i < n.sl.size(); i++ ) {
-	    n.sl.elementAt(i).accept(this);		
-	}
-	n.e.accept(this);
+        n.t.accept(this);
+        n.i.accept(this);
+
+        for ( int i = 0; i < n.fl.size(); i++ ) {
+            n.fl.elementAt(i).accept(this);		
+        }
+        for ( int i = 0; i < n.vl.size(); i++ ) {
+            n.vl.elementAt(i).accept(this);
+        }
+        for ( int i = 0; i < n.sl.size(); i++ ) {
+            n.sl.elementAt(i).accept(this);		
+        }
+        n.e.accept(this);
     }
 
-    // Type t;
-    // Identifier i;
+// Type t;
+// Identifier i;
     public void visit(Formal n) {
-	n.t.accept(this);
-	n.i.accept(this);
+        n.t.accept(this);
+        n.i.accept(this);
     }
 
     public void visit(IntArrayType n) {
@@ -104,143 +104,157 @@ public class DepthFirstVisitor implements Visitor {
     public void visit(IntegerType n) {
     }
 
-    // String s;
+// String s;
     public void visit(IdentifierType n) {
     }
 
-    // StatementList sl;
+// StatementList sl;
     public void visit(Block n) {
-	for ( int i = 0; i < n.sl.size(); i++ ) {
-	    n.sl.elementAt(i).accept(this);
-	}
+        for ( int i = 0; i < n.sl.size(); i++ ) {
+            n.sl.elementAt(i).accept(this);
+        }
     }
 
-    // Exp e;
-    // Statement s1,s2;
+// Exp e;
+// Statement s1,s2;
     public void visit(If n) {
-	n.e.accept(this);
-	n.s1.accept(this);
-    if(n.s2 != null){
-	   n.s2.accept(this);
-    }
+        n.e.accept(this);
+        n.s1.accept(this);
     }
 
-    // Exp e;
-    // Statement s;
+// Exp e;
+// Statement s1,s2;
+    public void visit(IfElse n) {
+        n.e.accept(this);
+        n.s1.accept(this);
+        n.s2.accept(this);
+    }
+
+// Exp e;
+// Statement s;
     public void visit(While n) {
-	n.e.accept(this);
-	n.s.accept(this);
+        n.e.accept(this);
+        n.s.accept(this);
     }
 
-    // Exp e;
+// Exp e;
     public void visit(Print n) {
-	n.e.accept(this);
+        n.e.accept(this);
     }
-  
-    // Identifier i;
-    // Exp e;
+
+// Identifier i;
+// Exp e;
     public void visit(Assign n) {
-	n.i.accept(this);
-	n.e.accept(this);
+        n.i.accept(this);
+        n.e.accept(this);
     }
 
-    // Identifier i;
-    // Exp e1,e2;
+// Identifier i;
+// Exp e1,e2;
     public void visit(ArrayAssign n) {
-	n.i.accept(this);
-	n.e1.accept(this);	
-	n.e2.accept(this);
+        n.i.accept(this);
+        n.e1.accept(this);	
+        n.e2.accept(this);
     }
 
-    // Exp e1,e2;
-    public void visit(And n) {
-	n.e1.accept(this);
-	n.e2.accept(this);
-    }
-
-    // Exp e1,e2;
-    public void visit(LessThan n) {
-	n.e1.accept(this);
-	n.e2.accept(this);
-    }
-
-    // Exp e1,e2;
-    public void visit(LessThanOrEqual n) {
-    n.e1.accept(this);
-    n.e2.accept(this);
-    }
-
-    // Exp e1,e2;
-    public void visit(GreaterThan n) {
-    n.e1.accept(this);
-    n.e2.accept(this);
-    }
-
-    // Exp e1,e2;
-    public void visit(GreaterThanOrEqual n) {
-    n.e1.accept(this);
-    n.e2.accept(this);
-    }
-
-    // Exp e1,e2;
-    public void visit(Equal n) {
-    n.e1.accept(this);
-    n.e2.accept(this);
-    }
-
-    // Exp e1,e2;
-    public void visit(NotEqual n) {
-    n.e1.accept(this);
-    n.e2.accept(this);
-    }
-
-    // Exp e1,e2;
-    public void visit(Or n) {
-    n.e1.accept(this);
-    n.e2.accept(this);
-    }
-
-    // Exp e1,e2;
-    public void visit(Plus n) {
-	n.e1.accept(this);
-	n.e2.accept(this);
-    }
-
-    // Exp e1,e2;
-    public void visit(Minus n) {
-	n.e1.accept(this);
-	n.e2.accept(this);
-    }
-
-    // Exp e1,e2;
-    public void visit(Times n) {
-	n.e1.accept(this);
-	n.e2.accept(this);
-    }
-
-    // Exp e1,e2;
+// Exp e1,e2;
     public void visit(ArrayLookup n) {
-	n.e1.accept(this);	
-	n.e2.accept(this);
+        n.e1.accept(this);  
+        n.e2.accept(this);
     }
 
-    // Exp e;
+// Exp e;
     public void visit(ArrayLength n) {
-	n.e.accept(this);
+        n.e.accept(this);
     }
 
-    // Exp e;
-    // Identifier i;
-    // ExpList el;
+// Exp e1,e2;
+    public void visit(And n) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+    }
+
+// Exp e1,e2;
+    public void visit(LessThan n) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+    }
+
+// Exp e1,e2;
+    public void visit(LessThanOrEqual n) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+    }
+
+    public void visit(LongLiteral n) {
+    }
+
+    public void visit(LongType n) {
+    }
+
+    public void visit(LongArrayType n) {
+    }
+
+// Exp e1,e2;
+    public void visit(GreaterThan n) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+    }
+
+// Exp e1,e2;
+    public void visit(GreaterThanOrEqual n) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+    }
+
+// Exp e1,e2;
+    public void visit(Equal n) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+    }
+
+// Exp e1,e2;
+    public void visit(NotEqual n) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+    }
+
+// Exp e1,e2;
+    public void visit(Or n) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+    }
+
+// Exp e1,e2;
+    public void visit(Plus n) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+    }
+
+// Exp e1,e2;
+    public void visit(Minus n) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+    }
+
+// Exp e1,e2;
+    public void visit(Times n) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+    }
+
+// Exp e;
+// Identifier i;
+// ExpList el;
     public void visit(Call n) {
-	n.e.accept(this);
-	n.i.accept(this);
-	for ( int i = 0; i < n.el.size(); i++ ) {
-	    n.el.elementAt(i).accept(this);
-	}
+        n.e.accept(this);
+        n.i.accept(this);
+        for ( int i = 0; i < n.el.size(); i++ ) {
+            n.el.elementAt(i).accept(this);
+        }
     }
 
-    // int i;
+// int i;
     public void visit(IntegerLiteral n) {
     }
 
@@ -250,31 +264,38 @@ public class DepthFirstVisitor implements Visitor {
     public void visit(False n) {
     }
 
-    // String s;
+// String s;
     public void visit(IdentifierExp n) {
     }
 
     public void visit(This n) {
     }
 
-    // Exp e;
-    public void visit(NewArray n) {	
-	n.e.accept(this);
+// Exp e;
+    public void visit(NewIntArray n) {	
+        n.e.accept(this);
     }
 
-    // Identifier i;
+// Exp e;
+    public void visit(NewLongArray n) {  
+        n.e.accept(this);
+    }
+
+
+// Identifier i;
     public void visit(NewObject n) {
     }
 
-    // Exp e;
+// Exp e;
     public void visit(Not n) {
-	n.e.accept(this);
+        n.e.accept(this);
     }
 
-    // String s;
+// String s;
     public void visit(Identifier n) {
     }
 
-
+    public void visit(VoidType n) {
+    }
 
 }

@@ -1,293 +1,397 @@
 package symboltree;
 import syntaxtree.*;
-import java.util.*;
+import error.*;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
-public class SymbolTreeVisitor implements visitor.DepthFirstVisitor{
+public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 
 	public SymbolTable program;
-	public LinkedList<SymbolTable> tableStack = new LinkedList<SymbolTable>();
-	public HashMap<String, SymbolTable> lookupTable = new HashMap<String, SymbolTable>(); 
+	public LinkedList<SymbolTable> tableStack;
+	public HashMap<Object, SymbolTable> lookupTable;
+    public CompilerErrorMsg errormsg;
 
-	public SymbolTreeBuilder(){
-		program = new SymbolTable(null);		
+	public SymbolTableBuilder(){
+		tableStack = new LinkedList<SymbolTable>();
+		lookupTable = new HashMap<Object, SymbolTable>(); 
 	}
 
-	public void addToStack(SymbolTable st){
-		tableStack.addFirst(st);
-	}
+
+    public void error(String message) {
+        errormsg = new CompilerErrorMsg(System.out, "COMPILE ERROR: " + message);
+        errormsg.flush();
+    }
 
 	public SymbolTable getCurrentScope(){
-		return tableStack.getFirst();
+		return tableStack.peekFirst();
 	}
 
-	public void startScope(String id){
-		SymbolTable newScope = new SymbolTable(tableStack.getFirst());
-		lookupTable.put(id, newScope);
-		tableStack.addFirst(newScope);
+    public SymbolTable getParentScope(){
+        SymbolTable currentScope = tableStack.peekFirst();
+        if(currentScope != null && currentScope.hasParent()){
+           return currentScope.getParent();
+        }else{
+           return null;
+        }
+    }
+
+	public SymbolTable startScope(Object n, SymbolTable.ScopeType scopeType){
+        SymbolTable parentScope = tableStack.peekFirst();
+		SymbolTable currentScope = new SymbolTable(parentScope, scopeType);
+
+		/* Add to lookup table */
+		lookupTable.put(n, currentScope);
+
+		/* Push current scope on stack */
+		tableStack.addFirst(currentScope);
+
+        return parentScope;
 	}
 
 	public SymbolTable endScope(){
-		tableStack.removeFirst();
-		return tableStack.getFirst();
+		/* Pop first on stack */
+		tableStack.pollFirst();
+
+		/* Return parent scope if needed */
+		return tableStack.peekFirst();
 	}
 
 	//Start the program 
 	public void visit(Program n){
 		/* Add program as current scope */
-		addToStack(program);
-		//currentScope = program;
+		startScope(n, SymbolTable.ScopeType.PROGRAM);
 		super.visit(n);
 	}	
 
 	//Main program
 	public void visit(MainClass n){
-		/* Add main class to program scope */
-		Symbol mainClassSymbol = Symbol.symbol(n.i1);
-		Binder mainClassBinder = new Binder( new IdentifierType(n.i1)), Binder.SymbolType.MAINCLASS );
-		mainClassBinder.addExtraType(new IdentifierType(n.i2));
-		getCurrentScope().add(mainClassSymbol, mainClassBinder);
+        if(getCurrentScope().lookup(n.i1.s, Binder.SymbolType.CLASS) != null) {
+            error("Main class identifier " + n.i1.s + " was already defined as a class in the scope.");
+        }
+
+        /* Visited main class so set up new scope */
+        startScope(n, SymbolTable.ScopeType.MAINCLASS);
+
+        /* Add main class to program scope */
+        getParentScope().insert(n.i1.s, new Binder( new IdentifierType(n.i1.s), Binder.SymbolType.CLASS ));
+        getCurrentScope().classType = new IdentifierType(n.i1.s);
+
+
+        getCurrentScope().insert(n.i2.s, new Binder( new IdentifierType(n.i2.s), Binder.SymbolType.PARAM ));
+        getParentScope().getChildScopes().add(getCurrentScope());
 
 		/* Set traverse in main class as a new child scope */
-		startScope(n.i1);
 		super.visit(n);
 		endScope();
 	}
-    
-    public void visit(ClassDeclSimple n)
+    /*
+public void visit(ClassDeclSimple n)
     {
-		/* Set traverse in main class as a new child scope */
-		startScope(n.i1);
-		super.visit(n);
-		endScope();
+        if(currentScope.lookup(n.i.s, Binder.SymbolType.CLASS) != null) {
+            error("Class identifier " + n.i.s + " was already defined as a class in the scope.", n.row, n.col);
+        }
+
+        SymbolTable parentScope = currentScope;
+        currentScope = new SymbolTable(parentScope, SymbolTable.ScopeType.CLASS);
+        parentScope.insert(n.i.s, new Binder(new IdentifierType(n.i.s), Binder.SymbolType.CLASS, currentScope));
+        currentScope.classType = new IdentifierType(n.i.s);
+        parentScope.getChildScopes().add(currentScope);
+
+        scopeMap.put(n, currentScope);
+        super.visit(n);
+        currentScope = parentScope;
     }
-    
+
     public void visit(ClassDeclExtends n)
     {
+        if(currentScope.lookup(n.i.s, Binder.SymbolType.CLASSEXTENDS) != null) {
+            error("Class identifier " + n.i.s + " was already defined as a class in the scope.", n.row, n.col);
+        }
 
+        SymbolTable parentScope = currentScope;
+        currentScope = new SymbolTable(parentScope, SymbolTable.ScopeType.CLASS);
+        ArrayList<Type> extensions = new ArrayList<Type>();
+        extensions.add(new IdentifierType(n.j.s));
+        parentScope.insert(n.i.s, new Binder(new IdentifierType(n.i.s), extensions, Binder.SymbolType.CLASSEXTENDS, currentScope));
+        currentScope.classType = new IdentifierType(n.i.s);
+        parentScope.getChildScopes().add(currentScope);
 
-		/* Set traverse in main class as a new child scope */
-		startScope(n.i1);
-		super.visit(n);
-		endScope();
+        scopeMap.put(n, currentScope);
+        super.visit(n);
+        currentScope = parentScope;
     }
-    
+
     public void visit(VarDecl n)
     {
-		/* Add to previous scope */
-		Symbol s = Symbol.symbol(n.i);
-		Binder b = new Binder( n.t, Binder.SymbolType.LOCAL );
-		getCurrentScope().add(s, b);
+        Binder duplicateBinder = currentScope.lookup(n.i.s, Binder.SymbolType.FIELD);
 
-		/* Set traverse in as a new child scope */
-		startScope(n.i1);
-		super.visit(n);
-		endScope();
+        if(duplicateBinder != null) {
+            Binder.SymbolType duplicateType = duplicateBinder.getSymbolType();
+            if(currentScope.getScopeType() == SymbolTable.ScopeType.CLASS) {
+                //Parent scope is a class, so we are a field.
+                if(duplicateType == Binder.SymbolType.FIELD) {
+                    error("Field identifier " + n.i.s + " was already defined in the scope.", n.row, n.col);
+                }
+            } else if(currentScope.getScopeType() == SymbolTable.ScopeType.MAINCLASS) {
+                //Parent scope is mainclass, so we are a local.
+                if(duplicateType == Binder.SymbolType.LOCAL) {
+                    error("Field identifier " + n.i.s + " was already defined in the main class.", n.row, n.col);
+                }
+            } else if(currentScope.getScopeType() == SymbolTable.ScopeType.METHOD || currentScope.getScopeType() == SymbolTable.ScopeType.BLOCK) {
+                //Parent scope is a method or block, so we are a local.
+                if(duplicateType == Binder.SymbolType.LOCAL) {
+                    error("Local identifier " + n.i.s + " was already defined as a local variable in the scope.", n.row, n.col);
+                } else if(duplicateType == Binder.SymbolType.PARAM) {
+                    error("Local identifier " + n.i.s + " was already defined as a parameter in the scope.", n.row, n.col);
+                }
+            }
+        }
+
+        if(currentScope.getScopeType() == SymbolTable.ScopeType.MAINCLASS) {
+            currentScope.insert(n.i.s, new Binder(n.t, Binder.SymbolType.LOCAL));
+        } else if(currentScope.getScopeType() == SymbolTable.ScopeType.CLASS) {
+            currentScope.insert(n.i.s, new Binder(n.t, Binder.SymbolType.FIELD));
+        } else if(currentScope.getScopeType() == SymbolTable.ScopeType.METHOD || currentScope.getScopeType() == SymbolTable.ScopeType.BLOCK) {
+            currentScope.insert(n.i.s, new Binder(n.t, Binder.SymbolType.LOCAL));
+        }
+        super.visit(n);
     }
-    
+
     public void visit(MethodDecl n)
     {
-		/* Add to previous scope */
-		Symbol s = Symbol.symbol(n.i);
-		Binder b = new Binder( n.t, Binder.SymbolType.METHOD );
-		for(int i = 0; i < n.vl.size(); i++){
-		b.addExtraType(n.vl.elementAt(i));
-		}
-		getCurrentScope().add(s, b);
+        Binder duplicateBinder = currentScope.lookup(n.i.s, Binder.SymbolType.METHODRETURN);
+        if(duplicateBinder != null && duplicateBinder.getSymbolType() == Binder.SymbolType.METHODRETURN) {
+            error("Method identifier " + n.i.s + " was already defined in the scope.", n.row, n.col);
+        }
 
-		/* Set traverse in as a new child scope */
-		startScope(n.i1);
-		super.visit(n);
-		endScope();
+        ArrayList<Type> methodParams = new ArrayList<Type>();
+        for(int i = 0; i < n.fl.size(); i++) {
+            methodParams.add(n.fl.elementAt(i).t);
+        }
+
+        SymbolTable parentScope = currentScope;
+        currentScope = new SymbolTable(parentScope, SymbolTable.ScopeType.METHOD);
+        parentScope.insert(n.i.s, new Binder(n.t, methodParams, Binder.SymbolType.METHODRETURN, currentScope));
+        currentScope.classType = parentScope.classType;
+        parentScope.getChildScopes().add(currentScope);
+
+        scopeMap.put(n, currentScope);
+        super.visit(n);
+        currentScope = parentScope;
     }
-    
+
     public void visit(Formal n)
     {
-		/* Set traverse in main class as a new child scope */
-		startScope(n.i1);
-		super.visit(n);
-		endScope();
-    }
-  
-    public void visit(Block n)
+        Binder duplicateBinder = currentScope.lookup(n.i.s, Binder.SymbolType.PARAM);
+        if(duplicateBinder != null && duplicateBinder.getSymbolType() == Binder.SymbolType.PARAM) {
+            error("Duplicate parameter identifier " + n.i.s + " defined for the method.", n.row, n.col);
+        }
+
+        currentScope.insert(n.i.s, new Binder(n.t, Binder.SymbolType.PARAM));
+
+        super.visit(n);
+    }*/
+
+    public void visit(IntArrayType n)
     {
-		/* Set traverse in main class as a new child scope */
-		startScope(n.i1);
-		super.visit(n);
-		endScope();
+        super.visit(n);
     }
-    
+
+    public void visit(LongArrayType n)
+    {
+        super.visit(n);
+    }
+
+    public void visit(BooleanType n)
+    {
+        super.visit(n);
+    }
+
+    public void visit(IntegerType n)
+    {
+        super.visit(n);
+    }
+
+    public void visit(LongType n)
+    {
+        super.visit(n);
+    }
+
+    public void visit(IdentifierType n)
+    {
+        super.visit(n);
+    }
+
+    /*public void visit(Block n)
+    {
+        SymbolTable parentScope = currentScope;
+        currentScope = new SymbolTable(parentScope, SymbolTable.ScopeType.BLOCK);
+        currentScope.classType = parentScope.classType;
+        parentScope.getChildScopes().add(currentScope);
+
+        scopeMap.put(n, currentScope);
+        super.visit(n);
+        currentScope = parentScope;
+    }*/
+
     public void visit(If n)
     {
-		/* Set traverse in main class as a new child scope */
-		startScope(n.i1);
-		super.visit(n);
-		endScope();
+        super.visit(n);
     }
-    
+
+    public void visit(IfElse n)
+    {
+        super.visit(n);
+    }
+
     public void visit(While n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(Print n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
- //    public void visit(Write n)
- //    {
-	// preWork(n);
-	// super.visit(n);
-	// postWork(n);
- //    }
-    
+
     public void visit(Assign n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(ArrayAssign n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(And n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
+    public void visit(Or n)
+    {
+        super.visit(n);
+    }
+
     public void visit(LessThan n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
+    public void visit(GreaterThan n)
+    {
+        super.visit(n);
+    }
+
+    public void visit(LessThanOrEqual n)
+    {
+        super.visit(n);
+    }
+
+    public void visit(GreaterThanOrEqual n)
+    {
+        super.visit(n);
+    }
+
+    public void visit(Equal n)
+    {
+        super.visit(n);
+    }
+
+    public void visit(NotEqual n)
+    {
+        super.visit(n);
+    }
+
     public void visit(Plus n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(Minus n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(Times n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(ArrayLookup n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(ArrayLength n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(Call n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(IntegerLiteral n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
+    public void visit(LongLiteral n)
+    {
+        super.visit(n);
+    }
+
     public void visit(True n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(False n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(IdentifierExp n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(This n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
-    public void visit(NewArray n)
+
+    public void visit(NewIntArray n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
+    public void visit(NewLongArray n)
+    {
+        super.visit(n);
+    }
+
     public void visit(NewObject n)
     {
-	preWork(n);
-	n.i.accept(this);	
-	postWork(n);
+        n.i.accept(this);   
     }
-    
+
     public void visit(Not n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
-    
+
     public void visit(Identifier n)
     {
-	preWork(n);
-	super.visit(n);
-	postWork(n);
+        super.visit(n);
     }
 
-	private String nodeName(Object o){
-		String name = o.getClass().toString();
-		int dot = name.lastIndexOf(".");
-		if (dot != -1){
-			name = name.substring(dot+1);
-		}
-		return name;	
-    }
-
-    private void print(String toPrint){
-    	System.out.println("STV: " + toPrint);
+    public void visit(VoidType n)
+    {
+        super.visit(n);
     }
 }

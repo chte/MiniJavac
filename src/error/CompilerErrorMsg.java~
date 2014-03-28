@@ -1,0 +1,14 @@
+package error;
+
+public class CompilerErrorMsg
+{
+    private java.io.PrintStream out;
+
+    public CompilerErrorMsg(java.io.PrintStream o, String msg) {
+	out = o;
+    }
+
+    public void flush() {
+	out.println(msg);
+    }
+}

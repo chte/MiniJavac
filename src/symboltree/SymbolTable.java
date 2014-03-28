@@ -1,28 +1,63 @@
 package symboltree;
 
+import syntaxtree.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-public class SymbolTable extends HashMap<Symbol, Binding> {
-    public static final String VAR_SALT = "$var", METHOD_SALT = "$method", CLASS_SALT = "$class";
+public class SymbolTable extends HashMap<Symbol, Binder> {
 
-    public enum ScopeType {
-        PROGRAM, MAINCLASS, CLASS, METHOD, BLOCK;
-    }
+
 
     private SymbolTable.ScopeType scopeType;
     public IdentifierType classType;
-
-
-	public HashMap<Symbol, Binding> symbols;
 	public ArrayList<SymbolTable> childScopes;
     public SymbolTable parent;
 
-	public SymbolTable(SymbolTable parent){
+	public SymbolTable(SymbolTable parent, SymbolTable.ScopeType scopeType){
         super();
-		this parent = parent;
+		this.parent = parent;
+        this.scopeType = scopeType;
 		this.childScopes = new ArrayList<SymbolTable>();
 	}
+
+    /* Lookup in symbol table */
+    public Binder lookup(String symbol, Binder.SymbolType symbolType) {
+        String scopeType = getAffix(symbolType);
+        Symbol s = Symbol.symbol(symbol + scopeType);
+
+        SymbolTable currentScope = this;
+        Binder binding = currentScope.get(s);
+        if (binding != null) {
+            return binding;
+        }
+        while (currentScope.hasParent()) {
+            currentScope = currentScope.parent;
+            binding = currentScope.get(s);
+            if (binding != null) {
+                return binding;
+            }
+        }
+        return null;
+    }
+
+
+    public Binder lookup(String sym) {
+        Binder b = null;
+        b = lookup(sym, Binder.SymbolType.FIELD);
+        if (b != null) {
+            return b;
+        }
+        b = lookup(sym, Binder.SymbolType.METHODRETURN);
+        if (b != null) {
+            return b;
+        }
+        b = lookup(sym, Binder.SymbolType.CLASS);
+        if (b != null) {
+            return b;
+        }
+
+        return null;
+    }
 
 
     /**
@@ -31,19 +66,16 @@ public class SymbolTable extends HashMap<Symbol, Binding> {
      * @param name Name of the scope.
      * @return Scope object, or null if there's no such scope (class).
      */
-    public void add(Symbol name, Binder type) {
-        symbols.put(name, type);
-    }
+    public boolean insert(String sym, Binder b) {
+        Symbol s = Symbol.symbol(sym + getAffix(b.getSymbolType()));
 
-   
-    /**
-     * Returns scope from symbol table
-     *
-     * @param name Name of the scope.
-     * @return Scope object, or null if there's no such scope (class).
-     */
-    public Symbol get(Symbol name) {
-        return symbols.get(name);
+        if (get(s) == null) {
+            //s does not exist in the innermost scope
+            put(s, b);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -56,6 +88,23 @@ public class SymbolTable extends HashMap<Symbol, Binding> {
         return parent;
     }
 
+
+    public SymbolTable.ScopeType getScopeType() {
+        return scopeType;
+    }
+
+   public ArrayList<SymbolTable> getChildScopes() {
+        return childScopes;
+    }
+
+    /**
+    * Checks if this scope belong to parent scope
+    *
+    * @return Return true if scope belongs to parent scope, else false
+    */
+    public boolean hasParent() {
+        return (parent != null) ? true : false;
+    }
 
     public String toString(int level) {
         StringBuilder sb = new StringBuilder();
@@ -83,6 +132,24 @@ public class SymbolTable extends HashMap<Symbol, Binding> {
         for (int i = 0; i < level; i++) {
             sb.append("    ");
         }
+    }
+
+    public static final String VAR_AFFIX = "$var", METHOD_AFFIX = "$method", CLASS_AFFIX = "$class";
+
+    public enum ScopeType {
+        PROGRAM, MAINCLASS, CLASS, METHOD, BLOCK;
+    }
+
+    private String getAffix(Binder.SymbolType symbolType) {
+        String affix = "";
+        if (symbolType == Binder.SymbolType.CLASS || symbolType == Binder.SymbolType.CLASSEXTENDS) {
+            affix = CLASS_AFFIX;
+        } else if (symbolType == Binder.SymbolType.LOCAL || symbolType == Binder.SymbolType.PARAM || symbolType == Binder.SymbolType.FIELD) {
+            affix = VAR_AFFIX;
+        } else if (symbolType == Binder.SymbolType.METHODRETURN) {
+            affix = METHOD_AFFIX;
+        }
+        return affix;
     }
 
 

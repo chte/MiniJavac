@@ -3,7 +3,7 @@ package symboltree;
 import syntaxtree.Type;
 
 public class Symbol {  
-    private static HashMap<String, Symbol> dictionary = new HashMap<String, Symbol>();
+    private static java.util.HashMap<String, Symbol> dictionary = new java.util.HashMap<String, Symbol>();
     private String name;
 
     private Symbol(String n) { 

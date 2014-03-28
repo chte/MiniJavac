@@ -27,17 +27,22 @@ public interface TypeVisitor
 	public Type visit(Identifier n);
 	public Type visit(IdentifierExp n);
 	public Type visit(IdentifierType n);
+	public Type visit(IfElse n);
 	public Type visit(If n);
 	public Type visit(IntArrayType n);
 	public Type visit(IntegerLiteral n);
 	public Type visit(IntegerType n);
 	public Type visit(LessThan x);
 	public Type visit(LessThanOrEqual x);
+	public Type visit(LongType x);
+	public Type visit(LongLiteral x);
+	public Type visit(LongArrayType x);
 	public Type visit(MainClass n);
 	public Type visit(MethodDecl n);
 	// public Type visit(MethodDeclList n);
 	public Type visit(Minus n);
-	public Type visit(NewArray n);
+	public Type visit(NewIntArray n);
+	public Type visit(NewLongArray n);
 	public Type visit(NewObject n);
 	public Type visit(Not n);
 	public Type visit(NotEqual x);
@@ -55,4 +60,5 @@ public interface TypeVisitor
 	public Type visit(VarDecl n);
 	// public Type visit(VarDeclList n);
 	public Type visit(While n);
+	public Type visit(VoidType n);
 }
