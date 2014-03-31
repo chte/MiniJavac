@@ -99,10 +99,9 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		checkClass(n.i);
 
 		ArrayList<Type> extensions = checkExtensions(n);
-
-		Binder b = getOldScope().find(Symbol.symbol(n.i.s));
+		Class c = (Class) getOldScope().find(Symbol.symbol(n.i.s));
 		for(Type t : extensions){
-			b.addExtraType(t);
+			c.addExtension(t);
 		}
 
 		for ( int i = 0; i < n.vl.size(); i++ ) {
@@ -445,25 +444,25 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		}
 
 		/* Extract right hand side */
-		Binder b = classScope.find(Symbol.symbol(n.i.s));
+		Method m = (Method) classScope.find(Symbol.symbol(n.i.s));
 
-		if(b == null) {
+		if(m == null) {
 			error("The method " + n.i.s + " is undefined for the type " + className + ".");
 			return new VoidType();
 		} else {
-			ArrayList<Type> paramTypes = b.getExtraTypes();
+			ArrayList<Variable> paramTypes = m.getParams();
 			if(paramTypes.size() != n.el.size()) {
 				error("The method" + n.i.s + " in type "  + className + " is not applicable for the arguments provided.");
 			}
 
 			for ( int i = 0; i < n.el.size(); i++ ) {
 				Type paramType = n.el.elementAt(i).accept(this);
-				if(!typeEquals(paramType, paramTypes.get(i))) {
+				if(!typeEquals(paramType, paramTypes.get(i).getType())) {
 					error("The method" + n.i.s + " in type "  + className + " is not applicable for the arguments provided.");
 					break;
 				}
 			}
-			return b.getType();
+			return m.getType();
 		}
 	}
 
@@ -558,18 +557,16 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		}
 		IdentifierType classLhs = (IdentifierType) t1;
 		IdentifierType classRhs = (IdentifierType) t2;
-		Binder b = getCurrentScope().find(Symbol.symbol(classLhs.s));
-		ArrayList<Type> classLhsExtensions = b.getExtraTypes();
+		Class c = (Class) getCurrentScope().find(Symbol.symbol(classLhs.s));
+		IdentifierType classLhsExtension = (IdentifierType) c.getExtension();
 
-		if(b == null || classLhsExtensions == null) {
+		if(c == null || classLhsExtension == null) {
 			return false;
 		}
-		for(int i = 0; i < classLhsExtensions.size(); i++) {
-			IdentifierType extensionType = (IdentifierType) classLhsExtensions.get(i);
-			if(extensionType.s.equals(classRhs.s)) {
-				return true;
-			}
+		if(classLhsExtension.s.equals(classRhs.s)) {
+			return true;
 		}
+		
 		return false;
 	}
 
@@ -648,16 +645,12 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		String className = n.i.s;
 		ArrayList<Type> extensions = new ArrayList<Type>();
 		HashSet<String> visited = new HashSet<String>();
-		Binder currentClass = getCurrentScope().find(Symbol.symbol(className));
+		Class currentClass = (Class) getCurrentScope().find(Symbol.symbol(className));
 		visited.add(className);
 
 		/* Traverse while extented classes still exist */
-		while(currentClass != null) {
+		while(currentClass != null && currentClass.hasExtension()) {
 			IdentifierType classExtension = (IdentifierType) currentClass.getExtension();
-			/* Break if not extensions found */
-			if(classExtension == null){
-				break;
-			}
 
 			if(visited.contains(classExtension.s)) {
 				error("Cyclic inheritance involving " + className + ".");
@@ -668,7 +661,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 			/* Update current class */
 			Binder childClass = currentClass;
-			currentClass = getCurrentScope().find(Symbol.symbol(classExtension.s));
+			currentClass = (Class) getCurrentScope().find(Symbol.symbol(classExtension.s));
 			if(currentClass != null) {
 				childClass.getScope().setParent(currentClass.getScope());
 			}
