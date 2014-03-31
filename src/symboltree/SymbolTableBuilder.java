@@ -28,6 +28,34 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
         errormsg.flush();
     }
 
+    public Type checkClass(Identifier n) {
+        Binder b = getCurrentScope().find(n.s, Symbol.SymbolType.CLASS);
+        if(b == null) {
+            error(n.s + " cannot be resolved to a variable in this scope.");
+            return new VoidType();
+        }
+        return  b.getType();
+    }
+
+    public Type checkVar(Identifier n) {
+        Binder b = getCurrentScope().find(n.s, Symbol.SymbolType.FIELD);
+        if(b == null) {
+            error(n.s + " cannot be resolved to a variable in this scope.");
+            return new VoidType();
+        } 
+        return b.getType();
+    }
+    public Type checkMethod(Identifier n) {
+        Binder b = getCurrentScope().find(n.s, Symbol.SymbolType.METHOD_RETURN);
+        if(b == null) {
+            error(n.s + " cannot be resolved to a variable in this scope.");
+            return new VoidType();
+        } 
+        return b.getType();
+    }
+
+
+
 	public SymbolTable getCurrentScope(){
 		return tableStack.peekFirst();
 	}
@@ -141,28 +169,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
         Binder duplicateVarDecl = getCurrentScope().find(n.i.s, Symbol.SymbolType.FIELD);
         if(duplicateVarDecl != null) {
             Symbol.SymbolType duplicateDeclType = duplicateVarDecl.getSymbolType();
-            switch(scopeType){
-                case CLASS:
-                    if(duplicateDeclType == Symbol.SymbolType.FIELD){
-                        error("Duplicate local variable " + n.i.s + ". Identfier already defined in defined in class scope.");
-                    }
-                    break;
-                case MAIN_CLASS:
-                    if(duplicateDeclType == Symbol.SymbolType.LOCAL){
-                        error("Duplicate local variable " + n.i.s + ". Identfier already defined in main class scope.");
-                    }
-                    break;
-                case BLOCK:
-                case METHOD:
-                    if(duplicateDeclType == Symbol.SymbolType.LOCAL){
-                        error("Duplicate local variable " + n.i.s + ". Identfier already defined in method scope." );
-
-                    }
-                    if(duplicateDeclType == Symbol.SymbolType.PARAM){
-                        error("Duplicate local variable " + n.i.s + ". Identfier already defined as parameter in method scope." );
-                    }
-                    break;
-            }
+            error("Duplicate local variable " + n.i.s + ". Identfier already defined in defined in class scope.");
         }   
 
         /* If not duplicate variable insert new into scope */

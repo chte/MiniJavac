@@ -139,7 +139,7 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
         return sb.toString();
     }
 
-    public static final String VAR_AFFIX = "$variable", METHOD_AFFIX = "$method", CLASS_AFFIX = "$class";
+    public static final String VAR_AFFIX = ":variable", METHOD_AFFIX = ":method", CLASS_AFFIX = ":class";
 
 
     private String getAffix(Symbol.SymbolType symbolType) {

@@ -11,7 +11,7 @@ public class Symbol {
         PARAM, 
         FIELD
     }
-    
+
     private static java.util.HashMap<String, Symbol> dictionary = new java.util.HashMap<String, Symbol>();
     private String name;
 
@@ -31,7 +31,7 @@ public class Symbol {
 
 	@Override
 	public String toString() {
-		int saltIndex = name.indexOf("$");
-		return name.substring(0, saltIndex);
+		int split = name.indexOf(":");
+		return name.substring(0, split);
 	}
 }
