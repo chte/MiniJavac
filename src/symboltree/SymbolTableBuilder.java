@@ -169,7 +169,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
         Binder duplicateVarDecl = getCurrentScope().find(n.i.s, Symbol.SymbolType.FIELD);
         if(duplicateVarDecl != null) {
             Symbol.SymbolType duplicateDeclType = duplicateVarDecl.getSymbolType();
-            error("Duplicate local variable " + n.i.s + ". Identfier already defined in defined in class scope.");
+            error("Duplicate local variable " + n.i.s + ".");
         }   
 
         /* If not duplicate variable insert new into scope */
