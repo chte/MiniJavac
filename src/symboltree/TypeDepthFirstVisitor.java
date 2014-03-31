@@ -570,6 +570,32 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		return false;
 	}
 
+    public Type checkClass(Identifier n) {
+    	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
+    	if(b == null) {
+			error(n.s + " cannot be resolved to a variable in this scope.");
+    		return new VoidType();
+    	}
+    	return  b.getType();
+    }
+
+	public Type checkVar(Identifier n) {
+    	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
+    	if(b == null) {
+			error(n.s + " cannot be resolved to a variable in this scope.");
+    		return new VoidType();
+    	} 
+    	return b.getType();
+    }
+	public Type checkMethod(Identifier n) {
+    	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
+    	if(b == null) {
+			error(n.s + " cannot be resolved to a variable in this scope.");
+    		return new VoidType();
+    	} 
+    	return b.getType();
+    }
+
 	private boolean checkIntEquals(Type t1, Type t2) {
 		if((t1 instanceof IntegerType) && (t2 instanceof IntegerType)) {
 			return true;
@@ -669,31 +695,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		}
 		return extensions;
 	}
-    public Type checkClass(Identifier n) {
-    	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
-    	if(b == null) {
-			error(n.s + " cannot be resolved to a variable in this scope.");
-    		return new VoidType();
-    	}
-    	return  b.getType();
-    }
 
-	public Type checkVar(Identifier n) {
-    	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
-    	if(b == null) {
-			error(n.s + " cannot be resolved to a variable in this scope.");
-    		return new VoidType();
-    	} 
-    	return b.getType();
-    }
-	public Type checkMethod(Identifier n) {
-    	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
-    	if(b == null) {
-			error(n.s + " cannot be resolved to a variable in this scope.");
-    		return new VoidType();
-    	} 
-    	return b.getType();
-    }
 
 
 }
