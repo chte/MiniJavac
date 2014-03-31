@@ -26,6 +26,8 @@ public static void main(String args[]) {
   Program program;
   SyntaxTreePrinter stp;
   SymbolTableBuilder stb;
+  TypeDepthFirstVisitor tdfv;
+
         if (args.length == 0) {
                 System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
                 parser = new MiniJavaParser(System.in);
@@ -68,9 +70,15 @@ public static void main(String args[]) {
 
     // VERBOSE: Output symbol table
     if(VERBOSE) {
-      SymbolTable st = stb.lookupTable.get(program);
+      SymbolTable st = stb.scopeLookupTable.get(program);
       System.out.println(st.toString(0));
     }
+
+    //Type checking.
+    tdfv = new TypeDepthFirstVisitor();
+    tdfv.scopeLookupTable = stb.scopeLookupTable;
+    tdfv.visit(program);
+
 
                 System.out.println("MiniJavac 1.0: Java program parsed successfully.");
         } catch (ParseException e) {
@@ -822,11 +830,6 @@ public static void main(String args[]) {
     finally { jj_save(11, xla); }
   }
 
-  static private boolean jj_3R_17() {
-    if (jj_3R_22()) return true;
-    return false;
-  }
-
   static private boolean jj_3R_13() {
     if (jj_3R_12()) return true;
     if (jj_scan_token(IDENTIFIER)) return true;
@@ -1042,6 +1045,11 @@ public static void main(String args[]) {
     }
     }
     }
+    return false;
+  }
+
+  static private boolean jj_3R_17() {
+    if (jj_3R_22()) return true;
     return false;
   }
 

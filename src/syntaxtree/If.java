@@ -4,10 +4,10 @@ import visitor.TypeVisitor;
 
 public class If extends Statement {
   public Exp e;
-  public Statement s1;
+  public Statement s;
 
   public If(Exp ae, Statement as1) {
-    e=ae; s1=as1;
+    e=ae; s=as1;
   }
 
   public void accept(Visitor v) {

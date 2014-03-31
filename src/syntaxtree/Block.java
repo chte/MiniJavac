@@ -4,6 +4,11 @@ import visitor.TypeVisitor;
 
 public class Block extends Statement {
   public StatementList sl;
+  public VarDeclList vl;
+
+  public Block(VarDeclList avl, StatementList asl) {
+    vl = avl; sl = asl;
+  }
 
   public Block(StatementList asl) {
     sl=asl;

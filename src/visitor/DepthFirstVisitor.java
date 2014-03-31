@@ -119,7 +119,7 @@ public class DepthFirstVisitor implements Visitor {
 // Statement s1,s2;
     public void visit(If n) {
         n.e.accept(this);
-        n.s1.accept(this);
+        n.s.accept(this);
     }
 
 // Exp e;

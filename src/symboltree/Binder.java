@@ -71,6 +71,10 @@ public class Binder {
       return scope;
     }
 
+    public Type getType() {
+      return type;
+    }
+
     private String getName(Type t) {
       String[] parts = t.getClass().getName().split("\\.");
       return parts[parts.length-1];

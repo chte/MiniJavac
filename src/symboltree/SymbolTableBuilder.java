@@ -9,12 +9,12 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 
 	public SymbolTable program;
 	public LinkedList<SymbolTable> tableStack;
-	public HashMap<Object, SymbolTable> lookupTable;
+	public HashMap<Object, SymbolTable> scopeLookupTable;
     public CompilerErrorMsg errormsg;
 
 	public SymbolTableBuilder(){
 		tableStack = new LinkedList<SymbolTable>();
-		lookupTable = new HashMap<Object, SymbolTable>(); 
+		scopeLookupTable = new HashMap<Object, SymbolTable>(); 
 	}
 
 
@@ -41,7 +41,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 		SymbolTable currentScope = new SymbolTable(parentScope, scopeType);
 
 		/* Add to lookup table */
-		lookupTable.put(n, currentScope);
+		scopeLookupTable.put(n, currentScope);
 
 		/* Push current scope on stack */
 		tableStack.addFirst(currentScope);
