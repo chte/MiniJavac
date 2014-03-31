@@ -8,7 +8,7 @@ public class Variable extends Binder{
 
 	/* Input parameter st can be arbitary string instead */
 	public Variable(Identifier id, Type type, Binder.SymbolType st) { 
-		super(type, st, id); 
+		super(type, st); 
 	}
 
     public String toString() {
