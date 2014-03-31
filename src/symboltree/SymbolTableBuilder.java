@@ -108,7 +108,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 
         /* Add main class to program scope */
         getParentScope().insert(n.i1.s, new Binder( new IdentifierType(n.i1.s), Symbol.SymbolType.CLASS, getCurrentScope() ));
-        getCurrentScope().classType = new IdentifierType(n.i1.s);
+        getCurrentScope().setClassType(new IdentifierType(n.i1.s));
 
 
         getCurrentScope().insert(n.i2.s, new Binder( new IdentifierType(n.i2.s), Symbol.SymbolType.PARAM ));
@@ -130,7 +130,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 
         /* Add class to scope */
         getParentScope().insert(n.i.s, new Binder( new IdentifierType(n.i.s), Symbol.SymbolType.CLASS, getCurrentScope() ));
-        getCurrentScope().classType = new IdentifierType(n.i.s);
+        getCurrentScope().setClassType(new IdentifierType(n.i.s));
         getParentScope().getChildScopes().add(getCurrentScope());
 
         /* Set traverse in main class as a new child scope */
@@ -145,7 +145,6 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
         if(getCurrentScope().find(n.i.s, Symbol.SymbolType.CLASS_EXTENDS) != null) {
             error(n.i.s + " was already defined in scope.");
         }
-
         /* Visited class so set up new scope */
         startScope(n, SymbolTable.ScopeType.CLASS);
 
@@ -166,9 +165,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
    public void visit(VarDecl n)
     {
         SymbolTable.ScopeType scopeType = getCurrentScope().getScopeType();
-        Binder duplicateVarDecl = getCurrentScope().find(n.i.s, Symbol.SymbolType.FIELD);
-        if(duplicateVarDecl != null) {
-            Symbol.SymbolType duplicateDeclType = duplicateVarDecl.getSymbolType();
+        if(getCurrentScope().find(n.i.s, Symbol.SymbolType.FIELD) != null) {
             error("Duplicate local variable " + n.i.s + ".");
         }   
 
@@ -182,7 +179,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
                 break;
             case METHOD:
             case BLOCK:
-                getCurrentScope().insert(n.i.s, new Binder(n.t, Symbol.SymbolType.LOCAL));
+                getCurrentScope().insert(n.i.s, new Binder(n.t, Symbol.SymbolType.PARAM));
                 break;
         }
 
