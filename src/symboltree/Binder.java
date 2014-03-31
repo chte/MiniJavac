@@ -34,6 +34,14 @@ public class Binder {
       return extraTypes;
     }
 
+    public Type getExtension() {
+      if(symbolType == Symbol.SymbolType.CLASS_EXTENDS){
+        return extraTypes.get(0);
+      }else{
+        return null;
+      }
+    }
+
     public Symbol.SymbolType getSymbolType() {
       return symbolType;
     }

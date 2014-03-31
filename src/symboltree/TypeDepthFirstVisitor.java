@@ -653,11 +653,12 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 		/* Traverse while extented classes still exist */
 		while(currentClass != null) {
+			IdentifierType classExtension = (IdentifierType) currentClass.getExtension();
 			/* Break if not extensions found */
-			if(currentClass.getSymbolType() != Symbol.SymbolType.CLASS_EXTENDS) {
+			if(classExtension == null){
 				break;
 			}
-			IdentifierType classExtension = (IdentifierType) currentClass.getExtraTypes().get(0);
+
 			if(visited.contains(classExtension.s)) {
 				error("Cyclic inheritance involving " + className + ".");
 				break;
