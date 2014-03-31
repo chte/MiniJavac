@@ -88,6 +88,10 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
         return parent;
     }
 
+    public void setParent(SymbolTable parent) {
+        this.parent = parent;
+    }
+
 
     public SymbolTable.ScopeType getScopeType() {
         return scopeType;

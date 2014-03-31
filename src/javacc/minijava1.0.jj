@@ -28,6 +28,8 @@ public static void main(String args[]) {
   Program program;
   SyntaxTreePrinter stp;
   SymbolTableBuilder stb;
+  TypeDepthFirstVisitor tdfv;
+
 	if (args.length == 0) {
 		System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
 		parser = new MiniJavaParser(System.in);
@@ -60,22 +62,29 @@ public static void main(String args[]) {
 	try {
 		program = parser.Program();
 
+    
     // VERBOSE: Print abstract syntax tree 
     if(VERBOSE) {
       stp = new SyntaxTreePrinter(System.out);
       stp.visit(program);
       System.out.println();
     }
-
+   
     //Symbol table
     stb = new SymbolTableBuilder();
     stb.visit(program);
-
+    
     // VERBOSE: Output symbol table
     if(VERBOSE) {
-      SymbolTable st = stb.lookupTable.get(program);
+      SymbolTable st = stb.scopeLookupTable.get(program);
       System.out.println(st.toString(0));
     }
+    
+    //Type checking.
+    tdfv = new TypeDepthFirstVisitor();
+    tdfv.scopeLookupTable = stb.scopeLookupTable;
+    tdfv.visit(program);
+
 
 		System.out.println("MiniJavac 1.0: Java program parsed successfully.");
 	} catch (ParseException e) {
@@ -152,12 +161,12 @@ TOKEN: /* OPERATORS */
 {
   < ASSIGN: "=" >
 | < LT: "<" >
-//| < GT: ">" >
+// | < GT: ">" >
 // | < EQ: "==" > /* Bonus 1p */
 // | < LE: "<=" > /* Bonus 1p */
 // | < GE: ">=" > /* Bonus 1p */
 // | < NE: "!=" > /* Bonus 1p */
-//| < SC_OR: "||" > /* Bonus 2p */
+// | < SC_OR: "||" > /* Bonus 2p */
 | < SC_AND: "&&" >
 | < PLUS: "+" >
 | < MINUS: "-" >

@@ -110,6 +110,9 @@ public class DepthFirstVisitor implements Visitor {
 
 // StatementList sl;
     public void visit(Block n) {
+        for ( int i = 0; i < n.vl.size(); i++ ) {
+            n.vl.elementAt(i).accept(this);
+        }
         for ( int i = 0; i < n.sl.size(); i++ ) {
             n.sl.elementAt(i).accept(this);
         }
@@ -119,7 +122,7 @@ public class DepthFirstVisitor implements Visitor {
 // Statement s1,s2;
     public void visit(If n) {
         n.e.accept(this);
-        n.s1.accept(this);
+        n.s.accept(this);
     }
 
 // Exp e;
