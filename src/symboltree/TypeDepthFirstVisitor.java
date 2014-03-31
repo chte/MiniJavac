@@ -98,14 +98,6 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		startScope(n);
 		checkClass(n.i);
 
-		SymbolTable extendsScope = null;
-		if(getCurrentScope().find(n.j.s, Symbol.SymbolType.CLASS) == null) {
-			error(n.j.s + " cannot be resolved to a variable in this scope.");
-			extendsScope = getOldScope();
-		} else {
-			extendsScope = getCurrentScope().find(n.j.s, Symbol.SymbolType.CLASS).getScope();
-		}
-
 		ArrayList<Type> extensions = checkExtensions(n);
 
 		Binder b = getOldScope().find(n.i.s, Symbol.SymbolType.CLASS);
