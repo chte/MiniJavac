@@ -3,15 +3,15 @@ import visitor.Visitor;
 import visitor.TypeVisitor;
 
 public class Block extends Statement {
-  public StatementList sl;
   public VarDeclList vl;
+  public StatementList sl;
 
   public Block(VarDeclList avl, StatementList asl) {
     vl = avl; sl = asl;
   }
 
   public Block(StatementList asl) {
-    sl=asl;
+    vl = new VarDeclList(); sl = asl; 
   }
 
   public void accept(Visitor v) {

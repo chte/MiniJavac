@@ -57,6 +57,7 @@ public static void main(String args[]) {
         try {
                 program = parser.Program();
 
+
     // VERBOSE: Print abstract syntax tree 
     if(VERBOSE) {
       stp = new SyntaxTreePrinter(System.out);
@@ -868,15 +869,15 @@ public static void main(String args[]) {
     return false;
   }
 
-  static private boolean jj_3_1() {
-    if (jj_3R_12()) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
   static private boolean jj_3_6() {
     if (jj_scan_token(SC_AND)) return true;
     if (jj_3R_14()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_1() {
+    if (jj_3R_12()) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
     return false;
   }
 

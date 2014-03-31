@@ -659,41 +659,29 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	}
 
 	public Type lookupVariable(Identifier n) {
-    	String identifier = n.s;
-    	Binder b = getCurrentScope().lookup(identifier, Binder.SymbolType.FIELD);
-    	Type identifierType = null;
+    	Binder b = getCurrentScope().lookup(n.s, Binder.SymbolType.FIELD);
     	if(b == null) {
-			error("Identifier " + identifier + " is not declared as a field in current scope.");
-    		identifierType = new IntegerType();
-    	} else {
-    		identifierType = b.getType();
-    	}
-    	return identifierType;
+			error("Identifier " + n.s + " is not declared as a field in current scope.");
+    		return new VoidType();
+    	} 
+    	return b.getType();
     }
 
     public Type lookupMethod(Identifier n) {
-    	String identifier = n.s;
-    	Binder b = getCurrentScope().lookup(identifier, Binder.SymbolType.METHODRETURN);
-    	Type identifierType = null;
+    	Binder b = getCurrentScope().lookup(n.s, Binder.SymbolType.METHODRETURN);
     	if(b == null) {
-			error("Identifier " + identifier + " is not declared as a method in current scope.");
-    		identifierType = new IntegerType();
-    	} else {
-    		identifierType = b.getType();
+			error("Identifier " + n.s + " is not declared as a method in current scope.");
+    		return new VoidType();
     	}
-    	return identifierType;
+   		return b.getType();
     }
 
     public Type lookupClass(Identifier n) {
-    	String identifier = n.s;
-    	Binder b = getCurrentScope().lookup(identifier, Binder.SymbolType.CLASS);
-    	Type identifierType = null;
+    	Binder b = getCurrentScope().lookup(n.s, Binder.SymbolType.CLASS);
     	if(b == null) {
-			error("Identifier " + identifier + " is not declared as a class in current scope.");
-    		identifierType = new IntegerType();
-    	} else {
-    		identifierType = b.getType();
+			error("Identifier " + n.s + " is not declared as a class in current scope.");
+    		return new VoidType();
     	}
-    	return identifierType;
+    	return  b.getType();
     }
 }
