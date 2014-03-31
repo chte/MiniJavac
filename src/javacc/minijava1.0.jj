@@ -24,35 +24,38 @@ public MiniJavaParser (String fileName){
 }
 
 public static void main(String args[]) {
-	MiniJavaParser parser;
+	MiniJavaParser parser = null;
   Program program;
   SyntaxTreePrinter stp;
   SymbolTableBuilder stb;
 	if (args.length == 0) {
 		System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
 		parser = new MiniJavaParser(System.in);
-	} else if (args.length == 1) {
+	} 
+  else if (args.length == 1) {
 		System.out.println("MiniJavac 1.0:  Reading from file " + args[0] + " . . .");
 		try {
 			parser = new MiniJavaParser(new java.io.FileInputStream(args[0]));
 		} catch (java.io.FileNotFoundException e) {
 			System.out.println("MiniJavac 1.0: File " + args[0] + " not found.");
-			return;
+			System.exit(1);
 		}
-  } else if (args.length == 2){
+  } 
+  else if (args.length == 2){
     System.out.println("MiniJavac 1.0:  Reading from file " + args[1] + " . . .");
     try {
       parser = new MiniJavaParser(new java.io.FileInputStream(args[1]));
     } catch (java.io.FileNotFoundException e) {
       System.out.println("MiniJavac 1.0: File " + args[1] + " not found.");
-      return;
+      System.exit(1);
     }  
-	} else {
+	}
+  else {
 		System.out.println("MiniJavac 1.0:  Usage is one of:");
 		System.out.println("         java JavaParser < inputfile");
 		System.out.println("OR");
 		System.out.println("         java JavaParser inputfile");
-		return;
+		System.exit(0);
 	}
 	try {
 		program = parser.Program();
@@ -78,7 +81,9 @@ public static void main(String args[]) {
 	} catch (ParseException e) {
 		System.out.println(e.getMessage());
 		System.out.println("MiniJavac 1.0: Encountered errors during parse.");
+    System.exit(1);
 	}
+  System.exit(0);
 }
 }
 PARSER_END(MiniJavaParser)
