@@ -140,8 +140,8 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type rt = n.e.accept(this); /* Return type */
 		Type mrt = getCurrentScope().find(Symbol.symbol(n.i.s)).getType(); /* Method rt */
 
-		if(!typeEquals(rt, mrt)) {
-			if(identifierTypeEquals(rt, mrt)) {
+		if(!checkTypeEquals(rt, mrt)) {
+			if(checkIdentifierEquals(rt, mrt)) {
 				if(!classReferencesEquals(rt, mrt)) {
 					error("Type mismatch: return type does not extend method return type.");
 				}
@@ -232,8 +232,8 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type varType = checkVar(n.i);
 		Type exprType = n.e.accept(this);
 
-		if(!typeEquals(varType, exprType)) {
-			if(identifierTypeEquals(varType, exprType)) {
+		if(!checkTypeEquals(varType, exprType)) {
+			if(checkIdentifierEquals(varType, exprType)) {
 				if(!classReferencesEquals(varType, exprType)) {
 					error("Right side object type is not an extension of the left side variable type.");
 				}
@@ -254,7 +254,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 			error("Array index expression must be of type integer.");
 		}
 
-		if(!arrayAssignTypeEquals(it, exprType)) {
+		if(!checkArrayAssignEquals(it, exprType)) {
 			error("Left and right side of an integer array assignment must be of integer or long type.");
 		}
 		return new VoidType();
@@ -264,7 +264,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
-		if(!boolTypeEquals(lhs, rhs)) {
+		if(!checkBoolEquals(lhs, rhs)) {
 			error("Incompatible operand types. Left hand side and right hand side must be of type boolean.");
 		}
 
@@ -275,7 +275,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
-		if(!boolTypeEquals(lhs, rhs)) {
+		if(!checkBoolEquals(lhs, rhs)) {
 			error("Incompatible operand types. Left hand side and right hand side must be of type boolean.");
 		}
 
@@ -286,7 +286,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
-		if(!intTypeEquals(lhs, rhs) && !longTypeEquals(lhs, rhs)) {
+		if(!checkIntEquals(lhs, rhs) && !checkLongEquals(lhs, rhs)) {
 			error("Incompatible operand types. Left hand side and right hand side must either integer or long.");
 		}
 		return new BooleanType();
@@ -296,7 +296,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
-		if(!intTypeEquals(lhs, rhs) && !longTypeEquals(lhs, rhs)) {
+		if(!checkIntEquals(lhs, rhs) && !checkLongEquals(lhs, rhs)) {
 			error("Incompatible operand types. Left hand side and right hand side must either integer or long.");
 		}
 		return new BooleanType();
@@ -306,7 +306,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
-		if(!intTypeEquals(lhs, rhs) && !longTypeEquals(lhs, rhs)) {
+		if(!checkIntEquals(lhs, rhs) && !checkLongEquals(lhs, rhs)) {
 			error("Incompatible operand types. Left hand side and right hand side must either integer or long.");
 		}
 		return new BooleanType();
@@ -316,7 +316,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
-		if(!intTypeEquals(lhs, rhs) && !longTypeEquals(lhs, rhs)) {
+		if(!checkIntEquals(lhs, rhs) && !checkLongEquals(lhs, rhs)) {
 			error("Incompatible operand types. Left hand side and right hand side must either integer or long.");
 		}
 		return new BooleanType();
@@ -327,7 +327,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type rhs = n.e2.accept(this);
 
 		/* Equality of classes must be checked by reference */
-		if(!typeEquals(lhs, rhs) && !classReferencesEquals(lhs, rhs) && !classReferencesEquals(rhs, lhs)) {
+		if(!checkTypeEquals(lhs, rhs) && !classReferencesEquals(lhs, rhs) && !classReferencesEquals(rhs, lhs)) {
 			error("Incompatible operand types. Left hand side and right hand side must either integer, long or class type.");
 		}
 		return new BooleanType();
@@ -337,7 +337,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
-		if(!typeEquals(lhs, rhs) && !classReferencesEquals(lhs, rhs) && !classReferencesEquals(rhs, lhs)) {
+		if(!checkTypeEquals(lhs, rhs) && !classReferencesEquals(lhs, rhs) && !classReferencesEquals(rhs, lhs)) {
 			error("Incompatible operand types. Left hand side and right hand side must either integer, long or class type.");
 		}
 		return new BooleanType();
@@ -347,9 +347,9 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
-		if(intTypeEquals(lhs, rhs)) {
+		if(checkIntEquals(lhs, rhs)) {
 			return new IntegerType();
-		} else if(longTypeEquals(lhs, rhs)) {
+		} else if(checkLongEquals(lhs, rhs)) {
 			return new LongType();
 		}else if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
 				  (lhs instanceof LongType && rhs instanceof IntegerType) ){
@@ -365,9 +365,9 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
-		if(intTypeEquals(lhs, rhs)) {
+		if(checkIntEquals(lhs, rhs)) {
 			return new IntegerType();
-		} else if(longTypeEquals(lhs, rhs)) {
+		} else if(checkLongEquals(lhs, rhs)) {
 			return new LongType();
 		} else if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
 				   (lhs instanceof LongType && rhs instanceof IntegerType) ){
@@ -383,9 +383,9 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
-		if(intTypeEquals(lhs, rhs)) {
+		if(checkIntEquals(lhs, rhs)) {
 			return new IntegerType();
-		} else if(longTypeEquals(lhs, rhs)) {
+		} else if(checkLongEquals(lhs, rhs)) {
 			return new LongType();
 		} else if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
 				   (lhs instanceof LongType && rhs instanceof IntegerType) ){
@@ -457,7 +457,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 			for ( int i = 0; i < n.el.size(); i++ ) {
 				Type paramType = n.el.elementAt(i).accept(this);
-				if(!typeEquals(paramType, paramTypes.get(i).getType())) {
+				if(!checkTypeEquals(paramType, paramTypes.get(i).getType())) {
 					error("The method" + n.i.s + " in type "  + className + " is not applicable for the arguments provided.");
 					break;
 				}
@@ -570,53 +570,55 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		return false;
 	}
 
-	private boolean intTypeEquals(Type t1, Type t2) {
+	private boolean checkIntEquals(Type t1, Type t2) {
 		if((t1 instanceof IntegerType) && (t2 instanceof IntegerType)) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean arrayTypeEquals(Type t1, Type t2) {
+	private boolean checkArrayEquals(Type t1, Type t2) {
 		if((t1 instanceof IntArrayType) && (t2 instanceof IntArrayType)) {
 			return true;
-		} else if((t1 instanceof LongArrayType) && (t2 instanceof LongArrayType)) {
+		}
+		if((t1 instanceof LongArrayType) && (t2 instanceof LongArrayType)) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean arrayAssignTypeEquals(Type t1, Type t2) {
+	private boolean checkArrayAssignEquals(Type t1, Type t2) {
 		if((t1 instanceof IntArrayType) && (t2 instanceof IntegerType)) {
 			return true;
-		} else if((t1 instanceof LongArrayType) && (t2 instanceof LongType)) {
+		}
+		if((t1 instanceof LongArrayType) && (t2 instanceof LongType)) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean identifierTypeEquals(Type t1, Type t2) {
+	private boolean checkIdentifierEquals(Type t1, Type t2) {
 		if((t1 instanceof IdentifierType) && (t2 instanceof IdentifierType)) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean longTypeEquals(Type t1, Type t2) {
+	private boolean checkLongEquals(Type t1, Type t2) {
 		if((t1 instanceof LongType) && (t2 instanceof LongType)) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean boolTypeEquals(Type t1, Type t2) {
+	private boolean checkBoolEquals(Type t1, Type t2) {
 		if((t1 instanceof BooleanType) && (t2 instanceof BooleanType)) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean classTypeEquals(Type t1, Type t2) {
+	private boolean checkClassEquals(Type t1, Type t2) {
 		if((t1 instanceof IdentifierType) && (t2 instanceof IdentifierType)) {
 			IdentifierType it1 = (IdentifierType) t1;
 			IdentifierType it2 = (IdentifierType) t2;
@@ -627,8 +629,8 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		return false;
 	}
 
-	private boolean typeEquals(Type t1, Type t2) {
-		if(intTypeEquals(t1, t2) || longTypeEquals(t1, t2) || boolTypeEquals(t1, t2) || arrayTypeEquals(t1, t2) || classTypeEquals(t1, t2)) {
+	private boolean checkTypeEquals(Type t1, Type t2) {
+		if(checkIntEquals(t1, t2) || checkLongEquals(t1, t2) || checkBoolEquals(t1, t2) || checkArrayEquals(t1, t2) || checkClassEquals(t1, t2)) {
 			return true;
 		}
 		return false;
@@ -660,11 +662,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 			}
 
 			/* Update current class */
-			Binder childClass = currentClass;
 			currentClass = (Class) getCurrentScope().find(Symbol.symbol(classExtension.s));
-			if(currentClass != null) {
-				childClass.getScope().setParent(currentClass.getScope());
-			}
 
 			/* lastly update list */
 			extensions.add(classExtension);
