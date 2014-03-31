@@ -28,33 +28,6 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
         errormsg.flush();
     }
 
-    public Type checkClass(Identifier n) {
-        Binder b = getCurrentScope().find(n.s, Symbol.SymbolType.CLASS);
-        if(b == null) {
-            error(n.s + " cannot be resolved to a variable in this scope.");
-            return new VoidType();
-        }
-        return  b.getType();
-    }
-
-    public Type checkVar(Identifier n) {
-        Binder b = getCurrentScope().find(n.s, Symbol.SymbolType.FIELD);
-        if(b == null) {
-            error(n.s + " cannot be resolved to a variable in this scope.");
-            return new VoidType();
-        } 
-        return b.getType();
-    }
-    public Type checkMethod(Identifier n) {
-        Binder b = getCurrentScope().find(n.s, Symbol.SymbolType.METHOD_RETURN);
-        if(b == null) {
-            error(n.s + " cannot be resolved to a variable in this scope.");
-            return new VoidType();
-        } 
-        return b.getType();
-    }
-
-
 
 	public SymbolTable getCurrentScope(){
 		return tableStack.peekFirst();
@@ -99,7 +72,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 
 	//Main program
 	public void visit(MainClass n){
-        if(getCurrentScope().find(n.i1.s, Symbol.SymbolType.CLASS) != null) {
+        if(getCurrentScope().find(Symbol.symbol(n.i1.s)) != null) {
             error(n.i1.s + " was already defined in scope.");
         }
 
@@ -107,11 +80,11 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
         startScope(n, SymbolTable.ScopeType.MAIN_CLASS);
 
         /* Add main class to program scope */
-        getParentScope().insert(n.i1.s, new Binder( new IdentifierType(n.i1.s), Symbol.SymbolType.CLASS, getCurrentScope() ));
+        getParentScope().insert(Symbol.symbol(n.i1.s), new Binder( new IdentifierType(n.i1.s), Binder.SymbolType.CLASS, getCurrentScope() ));
         getCurrentScope().setClassType(new IdentifierType(n.i1.s));
 
 
-        getCurrentScope().insert(n.i2.s, new Binder( new IdentifierType(n.i2.s), Symbol.SymbolType.PARAM ));
+        getCurrentScope().insert(Symbol.symbol(n.i2.s), new Binder( new IdentifierType(n.i2.s), Binder.SymbolType.PARAM ));
         getParentScope().getChildScopes().add(getCurrentScope());
 
 		/* Set traverse in main class as a new child scope */
@@ -121,7 +94,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
     
     public void visit(ClassDeclSimple n)
     {
-        if(getCurrentScope().find(n.i.s, Symbol.SymbolType.CLASS) != null) {
+        if(getCurrentScope().find(Symbol.symbol(n.i.s)) != null) {
             error(n.i.s + " was already defined in scope.");
         }
 
@@ -129,7 +102,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
         startScope(n, SymbolTable.ScopeType.CLASS);
 
         /* Add class to scope */
-        getParentScope().insert(n.i.s, new Binder( new IdentifierType(n.i.s), Symbol.SymbolType.CLASS, getCurrentScope() ));
+        getParentScope().insert(Symbol.symbol(n.i.s), new Binder( new IdentifierType(n.i.s), Binder.SymbolType.CLASS, getCurrentScope() ));
         getCurrentScope().setClassType(new IdentifierType(n.i.s));
         getParentScope().getChildScopes().add(getCurrentScope());
 
@@ -142,17 +115,17 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 
     public void visit(ClassDeclExtends n)
     {
-        if(getCurrentScope().find(n.i.s, Symbol.SymbolType.CLASS_EXTENDS) != null) {
+        if(getCurrentScope().find(Symbol.symbol(n.i.s)) != null) {
             error(n.i.s + " was already defined in scope.");
         }
         /* Visited class so set up new scope */
         startScope(n, SymbolTable.ScopeType.CLASS);
 
         ArrayList<Type> extensions = new ArrayList<Type>();
-        Binder b =  new Binder(new IdentifierType(n.i.s), Symbol.SymbolType.CLASS_EXTENDS, getCurrentScope());
+        Binder b =  new Binder(new IdentifierType(n.i.s), Binder.SymbolType.CLASS_EXTENDS, getCurrentScope());
         b.addExtraType(new IdentifierType(n.j.s));
 
-        getParentScope().insert(n.i.s, b);
+        getParentScope().insert(Symbol.symbol(n.i.s), b);
         getCurrentScope().classType = new IdentifierType(n.i.s);
         getParentScope().getChildScopes().add(getCurrentScope());
 
@@ -165,21 +138,21 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
    public void visit(VarDecl n)
     {
         SymbolTable.ScopeType scopeType = getCurrentScope().getScopeType();
-        if(getCurrentScope().find(n.i.s, Symbol.SymbolType.FIELD) != null) {
+        if(getCurrentScope().find(Symbol.symbol(n.i.s)) != null) {
             error("Duplicate local variable " + n.i.s + ".");
         }   
 
         /* If not duplicate variable insert new into scope */
         switch(scopeType){
             case MAIN_CLASS:
-                getCurrentScope().insert(n.i.s, new Binder(n.t, Symbol.SymbolType.LOCAL));
+                getCurrentScope().insert(Symbol.symbol(n.i.s), new Variable(n.i, n.t, Binder.SymbolType.LOCAL));
                 break;
             case CLASS:
-                getCurrentScope().insert(n.i.s, new Binder(n.t, Symbol.SymbolType.FIELD));
+                getCurrentScope().insert(Symbol.symbol(n.i.s), new Binder(n.t, Binder.SymbolType.FIELD));
                 break;
             case METHOD:
             case BLOCK:
-                getCurrentScope().insert(n.i.s, new Binder(n.t, Symbol.SymbolType.PARAM));
+                getCurrentScope().insert(Symbol.symbol(n.i.s), new Binder(n.t, Binder.SymbolType.PARAM));
                 break;
         }
 
@@ -188,18 +161,17 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 
     public void visit(MethodDecl n)
     {
-        Binder duplicateMethodDecl = getCurrentScope().find(n.i.s, Symbol.SymbolType.METHOD_RETURN);
-        if(duplicateMethodDecl != null) {
+        if(getCurrentScope().find(Symbol.symbol(n.i.s)) != null) {
             warning("Duplicate method names" + n.i.s + ".");
         }
 
         /* Visited method so set up new scope */
         startScope(n, SymbolTable.ScopeType.METHOD);  
-        Binder b = new Binder(n.t, Symbol.SymbolType.METHOD_RETURN, getCurrentScope());
+        Binder b = new Binder(n.t, Binder.SymbolType.METHOD_RETURN, getCurrentScope());
         for(int i = 0; i < n.fl.size(); i++) {
             b.addExtraType(n.fl.elementAt(i).t);
         }
-        getParentScope().insert(n.i.s, b);
+        getParentScope().insert(Symbol.symbol(n.i.s), b);
         getCurrentScope().setClassType(getParentScope().getClassType());
         getParentScope().getChildScopes().add(getCurrentScope());
 
@@ -211,12 +183,12 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 
     public void visit(Formal n)
     {
-        Binder duplicate = getCurrentScope().find(n.i.s, Symbol.SymbolType.PARAM);
-        if(duplicate != null && duplicate.getSymbolType() == Symbol.SymbolType.PARAM) {
+        Binder duplicate = getCurrentScope().find(Symbol.symbol(n.i.s));
+        if(duplicate != null && duplicate.getSymbolType() == Binder.SymbolType.PARAM) {
             error("Duplicate parameter " + n.i.s + ".");
         }
 
-        getCurrentScope().insert(n.i.s, new Binder(n.t, Symbol.SymbolType.PARAM));
+        getCurrentScope().insert(Symbol.symbol(n.i.s), new Binder(n.t, Binder.SymbolType.PARAM));
 
         super.visit(n);
     }

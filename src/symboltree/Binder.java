@@ -4,21 +4,37 @@ import syntaxtree.*;
 import java.util.ArrayList;
 
 public class Binder {  
+    public enum SymbolType {
+        CLASS, 
+        CLASS_EXTENDS, 
+        METHOD_RETURN,
+        LOCAL, 
+        PARAM, 
+        FIELD
+    }
+    private Identifier id;
     private Type type;
-    private Symbol.SymbolType symbolType;
+    private Binder.SymbolType st;
     private ArrayList<Type> extraTypes; // If extra parameters exist like method
     private SymbolTable scope;
 
-    public Binder(Type type, Symbol.SymbolType symbolType) {
+    public Binder(Type type) {
       this.type = type;
-      this.symbolType = symbolType;
+      this.st = st;
       this.extraTypes = null;
       this.scope = null;
     }
 
-    public Binder(Type type, Symbol.SymbolType symbolType, SymbolTable scope) {
+    public Binder(Type type, Binder.SymbolType st) {
       this.type = type;
-      this.symbolType = symbolType;
+      this.st = st;
+      this.extraTypes = null;
+      this.scope = null;
+    }
+
+    public Binder(Type type, Binder.SymbolType st, SymbolTable scope) {
+      this.type = type;
+      this.st = st;
       this.extraTypes = null;
       this.scope = scope;
     }
@@ -35,15 +51,15 @@ public class Binder {
     }
 
     public Type getExtension() {
-      if(symbolType == Symbol.SymbolType.CLASS_EXTENDS){
+      if(st == Binder.SymbolType.CLASS_EXTENDS){
         return extraTypes.get(0);
       }else{
         return null;
       }
     }
 
-    public Symbol.SymbolType getSymbolType() {
-      return symbolType;
+    public Binder.SymbolType getSymbolType() {
+      return st;
     }
 
     public SymbolTable getScope() {
@@ -54,14 +70,20 @@ public class Binder {
       return type;
     }
 
-    private String getName(Type t) {
+    public String getName() {
+      String[] parts = this.type.getClass().getName().split("\\.");
+      return parts[parts.length-1];
+    }
+
+    public String getName(Type t) {
       String[] parts = t.getClass().getName().split("\\.");
       return parts[parts.length-1];
     }
 
+
     @Override
     public String toString() {
-      String binding = "<" + symbolType.toString() + ": " + getName(type);
+      String binding = "<" + st.toString() + ": " + getName();
       if(extraTypes != null) {
         binding += ", MethodParameters: " + printArrayList(extraTypes);
       }

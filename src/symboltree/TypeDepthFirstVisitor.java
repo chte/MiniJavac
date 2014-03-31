@@ -100,7 +100,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 		ArrayList<Type> extensions = checkExtensions(n);
 
-		Binder b = getOldScope().find(n.i.s, Symbol.SymbolType.CLASS);
+		Binder b = getOldScope().find(Symbol.symbol(n.i.s));
 		for(Type t : extensions){
 			b.addExtraType(t);
 		}
@@ -139,7 +139,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 			n.sl.elementAt(i).accept(this);
 		}
 		Type rt = n.e.accept(this); /* Return type */
-		Type mrt = getCurrentScope().find(n.i.s, Symbol.SymbolType.METHOD_RETURN).getType(); /* Method rt */
+		Type mrt = getCurrentScope().find(Symbol.symbol(n.i.s)).getType(); /* Method rt */
 
 		if(!typeEquals(rt, mrt)) {
 			if(identifierTypeEquals(rt, mrt)) {
@@ -437,7 +437,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		/* Left hand side is a identifier */
 		IdentifierType it = (IdentifierType) lhs;
 		String className = it.s;
-		SymbolTable classScope = getCurrentScope().find(className, Symbol.SymbolType.CLASS).getScope();
+		SymbolTable classScope = getCurrentScope().find(Symbol.symbol(className)).getScope();
 
 		/* Left hand side is a identifier but check its existance*/
 		if(classScope == null){
@@ -445,7 +445,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		}
 
 		/* Extract right hand side */
-		Binder b = classScope.find(n.i.s, Symbol.SymbolType.METHOD_RETURN);
+		Binder b = classScope.find(Symbol.symbol(n.i.s));
 
 		if(b == null) {
 			error("The method " + n.i.s + " is undefined for the type " + className + ".");
@@ -484,12 +484,12 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	}
 
 	public Type visit(IdentifierExp n) {
-		Binder b = getCurrentScope().find(n.s, Symbol.SymbolType.FIELD);
+		Binder b = getCurrentScope().find(Symbol.symbol(n.s));
         if(b == null) {
-	        b = getCurrentScope().find(n.s, Symbol.SymbolType.METHOD_RETURN);        
+	        b = getCurrentScope().find(Symbol.symbol(n.s));        
         }
         if(b == null) {
-        	b = getCurrentScope().find(n.s, Symbol.SymbolType.CLASS);
+        	b = getCurrentScope().find(Symbol.symbol(n.s));
         }
 
 		if(b == null) {
@@ -533,12 +533,12 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	}
 
     public Type visit(Identifier n) {
-		Binder b = getCurrentScope().find(n.s, Symbol.SymbolType.FIELD);
+		Binder b = getCurrentScope().find(Symbol.symbol(n.s));
         if (b == null) {
-	        b = getCurrentScope().find(n.s, Symbol.SymbolType.METHOD_RETURN);        
+	        b = getCurrentScope().find(Symbol.symbol(n.s));        
         }
         if (b == null) {
-        	b = getCurrentScope().find(n.s, Symbol.SymbolType.CLASS);
+        	b = getCurrentScope().find(Symbol.symbol(n.s));
         }
 
 		if(b == null) {
@@ -558,7 +558,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		}
 		IdentifierType classLhs = (IdentifierType) t1;
 		IdentifierType classRhs = (IdentifierType) t2;
-		Binder b = getCurrentScope().find(classLhs.s, Symbol.SymbolType.CLASS);
+		Binder b = getCurrentScope().find(Symbol.symbol(classLhs.s));
 		ArrayList<Type> classLhsExtensions = b.getExtraTypes();
 
 		if(b == null || classLhsExtensions == null) {
@@ -648,7 +648,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		String className = n.i.s;
 		ArrayList<Type> extensions = new ArrayList<Type>();
 		HashSet<String> visited = new HashSet<String>();
-		Binder currentClass = getCurrentScope().find(className, Symbol.SymbolType.CLASS);
+		Binder currentClass = getCurrentScope().find(Symbol.symbol(className));
 		visited.add(className);
 
 		/* Traverse while extented classes still exist */
@@ -668,7 +668,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 			/* Update current class */
 			Binder childClass = currentClass;
-			currentClass = getCurrentScope().find(classExtension.s, Symbol.SymbolType.CLASS);
+			currentClass = getCurrentScope().find(Symbol.symbol(classExtension.s));
 			if(currentClass != null) {
 				childClass.getScope().setParent(currentClass.getScope());
 			}
@@ -679,7 +679,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		return extensions;
 	}
     public Type checkClass(Identifier n) {
-    	Binder b = getCurrentScope().find(n.s, Symbol.SymbolType.CLASS);
+    	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
     	if(b == null) {
 			error(n.s + " cannot be resolved to a variable in this scope.");
     		return new VoidType();
@@ -688,7 +688,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
     }
 
 	public Type checkVar(Identifier n) {
-    	Binder b = getCurrentScope().find(n.s, Symbol.SymbolType.FIELD);
+    	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
     	if(b == null) {
 			error(n.s + " cannot be resolved to a variable in this scope.");
     		return new VoidType();
@@ -696,7 +696,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
     	return b.getType();
     }
 	public Type checkMethod(Identifier n) {
-    	Binder b = getCurrentScope().find(n.s, Symbol.SymbolType.METHOD_RETURN);
+    	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
     	if(b == null) {
 			error(n.s + " cannot be resolved to a variable in this scope.");
     		return new VoidType();
