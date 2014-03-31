@@ -4,48 +4,23 @@ import syntaxtree.*;
 import java.util.ArrayList;
 
 public class Binder {  
-    public enum SymbolType {
-      CLASS, 
-      CLASSEXTENDS, 
-      METHODRETURN,
-      LOCAL, 
-      PARAM, 
-      FIELD
-    }
-
     private Type type;
-    private Exp value;
-    private Binder.SymbolType symbolType;
+    private Symbol.SymbolType symbolType;
     private ArrayList<Type> extraTypes; // If extra parameters exist like method
     private SymbolTable scope;
 
-    public Binder(Type type, Binder.SymbolType symbolType) {
+    public Binder(Type type, Symbol.SymbolType symbolType) {
       this.type = type;
       this.symbolType = symbolType;
       this.extraTypes = null;
       this.scope = null;
     }
 
-    public Binder(Type type, Binder.SymbolType symbolType, SymbolTable scope) {
+    public Binder(Type type, Symbol.SymbolType symbolType, SymbolTable scope) {
       this.type = type;
       this.symbolType = symbolType;
       this.extraTypes = null;
       this.scope = scope;
-    }
-
-
-    public Binder(Type type, Binder.SymbolType symbolType, SymbolTable scope, ArrayList<Type> extraTypes) {
-      this.type = type;
-      this.symbolType = symbolType;
-      this.extraTypes = extraTypes;
-      this.scope = scope;
-    }
-
-    public Binder(Type type, Exp value, Binder.SymbolType symbolType, SymbolTable scope) {
-      this.type = type;
-      this.value = value;
-      this.symbolType = symbolType;
-      this.extraTypes = null;
     }
 
     public void addExtraType(Type t){
@@ -59,11 +34,7 @@ public class Binder {
       return extraTypes;
     }
 
-    public Exp getValue() {
-      return value;
-    }
-
-    public Binder.SymbolType getSymbolType() {
+    public Symbol.SymbolType getSymbolType() {
       return symbolType;
     }
 
@@ -84,7 +55,7 @@ public class Binder {
     public String toString() {
       String binding = "<" + symbolType.toString() + ": " + getName(type);
       if(extraTypes != null) {
-        binding += ", METHODPARAMETERS: " + printArrayList(extraTypes);
+        binding += ", MethodParameters: " + printArrayList(extraTypes);
       }
       binding += ">";
 
@@ -92,14 +63,14 @@ public class Binder {
     }
 
     private String printArrayList(ArrayList<Type> list) {
-      String types = "[";
+      String types = "{";
       for(int i = 0; i < list.size(); i++) {
         types += getName(list.get(i));
         if(i < list.size() - 1) {
           types += ", ";
         }
       }
-      types += "]";
+      types += "}";
       return types;
     } 
 

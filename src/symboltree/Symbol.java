@@ -3,6 +3,15 @@ package symboltree;
 import syntaxtree.Type;
 
 public class Symbol {  
+    public enum SymbolType {
+        CLASS, 
+        CLASS_EXTENDS, 
+        METHOD_RETURN,
+        LOCAL, 
+        PARAM, 
+        FIELD
+    }
+    
     private static java.util.HashMap<String, Symbol> dictionary = new java.util.HashMap<String, Symbol>();
     private String name;
 

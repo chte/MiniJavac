@@ -6,7 +6,13 @@ import java.util.ArrayList;
 
 public class SymbolTable extends HashMap<Symbol, Binder> {
 
-
+    public enum ScopeType {
+        PROGRAM, 
+        MAIN_CLASS, 
+        CLASS, 
+        METHOD, 
+        BLOCK;
+    }
 
     private SymbolTable.ScopeType scopeType;
     public IdentifierType classType;
@@ -21,7 +27,7 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
 	}
 
     /* Lookup in symbol table */
-    public Binder lookup(String symbol, Binder.SymbolType symbolType) {
+    public Binder find(String symbol, Symbol.SymbolType symbolType) {
         String scopeType = getAffix(symbolType);
         Symbol s = Symbol.symbol(symbol + scopeType);
 
@@ -31,7 +37,7 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
             return binding;
         }
         while (currentScope.hasParent()) {
-            currentScope = currentScope.parent;
+            currentScope = currentScope.getParent();
             binding = currentScope.get(s);
             if (binding != null) {
                 return binding;
@@ -40,37 +46,16 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
         return null;
     }
 
-
-    public Binder lookup(String sym) {
-        Binder b = null;
-        b = lookup(sym, Binder.SymbolType.FIELD);
-        if (b != null) {
-            return b;
-        }
-        b = lookup(sym, Binder.SymbolType.METHODRETURN);
-        if (b != null) {
-            return b;
-        }
-        b = lookup(sym, Binder.SymbolType.CLASS);
-        if (b != null) {
-            return b;
-        }
-
-        return null;
-    }
-
-
     /**
-     * Add type to symbol table
+     * Add mapping of symbol to binding
      *
-     * @param name Name of the scope.
-     * @return Scope object, or null if there's no such scope (class).
+     * @param name Symbol name and a binding.
+     * @return Return true if added successfully, else false.
      */
     public boolean insert(String sym, Binder b) {
         Symbol s = Symbol.symbol(sym + getAffix(b.getSymbolType()));
 
         if (get(s) == null) {
-            //s does not exist in the innermost scope
             put(s, b);
             return true;
         } else {
@@ -90,6 +75,16 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
 
     public void setParent(SymbolTable parent) {
         this.parent = parent;
+    }
+
+
+    public void setClassType(IdentifierType classType) {
+        this.classType = classType;
+    }
+
+
+    public IdentifierType getClassType() {
+        return classType;
     }
 
 
@@ -113,13 +108,22 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
     public String toString(int level) {
         StringBuilder sb = new StringBuilder();
 
-        appendLevels(sb, level);
+        for (int i = 0; i < level; i++) {
+            sb.append("\t");
+        }
         sb.append(getScopeType().toString() + "\n");
-        appendLevels(sb, level);
+
+        for (int i = 0; i < level; i++) {
+            sb.append("\t");
+        }
+
         sb.append("(\n");
 
         //For the fields
-        appendLevels(sb, level + 1);
+        for (int i = 0; i < level; i++) {
+            sb.append("\t");
+        }
+
         sb.append(super.toString() + "\n");
 
         String scope = sb.toString();
@@ -127,33 +131,33 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
             sb.append(child.toString(level + 1));
         }
 
-        appendLevels(sb, level);
+        for (int i = 0; i < level; i++) {
+            sb.append("\t");
+        }
+
         sb.append(")\n");
         return sb.toString();
     }
 
-    private void appendLevels(StringBuilder sb, int level) {
-        for (int i = 0; i < level; i++) {
-            sb.append("\t");
-        }
-    }
+    public static final String VAR_AFFIX = "$variable", METHOD_AFFIX = "$method", CLASS_AFFIX = "$class";
 
-    public static final String VAR_AFFIX = "$var", METHOD_AFFIX = "$method", CLASS_AFFIX = "$class";
 
-    public enum ScopeType {
-        PROGRAM, MAINCLASS, CLASS, METHOD, BLOCK;
-    }
-
-    private String getAffix(Binder.SymbolType symbolType) {
+    private String getAffix(Symbol.SymbolType symbolType) {
         String affix = "";
-        if (symbolType == Binder.SymbolType.CLASS || symbolType == Binder.SymbolType.CLASSEXTENDS) {
-            affix = CLASS_AFFIX;
-        } else if (symbolType == Binder.SymbolType.LOCAL || symbolType == Binder.SymbolType.PARAM || symbolType == Binder.SymbolType.FIELD) {
-            affix = VAR_AFFIX;
-        } else if (symbolType == Binder.SymbolType.METHODRETURN) {
-            affix = METHOD_AFFIX;
+        switch(symbolType){
+            case CLASS:
+            case CLASS_EXTENDS:
+                return CLASS_AFFIX;
+            case LOCAL:
+            case PARAM:
+            case FIELD:
+                return VAR_AFFIX;
+            case METHOD_RETURN:
+                return METHOD_AFFIX;
+            default:
+                return "";
+            
         }
-        return affix;
     }
 
 

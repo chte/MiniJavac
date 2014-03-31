@@ -124,6 +124,7 @@ TOKEN:  /* RESERVED WORDS AND LITERALS */
 | < VOID: "void" >
 | < WHILE: "while" >
 | < LENGTH: "length" >
+| < EXTENDS: "extends" >
 | < STRING: "String" >
 | < MAIN: "main" >
 | < SYSOUT_PRINTLN : "System.out.println" >
@@ -198,7 +199,14 @@ Program Program():
 ClassDeclList ClassDeclList():
 { ClassDecl c; ClassDeclList cdl = new ClassDeclList(); }
 {
-  (c = ClassDecl() { cdl.addElement(c); })*
+  (
+      LOOKAHEAD(3)
+      c = ClassDecl()
+      { cdl.addElement(c); } 
+    |
+      c = ClassDeclExtends()
+      { cdl.addElement(c); }
+  )*
   { return cdl; }
 }
 
@@ -217,9 +225,23 @@ MainClass MainClass():
   { return new MainClass(id1, id2, vdl, sl); }
 }
 
+ClassDeclExtends ClassDeclExtends():
+{
+  Token t; Identifier id, ide; VarDecl v; MethodDecl m; VarDeclList vl = new VarDeclList(); MethodDeclList ml = new MethodDeclList();
+  ClassDeclSimple cd = null;
+}
+{
+  <CLASS> t = <IDENTIFIER> { id = new Identifier(t.image); } <EXTENDS> t = <IDENTIFIER> { ide = new Identifier(t.image); } 
+  <LBRACE> //Block
+       ( LOOKAHEAD(2) v = VarDecl() {vl.addElement(v); } )* ( m = MethodDecl() { ml.addElement(m); } )* 
+  <RBRACE>
+  { return new ClassDeclExtends(id, ide, vl, ml); }
+}
+
+
 ClassDeclSimple ClassDecl():
 {
-  Token t; Identifier id; VarDecl v; MethodDecl m; VarDeclList vl = new VarDeclList(); MethodDeclList ml = new MethodDeclList();
+  Token t; Identifier id, ide; VarDecl v; MethodDecl m; VarDeclList vl = new VarDeclList(); MethodDeclList ml = new MethodDeclList();
 }
 {
   <CLASS> t = <IDENTIFIER> { id = new Identifier(t.image); }
