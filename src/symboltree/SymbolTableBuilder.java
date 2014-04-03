@@ -83,7 +83,6 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
         getParentScope().insert(Symbol.symbol(n.i1.s), new Class( new IdentifierType(n.i1.s), getCurrentScope() ));
         getCurrentScope().setClassType(new IdentifierType(n.i1.s));
 
-
         getCurrentScope().insert(Symbol.symbol(n.i2.s), new Variable( new IdentifierType(n.i2.s), Binder.SymbolType.PARAM ));
         getParentScope().getChildScopes().add(getCurrentScope());
 
@@ -121,11 +120,15 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
         /* Visited class so set up new scope */
         startScope(n, SymbolTable.ScopeType.CLASS);
 
+
         ArrayList<Type> extensions = new ArrayList<Type>();
         Class c = new Class(new IdentifierType(n.i.s), getCurrentScope());
         c.addExtension(new IdentifierType(n.j.s));
 
+
         getParentScope().insert(Symbol.symbol(n.i.s), c);
+
+
         getCurrentScope().classType = new IdentifierType(n.i.s);
         getParentScope().getChildScopes().add(getCurrentScope());
 

@@ -64,8 +64,8 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(MainClass n) {
 		startScope(n);
 
-		checkClass(n.i1);
-		checkVar(n.i2);
+		checkType(n.i1);
+		checkType(n.i2);
 		for ( int i = 0; i < n.vdl.size(); i++ ) {
 			n.vdl.elementAt(i).accept(this);
 		}
@@ -80,7 +80,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(ClassDeclSimple n) {
 		startScope(n);
 
-		checkClass(n.i);
+		checkType(n.i);
 		for ( int i = 0; i < n.vl.size(); i++ ) {
 			n.vl.elementAt(i).accept(this);
 		}
@@ -96,10 +96,11 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 	public Type visit(ClassDeclExtends n) {
 		startScope(n);
-		checkClass(n.i);
+		checkType(n.i);
 
 		ArrayList<Type> extensions = checkExtensions(n);
 		Class c = (Class) getOldScope().find(Symbol.symbol(n.i.s));
+
 		for(Type t : extensions){
 			c.addExtension(t);
 		}
@@ -110,7 +111,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		for ( int i = 0; i < n.ml.size(); i++ ) {
 			n.ml.elementAt(i).accept(this);
 		}
-
+		
 		endScope();
 		return new VoidType();
 	}
@@ -118,15 +119,18 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 	public Type visit(VarDecl n) {
 		n.t.accept(this);
-		checkVar(n.i);
+		checkType(n.i);
 		return new VoidType();
 	}
 
 	public Type visit(MethodDecl n) {
 		startScope(n);
-
+    	if(getCurrentScope() == null){
+			error("Ponder error, scope null?");
+		}
 		n.t.accept(this);
-		checkMethod(n.i);
+
+		checkType(n.i);
 
 		for ( int i = 0; i < n.fl.size(); i++ ) {
 			n.fl.elementAt(i).accept(this);
@@ -157,7 +161,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(Formal n) {
 		n.t.accept(this);
 
-		checkVar(n.i);
+		checkType(n.i);
 		return n.t;
 	}
 
@@ -229,12 +233,12 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 	public Type visit(Assign n) {
 
-		Type varType = checkVar(n.i);
-		Type exprType = n.e.accept(this);
+		Type lhs = checkType(n.i);
+		Type rhs = n.e.accept(this);
 
-		if(!checkTypeEquals(varType, exprType)) {
-			if(checkIdentifierEquals(varType, exprType)) {
-				if(!classReferencesEquals(varType, exprType)) {
+		if(!checkTypeEquals(lhs, rhs)) {
+			if(checkIdentifierEquals(lhs, rhs)) {
+				if(!classReferencesEquals(lhs, rhs)) { /* Check by reference */
 					error("Right side object type is not an extension of the left side variable type.");
 				}
 			} else {
@@ -246,15 +250,14 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 	public Type visit(ArrayAssign n) {
 
-		Type it = checkVar(n.i);
-		Type indexType = n.e1.accept(this);
-		Type exprType = n.e2.accept(this);
+		Type lhs = checkType(n.i);
+		Type rhs = n.e2.accept(this);
 
-		if(!(indexType instanceof IntegerType)) {
+		if(!(n.e1.accept(this) instanceof IntegerType)) {
 			error("Array index expression must be of type integer.");
 		}
 
-		if(!checkArrayAssignEquals(it, exprType)) {
+		if(!checkArrayAssignEquals(lhs, rhs)) {
 			error("Left and right side of an integer array assignment must be of integer or long type.");
 		}
 		return new VoidType();
@@ -398,16 +401,16 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	}
 
 	public Type visit(ArrayLookup n) {
-		Type arrayType = n.e1.accept(this);
-		Type arrayIndexType = n.e2.accept(this);
+		Type lhs = n.e1.accept(this);
+		Type rhs = n.e2.accept(this);
 
-		if(!(arrayIndexType instanceof IntegerType)) {
+		if(!(rhs instanceof IntegerType)) {
 			error("Type mismatch: cannot convert to int.");
 		}
 
-		if(arrayType instanceof IntArrayType) {
+		if(lhs instanceof IntArrayType) {
 			return new IntegerType();
-		} else if(arrayType instanceof LongArrayType) {
+		} else if(lhs instanceof LongArrayType) {
 			return new LongType();
 		} else {
 			error("Left hand side of brackets cannot be resolved to a type of long or int.");
@@ -416,9 +419,9 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	}
 
 	public Type visit(ArrayLength n) {
-		Type arrayType = n.e.accept(this);
+		Type rhs = n.e.accept(this);
 
-		if(!((arrayType instanceof IntArrayType) || (arrayType instanceof LongArrayType))) {
+		if(!((rhs instanceof IntArrayType) || (rhs instanceof LongArrayType))) {
 			error("The left-hand side of an assignment must be an array.");
 		}
 		return new IntegerType();
@@ -449,7 +452,9 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		if(m == null) {
 			error("The method " + n.i.s + " is undefined for the type " + className + ".");
 			return new VoidType();
-		} else {
+		} 
+
+		if(m.hasParams()) {
 			ArrayList<Variable> paramTypes = m.getParams();
 			if(paramTypes.size() != n.el.size()) {
 				error("The method" + n.i.s + " in type "  + className + " is not applicable for the arguments provided.");
@@ -462,8 +467,8 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 					break;
 				}
 			}
-			return m.getType();
 		}
+		return m.getType();
 	}
 
 	public Type visit(IntegerLiteral n) {
@@ -484,12 +489,6 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 	public Type visit(IdentifierExp n) {
 		Binder b = getCurrentScope().find(Symbol.symbol(n.s));
-        if(b == null) {
-	        b = getCurrentScope().find(Symbol.symbol(n.s));        
-        }
-        if(b == null) {
-        	b = getCurrentScope().find(Symbol.symbol(n.s));
-        }
 
 		if(b == null) {
 			error(n.s + " cannot be resolved to a variable.");
@@ -520,7 +519,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 	public Type visit(NewObject n) {
 
-		return checkClass(n.i);
+		return checkType(n.i);
 	}
 
 	public Type visit(Not n) {
@@ -570,7 +569,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		return false;
 	}
 
-    public Type checkClass(Identifier n) {
+    public Type checkType(Identifier n) {
     	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
     	if(b == null) {
 			error(n.s + " cannot be resolved to a variable in this scope.");
@@ -579,22 +578,6 @@ public class TypeDepthFirstVisitor implements TypeVisitor
     	return  b.getType();
     }
 
-	public Type checkVar(Identifier n) {
-    	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
-    	if(b == null) {
-			error(n.s + " cannot be resolved to a variable in this scope.");
-    		return new VoidType();
-    	} 
-    	return b.getType();
-    }
-	public Type checkMethod(Identifier n) {
-    	Binder b = getCurrentScope().find(Symbol.symbol(n.s));
-    	if(b == null) {
-			error(n.s + " cannot be resolved to a variable in this scope.");
-    		return new VoidType();
-    	} 
-    	return b.getType();
-    }
 
 	private boolean checkIntEquals(Type t1, Type t2) {
 		if((t1 instanceof IntegerType) && (t2 instanceof IntegerType)) {

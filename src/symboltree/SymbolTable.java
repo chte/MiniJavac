@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class SymbolTable extends HashMap<Symbol, Binder> {
 
     public enum ScopeType {
-        PROGRAM, MAIN_CLASS, CLASS, METHOD, BLOCK;
+        PROGRAM,MAIN_CLASS, CLASS, METHOD, BLOCK;
     }
 
     private SymbolTable.ScopeType scopeType;
@@ -62,11 +62,6 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
     public SymbolTable getParent() {
         return parent;
     }
-
-    public void setParent(SymbolTable parent) {
-        this.parent = parent;
-    }
-
 
     public void setClassType(IdentifierType classType) {
         this.classType = classType;
