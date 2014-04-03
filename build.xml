@@ -52,6 +52,12 @@
 		</exec>
 	</target>
 
+	<target name="submit" depends="clean">
+		<exec executable="/bin/sh">
+			<arg value="./runtigrissubmit.sh"/>
+		</exec>	
+	</target>
+
 	<target name="clean-test" depends="clean-build,test"/>
 
 	<target name="main" depends="jar,test"/>
