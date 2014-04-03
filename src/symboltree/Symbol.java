@@ -31,7 +31,6 @@ public class Symbol {
 
 	@Override
 	public String toString() {
-		int split = name.indexOf(":");
-		return name.substring(0, split);
+		return name;
 	}
 }

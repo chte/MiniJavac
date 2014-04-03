@@ -7,11 +7,7 @@ import java.util.ArrayList;
 public class SymbolTable extends HashMap<Symbol, Binder> {
 
     public enum ScopeType {
-        PROGRAM, 
-        MAIN_CLASS, 
-        CLASS, 
-        METHOD, 
-        BLOCK;
+        PROGRAM, MAIN_CLASS, CLASS, METHOD, BLOCK;
     }
 
     private SymbolTable.ScopeType scopeType;
@@ -27,10 +23,7 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
 	}
 
     /* Lookup in symbol table */
-    public Binder find(String symbol, Symbol.SymbolType symbolType) {
-        String scopeType = getAffix(symbolType);
-        Symbol s = Symbol.symbol(symbol + scopeType);
-
+    public Binder find(Symbol s) {
         SymbolTable currentScope = this;
         Binder binding = currentScope.get(s);
         if (binding != null) {
@@ -52,15 +45,12 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
      * @param name Symbol name and a binding.
      * @return Return true if added successfully, else false.
      */
-    public boolean insert(String sym, Binder b) {
-        Symbol s = Symbol.symbol(sym + getAffix(b.getSymbolType()));
-
-        if (get(s) == null) {
-            put(s, b);
-            return true;
-        } else {
-            return false;
+    public boolean insert(Symbol s, Binder b) {
+        if( containsKey(s) ){
+             return false;
         }
+        put(s,b);
+        return true;
     }
 
     /**
@@ -139,26 +129,6 @@ public class SymbolTable extends HashMap<Symbol, Binder> {
         return sb.toString();
     }
 
-    public static final String VAR_AFFIX = ":variable", METHOD_AFFIX = ":method", CLASS_AFFIX = ":class";
-
-
-    private String getAffix(Symbol.SymbolType symbolType) {
-        String affix = "";
-        switch(symbolType){
-            case CLASS:
-            case CLASS_EXTENDS:
-                return CLASS_AFFIX;
-            case LOCAL:
-            case PARAM:
-            case FIELD:
-                return VAR_AFFIX;
-            case METHOD_RETURN:
-                return METHOD_AFFIX;
-            default:
-                return "";
-            
-        }
-    }
 
 
 }
