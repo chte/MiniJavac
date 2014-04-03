@@ -11,10 +11,12 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 	public LinkedList<SymbolTable> tableStack;
 	public HashMap<Object, SymbolTable> scopeLookupTable;
     public CompilerErrorMsg errormsg;
+    public ArrayList<String> classes;
 
 	public SymbolTableBuilder(){
 		tableStack = new LinkedList<SymbolTable>();
 		scopeLookupTable = new HashMap<Object, SymbolTable>(); 
+        classes = new ArrayList<String>();
 	}
 
 
@@ -72,6 +74,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 
 	//Main program
 	public void visit(MainClass n){
+        classes.add(n.i1.s);
         if(getCurrentScope().find(Symbol.symbol(n.i1.s)) != null) {
             error(n.i1.s + " was already defined in scope.");
         }
@@ -91,8 +94,8 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 		endScope();
 	}
     
-    public void visit(ClassDeclSimple n)
-    {
+    public void visit(ClassDeclSimple n){
+        classes.add(n.i.s);
         if(getCurrentScope().find(Symbol.symbol(n.i.s)) != null) {
             error(n.i.s + " was already defined in scope.");
         }
@@ -112,8 +115,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
         endScope();
     }
 
-    public void visit(ClassDeclExtends n)
-    {
+    public void visit(ClassDeclExtends n){
         if(getCurrentScope().find(Symbol.symbol(n.i.s)) != null) {
             error(n.i.s + " was already defined in scope.");
         }
@@ -138,8 +140,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
         endScope();
     }
 
-   public void visit(VarDecl n)
-    {
+   public void visit(VarDecl n){
         SymbolTable.ScopeType scopeType = getCurrentScope().getScopeType();
         if(getCurrentScope().find(Symbol.symbol(n.i.s)) != null) {
             error("Duplicate local variable " + n.i.s + ".");

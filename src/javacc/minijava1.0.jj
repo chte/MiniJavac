@@ -1,4 +1,6 @@
-PARSER_BEGIN(MiniJavaParser)
+PARSER_BEGIN(JVMMain)
+
+package mjc;
 
 import java.io.*;
 import syntaxtree.*;
@@ -7,24 +9,25 @@ import symboltree.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.io.PrintStream;
+import java.io.File;
 
 /**
  * Grammar to parse MiniJava language 
  * @author Christopher Teljstedt and Carl Eriksson 
  */
-public class MiniJavaParser
+public class JVMMain
 {
 
 public final static boolean VERBOSE = true;
 
-public MiniJavaParser (String fileName){
+public JVMMain (String fileName){
 	this(System.in);
     try { ReInit(new FileInputStream(new File(fileName))); }
     catch(Exception e) { e.printStackTrace(); }
 }
 
 public static void main(String args[]) {
-	MiniJavaParser parser = null;
+	JVMMain parser = null;
   Program program;
   SyntaxTreePrinter stp;
   SymbolTableBuilder stb;
@@ -32,23 +35,23 @@ public static void main(String args[]) {
 
 	if (args.length == 0) {
 		System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
-		parser = new MiniJavaParser(System.in);
+		parser = new JVMMain(System.in);
 	} 
   else if (args.length == 1) {
 		System.out.println("MiniJavac 1.0:  Reading from file " + args[0] + " . . .");
 		try {
-			parser = new MiniJavaParser(new java.io.FileInputStream(args[0]));
+			parser = new JVMMain(new java.io.FileInputStream(args[0]));
 		} catch (java.io.FileNotFoundException e) {
 			System.out.println("MiniJavac 1.0: File " + args[0] + " not found.");
 			System.exit(1);
 		}
   } 
   else if (args.length == 2){
-    System.out.println("MiniJavac 1.0:  Reading from file " + args[1] + " . . .");
+    System.out.println("MiniJavac 1.0:  Reading from file " + args[0] + " . . .");
     try {
-      parser = new MiniJavaParser(new java.io.FileInputStream(args[1]));
+      parser = new JVMMain(new java.io.FileInputStream(args[0]));
     } catch (java.io.FileNotFoundException e) {
-      System.out.println("MiniJavac 1.0: File " + args[1] + " not found.");
+      System.out.println("MiniJavac 1.0: File " + args[0] + " not found.");
       System.exit(1);
     }  
 	}
@@ -85,9 +88,13 @@ public static void main(String args[]) {
     tdfv.scopeLookupTable = stb.scopeLookupTable;
     tdfv.visit(program);
 
+    for(String className : stb.classes){
+      new File(className+".j").createNewFile(); 
+    }
+
 
 		System.out.println("MiniJavac 1.0: Java program parsed successfully.");
-	} catch (ParseException e) {
+	} catch (Exception e) {
 		System.out.println(e.getMessage());
 		System.out.println("MiniJavac 1.0: Encountered errors during parse.");
     System.exit(1);
@@ -95,7 +102,7 @@ public static void main(String args[]) {
   System.exit(0);
 }
 }
-PARSER_END(MiniJavaParser)
+PARSER_END(JVMMain)
 
 SKIP: /* WHITE SPACE */
 {

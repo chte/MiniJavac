@@ -2,23 +2,29 @@
 
 	<property name="src.dir" value="src"/>
 	<property name="lib.dir" value="lib"/>
+	<property name="mjcSrc.dir" value="${src.dir}/mjc/"/>
 
 	<property name="build.dir" value="build"/>
 	<property name="classes.dir" value="${build.dir}/classes"/>
 
-	<property name="main-class"  value="MiniJavaParser"/>
+	<property name="main-class"  value="mjc.JVMMain"/>
 
 	<target name="clean">
 		<delete dir="${build.dir}"/>
 		<delete file="mjc.jar"/>
+		<delete dir="${src.dir}/mjc/"/>
 	</target>
 
-	<target name="grammar" depends="clean">
+	<target name="createFolder">
+		<mkdir dir="${mjcSrc.dir}"/>
+	</target>
+
+	<target name="grammar" depends="clean,createFolder">
         <javacc
                 target="${src.dir}/javacc/minijava1.0.jj"
-                outputdirectory="${src.dir}"
+                outputdirectory="${mjcSrc.dir}"
                 javacchome="${lib.dir}"
-                debugparser="true" />
+                debugparser="false" />
     </target>
 
 	<target name="compile" depends="grammar">
@@ -48,6 +54,6 @@
 
 	<target name="clean-test" depends="clean-build,test"/>
 
-	<target name="main" depends="clean,jar,test"/>
+	<target name="main" depends="jar,test"/>
 
 </project>
