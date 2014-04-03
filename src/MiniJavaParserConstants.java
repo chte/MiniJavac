@@ -84,9 +84,21 @@ public interface MiniJavaParserConstants {
   int MINUS = 42;
   /** RegularExpression Id. */
   int STAR = 43;
+  /** RegularExpression Id. */
+  int SINGLE_LINE_COMMENT = 47;
+  /** RegularExpression Id. */
+  int FORMAL_COMMENT = 48;
+  /** RegularExpression Id. */
+  int MULTI_LINE_COMMENT = 49;
 
   /** Lexical state. */
   int DEFAULT = 0;
+  /** Lexical state. */
+  int IN_SINGLE_LINE_COMMENT = 1;
+  /** Lexical state. */
+  int IN_FORMAL_COMMENT = 2;
+  /** Lexical state. */
+  int IN_MULTI_LINE_COMMENT = 3;
 
   /** Literal token values. */
   String[] tokenImage = {
@@ -134,6 +146,13 @@ public interface MiniJavaParserConstants {
     "\"+\"",
     "\"-\"",
     "\"*\"",
+    "\"//\"",
+    "<token of kind 45>",
+    "\"/*\"",
+    "<SINGLE_LINE_COMMENT>",
+    "\"*/\"",
+    "\"*/\"",
+    "<token of kind 50>",
   };
 
 }
