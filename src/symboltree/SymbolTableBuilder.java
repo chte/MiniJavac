@@ -189,7 +189,7 @@ public class SymbolTableBuilder extends visitor.DepthFirstVisitor{
 
     public void visit(Formal n)
     {
-        Method duplicate = (Method) getCurrentScope().find(Symbol.symbol(n.i.s));
+        Variable duplicate = (Variable) getCurrentScope().find(Symbol.symbol(n.i.s));
         if(duplicate != null && duplicate.getSymbolType() == Binder.SymbolType.PARAM) {
             error("Duplicate parameter " + n.i.s + ".");
         }

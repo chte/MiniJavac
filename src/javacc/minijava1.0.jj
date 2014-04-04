@@ -133,7 +133,6 @@ TOKEN:  /* RESERVED WORDS AND LITERALS */
 | < LENGTH: "length" >
 | < EXTENDS: "extends" >
 | < STRING: "String" >
-| < MAIN: "main" >
 | < SYSOUT_PRINTLN : "System.out.println" >
 }
 
@@ -258,7 +257,7 @@ MainClass MainClass():
   <CLASS>
   t = <IDENTIFIER> { id1 = new Identifier(t.image); }
   <LBRACE>
-      <PUBLIC> <STATIC> <VOID> <MAIN> <LPAREN> <STRING> <LBRACKET> <RBRACKET> t = <IDENTIFIER> { id2 = new Identifier(t.image); } <RPAREN>
+      <PUBLIC> <STATIC> <VOID> <IDENTIFIER> <LPAREN> <STRING> <LBRACKET> <RBRACKET> t = <IDENTIFIER> { id2 = new Identifier(t.image); } <RPAREN>
       <LBRACE> //Block
       ( LOOKAHEAD( Type() <IDENTIFIER> ) v = VarDecl() { vdl.addElement(v); } )* 
       ( stmt = Stmt() { sl.addElement(stmt); } )* 
@@ -297,7 +296,7 @@ ClassDeclSimple ClassDecl():
 VarDecl VarDecl() :
 { Token t; Type type; Identifier id; }
 {
-  type=Type() ( t = <IDENTIFIER> { id=new Identifier(t.image); } ) <SEMICOLON>  { return new VarDecl(type, id); }
+  type=Type() t = <IDENTIFIER> { id=new Identifier(t.image); } <SEMICOLON>  { return new VarDecl(type, id); }
 }
 
 MethodDecl MethodDecl():
