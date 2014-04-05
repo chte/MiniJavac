@@ -29,8 +29,7 @@ public class Symbol {
     	return s;
     }
 
-	@Override
 	public String toString() {
-		return name;
+		return this.name;
 	}
 }

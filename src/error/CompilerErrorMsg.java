@@ -11,6 +11,6 @@ public class CompilerErrorMsg
     }
 
     public void flush() {
-	out.println(msg);
+		out.println(msg);
     }
 }

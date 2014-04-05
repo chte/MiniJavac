@@ -5,6 +5,7 @@ package mjc;
 import java.io.*;
 import syntaxtree.*;
 import symboltree.*;
+import visitor.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public static void main(String args[]) {
 	JVMMain parser = null;
   Program program;
   SyntaxTreePrinter stp;
-  SymbolTableBuilder stb;
+  SymbolTableBuilderVisitor stb;
   TypeDepthFirstVisitor tdfv;
 
 	if (args.length == 0) {
@@ -74,12 +75,12 @@ public static void main(String args[]) {
     }
    
     //Symbol table
-    stb = new SymbolTableBuilder();
+    stb = new SymbolTableBuilderVisitor();
     stb.visit(program);
     
     // VERBOSE: Output symbol table
     if(VERBOSE) {
-      SymbolTable st = stb.scopeLookupTable.get(program);
+      Table st = stb.scopeLookupTable.get(program);
       System.out.println(st.toString(0));
     }
     
@@ -92,7 +93,9 @@ public static void main(String args[]) {
       new File(className+".j").createNewFile(); 
     }
 
-
+    if(tdfv.error != null || stb.error != null){
+        System.exit(1);
+    }
 		System.out.println("MiniJavac 1.0: Java program parsed successfully.");
 	} catch (Exception e) {
 		System.out.println(e.getMessage());
@@ -244,9 +247,9 @@ ClassDeclList ClassDeclList():
       LOOKAHEAD(3)
       c = ClassDecl()
       { cdl.addElement(c); } 
-    |
-      c = ClassDeclExtends()
-      { cdl.addElement(c); }
+    // |
+    //   c = ClassDeclExtends()
+    //   { cdl.addElement(c); }
   )*
   { return cdl; }
 }
@@ -257,7 +260,7 @@ MainClass MainClass():
   <CLASS>
   t = <IDENTIFIER> { id1 = new Identifier(t.image); }
   <LBRACE>
-      <PUBLIC> <STATIC> <VOID> <IDENTIFIER> <LPAREN> <STRING> <LBRACKET> <RBRACKET> t = <IDENTIFIER> { id2 = new Identifier(t.image); } <RPAREN>
+      <PUBLIC> <STATIC> <VOID> t = <IDENTIFIER> <LPAREN> <STRING> <LBRACKET> <RBRACKET> t = <IDENTIFIER> { id2 = new Identifier(t.image); } <RPAREN>
       <LBRACE> //Block
       ( LOOKAHEAD( Type() <IDENTIFIER> ) v = VarDecl() { vdl.addElement(v); } )* 
       ( stmt = Stmt() { sl.addElement(stmt); } )* 

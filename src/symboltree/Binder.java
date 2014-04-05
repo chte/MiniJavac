@@ -9,31 +9,36 @@ public class Binder {
         EXTENDS, 
         RETURN,
         LOCAL, 
-        PARAM, 
+        PARAM,
+        MAIN, 
         FIELD
     }
     private Identifier id;
     private Type type;
     private Binder.SymbolType st;
-    private SymbolTable scope;
+    private Table scope;
 
-    public Binder(Type type, Binder.SymbolType st) {
+    public Binder(Identifier id, Type type) {
+      this.id = id;
       this.type = type;
       this.st = st;
       this.scope = null;
     }
 
-    public Binder(Type type, Binder.SymbolType st, SymbolTable scope) {
+    public Binder(Identifier id, Type type, Table scope) {
+      this.id = id;
       this.type = type;
       this.st = st;
       this.scope = scope;
     }
 
-    public Binder(Type type, SymbolTable scope) {
+    public Binder(Identifier id, Type type, Binder.SymbolType st, Table scope) {
+      this.id = id;      
       this.type = type;
       this.st = st;
       this.scope = scope;
     }
+
 
     public void setSymbolType(Binder.SymbolType st) {
       this.st = st;
@@ -42,7 +47,7 @@ public class Binder {
       return st;
     }
 
-    public SymbolTable getScope() {
+    public Table getScope() {
       return scope;
     }
 
@@ -50,12 +55,16 @@ public class Binder {
       return type;
     }
 
-    public String getName() {
+    public String getIdName() {
+      return id.s;
+    }
+
+    public String getTypeName() {
       String[] parts = this.type.getClass().getName().split("\\.");
       return parts[parts.length-1];
     }
 
-    public String getName(Type t) {
+    public String getTypeName(Type t) {
       String[] parts = t.getClass().getName().split("\\.");
       return parts[parts.length-1];
     }
