@@ -50,6 +50,10 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
         Table parentScope = tableStack.peekFirst();
         Table currentScope = new Table(parentScope, scopeType);
 
+        /* Build child scope array for easy printing */
+        if(parentScope != null) // Except for Program
+            parentScope.getChildScopes().add(currentScope);
+
         /* Add to find table */
         scopeLookupTable.put(n, currentScope);
 
@@ -86,9 +90,7 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
             error(n.i1.s + " was already defined in scope.");
         }
         getCurrentScope().setClassType(new IdentifierType(n.i1.s));
-
         getCurrentScope().insert(Symbol.symbol(n.i2.s), new VariableBinding(n.i2 ,new IdentifierType(n.i2.s) ));
-        getParentScope().getChildScopes().add(getCurrentScope());
 
         /* Set traverse in main class as a new child scope */
         super.visit(n);
@@ -104,8 +106,8 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
         if(!getParentScope().insert(Symbol.symbol(n.i.s), new ClassBinding(n.i, new IdentifierType(n.i.s), getCurrentScope() ))){
             error(n.i.s + " was already defined in scope.");   
         }
+
         getCurrentScope().setClassType(new IdentifierType(n.i.s));
-        getParentScope().getChildScopes().add(getCurrentScope());
 
         /* Set traverse in main class as a new child scope */
         super.visit(n);
@@ -122,13 +124,11 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
         ClassBinding c = new ClassBinding(n.i, new IdentifierType(n.i.s), getCurrentScope());
         c.addExtension(new IdentifierType(n.j.s));
 
-
         if(!getParentScope().insert(Symbol.symbol(n.i.s), c)){
             error(n.i.s + " was already defined in scope.");
         }
 
         getCurrentScope().classType = new IdentifierType(n.i.s);
-        getParentScope().getChildScopes().add(getCurrentScope());
 
         super.visit(n);
 
@@ -182,7 +182,6 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
         }
 
         getCurrentScope().setClassType(getParentScope().getClassType());
-        getParentScope().getChildScopes().add(getCurrentScope());
 
         super.visit(n);
 
@@ -235,7 +234,6 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
         startScope(n, Table.ScopeType.BLOCK);
         
         getCurrentScope().setClassType(getParentScope().getClassType());
-        getParentScope().getChildScopes().add(getCurrentScope());
 
         super.visit(n);
 

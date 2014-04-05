@@ -58,7 +58,6 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		startScope(n);
 
 		checkClass(n.i1);
-
 		checkVariable(n.i2);
 
 		for ( int i = 0; i < n.vdl.size(); i++ ) {
@@ -124,7 +123,6 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		startScope(n);
 
 		n.t.accept(this);
-		//n.i.accept(this);
 		checkMethod(n.i);
 
 		for ( int i = 0; i < n.fl.size(); i++ ) {
@@ -333,7 +331,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
-		/* Equality of classes must be checked by reference */
+		/* Equality of classes must be checked by reference aswell */
 		if(!checkTypeEquals(lhs, rhs) && !classReferencesEquals(lhs, rhs) && !classReferencesEquals(rhs, lhs)) {
 			error("Incompatible operand types. Left hand side and right hand side must either integer, long or class type.");
 		}
@@ -344,6 +342,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type lhs = n.e1.accept(this);
 		Type rhs = n.e2.accept(this);
 
+		/* Equality of classes must be checked by reference aswell */
 		if(!checkTypeEquals(lhs, rhs) && !classReferencesEquals(lhs, rhs) && !classReferencesEquals(rhs, lhs)) {
 			error("Incompatible operand types. Left hand side and right hand side must either integer, long or class type.");
 		}
