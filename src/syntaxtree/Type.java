@@ -8,6 +8,12 @@ public abstract class Type {
 	return getClass().equals(tp.getClass());
     }
     
+    public  String toString(Type tp)
+    {
+      String[] parts = getClass().getName().split("\\.");
+      return parts[parts.length-1];
+    }  
+
     public abstract void accept(Visitor v);
     public abstract Type accept(TypeVisitor v);
 }

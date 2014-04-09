@@ -2,22 +2,35 @@ package visitor;
 
 import syntaxtree.*;
 import symboltree.*;
-import error.*;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import error.*;
+import static error.ErrorObject.*;
+
+
 public class TypeDepthFirstVisitor implements TypeVisitor
 {
-	public CompilerErrorMsg error;
 	public HashMap<Object, Table> scopeLookupTable;
 	public LinkedList<Table> tableStack = new LinkedList<Table>();
+    private ArrayList<CompilerError> errors  = new ArrayList<CompilerError>();
 
-	public void error(String message) {
-        error = new CompilerErrorMsg(System.out, "COMPILER TYPECHECK ERROR: " + message);
-        error.flush();
+
+    public void error(final CompilerError err) {
+        errors.add(err);
     }
+
+    public boolean hasErrors(){
+        return !errors.isEmpty();
+    }
+
+    public ArrayList<CompilerError> getErrors(){
+        return errors;
+    }
+
 
 	public Table getCurrentScope(){
 		return tableStack.peekFirst();
@@ -140,10 +153,10 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		if(!checkTypeEquals(actualReturnType, expectedReturnType)) {
 			if(checkIdentifierEquals(actualReturnType, expectedReturnType)) {
 				if(!classReferencesEquals(expectedReturnType, actualReturnType)) {
-					error("Return object type does not extend declared return type.");
+					error(INVALID_INHERTICANCE.at(n.row, n.col));
 				}
 			} else {
-				error("Return types of method call does not match.");
+				error(UNMATCHED_RETURNTYPE.at(n.row, n.col));
 			}
 		}
 
@@ -200,7 +213,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(IfElse n) {
 		Type t = n.e.accept(this);
 		if (!(t instanceof BooleanType)){
-			error("Type cannot be resolved to long, int or boolean.");
+			error(INVALID_UNARY_OP.at(n.row, n.col, t));
 		}
 		n.s1.accept(this);
 		n.s2.accept(this);
@@ -210,7 +223,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(If n) {
 		Type t = n.e.accept(this);
 		if (!(t instanceof BooleanType)){
-			error("Type cannot be resolved to long, int or boolean.");
+			error(INVALID_UNARY_OP.at(n.row, n.col, t));
 		}
 		n.s.accept(this);
 		return new VoidType();
@@ -219,7 +232,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(While n) {
 		Type t = n.e.accept(this);
 		if (!(t instanceof BooleanType)){
-			error("Type cannot be resolved to long, int or boolean.");
+			error(INVALID_UNARY_OP.at(n.row, n.col, t));
 		}
 		n.s.accept(this);
 		return new VoidType();
@@ -228,7 +241,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(Print n) {
 		Type t = n.e.accept(this);
 		if(!checkPrimitive(t)) {
-			error("Type cannot be resolved to long, int or boolean.");
+			error(INVALID_UNARY_OP.at(n.row, n.col, t));
 		}
 		return new VoidType();
 	}
@@ -241,10 +254,13 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		if(!checkTypeEquals(lhs, rhs)) {
 			if(checkIdentifierEquals(lhs, rhs)) {
 				if(!classReferencesEquals(lhs, rhs)) { /* Check by reference */
-					error("Right side must extend left side variable type.");
+					error(INVALID_CLASS_REFERENCE.at(n.row, n.col, ((IdentifierType) rhs).s, ((IdentifierType) lhs).s));
 				}
 			} else {
-				error("Right hand and left type must be equal.");
+				if(lhs instanceof LongType && rhs instanceof IntegerType ){
+					return new LongType();
+				}
+				error(INVALID_ASSIGN.at(n.row, n.col, rhs, lhs));
 			}
 		}
 		return new VoidType();
@@ -254,13 +270,13 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 		Type lhs = checkVariable(n.i);
 		Type rhs = n.e2.accept(this);
-
-		if(!(n.e1.accept(this) instanceof IntegerType)) {
-			error("Array index expression must be of type integer.");
+		Type exp = n.e1.accept(this);
+		if(!(exp instanceof IntegerType)) {
+			error(INVALID_ARRAY_INDEX.at(n.row, n.col, exp));
 		}
 
 		if(!checkArrayAssignEquals(lhs, rhs)) {
-			error("Left and right side of an integer array assignment must be of integer or long type.");
+			error(INVALID_ARRAY_ASSIGN.at(n.row, n.col, rhs, lhs));
 		}
 		return new VoidType();
 	}
@@ -270,7 +286,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type rhs = n.e2.accept(this);
 
 		if(!checkBoolEquals(lhs, rhs)) {
-			error("Incompatible operand types. Left hand side and right hand side must be of type boolean.");
+			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "&&"));
 		}
 
 		return new BooleanType();
@@ -281,7 +297,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type rhs = n.e2.accept(this);
 
 		if(!checkBoolEquals(lhs, rhs)) {
-			error("Incompatible operand types. Left hand side and right hand side must be of type boolean.");
+			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "||"));
 		}
 
 		return new BooleanType();
@@ -292,7 +308,12 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type rhs = n.e2.accept(this);
 
 		if(!checkIntEquals(lhs, rhs) && !checkLongEquals(lhs, rhs)) {
-			error("Incompatible operand types. Left hand side and right hand side must either integer or long.");
+			if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
+			 	(lhs instanceof LongType && rhs instanceof IntegerType) ){
+				//error("The operator + is undefined for unmatched operands, long, long or int, int.");
+				return new BooleanType();
+			}
+			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "<"));
 		}
 		return new BooleanType();
 	}
@@ -302,7 +323,12 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type rhs = n.e2.accept(this);
 
 		if(!checkIntEquals(lhs, rhs) && !checkLongEquals(lhs, rhs)) {
-			error("Incompatible operand types. Left hand side and right hand side must either integer or long.");
+			if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
+			 	(lhs instanceof LongType && rhs instanceof IntegerType) ){
+				//error("The operator + is undefined for unmatched operands, long, long or int, int.");
+				return new BooleanType();
+			}
+			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "<="));
 		}
 		return new BooleanType();
 	}
@@ -312,7 +338,12 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type rhs = n.e2.accept(this);
 
 		if(!checkIntEquals(lhs, rhs) && !checkLongEquals(lhs, rhs)) {
-			error("Incompatible operand types. Left hand side and right hand side must either integer or long.");
+			if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
+			 	(lhs instanceof LongType && rhs instanceof IntegerType) ){
+				//error("The operator + is undefined for unmatched operands, long, long or int, int.");
+				return new BooleanType();
+			}
+			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, ">"));
 		}
 		return new BooleanType();
 	}
@@ -322,7 +353,12 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type rhs = n.e2.accept(this);
 
 		if(!checkIntEquals(lhs, rhs) && !checkLongEquals(lhs, rhs)) {
-			error("Incompatible operand types. Left hand side and right hand side must either integer or long.");
+			if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
+			 	(lhs instanceof LongType && rhs instanceof IntegerType) ){
+				//error("The operator + is undefined for unmatched operands, long, long or int, int.");
+				return new BooleanType();
+			}
+			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, ">="));
 		}
 		return new BooleanType();
 	}
@@ -333,7 +369,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 		/* Equality of classes must be checked by reference aswell */
 		if(!checkTypeEquals(lhs, rhs) && !classReferencesEquals(lhs, rhs) && !classReferencesEquals(rhs, lhs)) {
-			error("Incompatible operand types. Left hand side and right hand side must either integer, long or class type.");
+			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "=="));
 		}
 		return new BooleanType();
 	}
@@ -344,7 +380,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 		/* Equality of classes must be checked by reference aswell */
 		if(!checkTypeEquals(lhs, rhs) && !classReferencesEquals(lhs, rhs) && !classReferencesEquals(rhs, lhs)) {
-			error("Incompatible operand types. Left hand side and right hand side must either integer, long or class type.");
+			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "!="));
 		}
 		return new BooleanType();
 	}
@@ -357,12 +393,12 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 			return new IntegerType();
 		} else if(checkLongEquals(lhs, rhs)) {
 			return new LongType();
-		}else if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
+		} else if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
 				  (lhs instanceof LongType && rhs instanceof IntegerType) ){
-			error("The operator + is undefined for unmatched operands, long, long or int, int.");
-			return new VoidType();
+			//error("The operator + is undefined for unmatched operands, long, long or int, int.");
+			return new LongType();
 		} else {
-			error("The operator + is undefined for other arguments than integer or long type.");
+			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "+"));
 			return new VoidType();
 		}
 	}
@@ -377,10 +413,10 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 			return new LongType();
 		} else if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
 				   (lhs instanceof LongType && rhs instanceof IntegerType) ){
-			error("The operator * is undefined for unmatched operands, long, long or int, int.");
-			return new VoidType();		
+			//error("The operator * is undefined for unmatched operands, long, long or int, int.");
+			return new LongType();		
 		} else {
-			error("The operator * is undefined for other arguments than integer or long type.");
+			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "-"));
 			return new VoidType();
 		}
 	}
@@ -395,10 +431,10 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 			return new LongType();
 		} else if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
 				   (lhs instanceof LongType && rhs instanceof IntegerType) ){
-			error("The operator * is undefined for unmatched operands, long, long or int, int.");
-			return new VoidType();
+			//error("The operator * is undefined for unmatched operands, long, long or int, int.");
+			return new LongType();
 		} else {
-			error("The operator * is undefined for other arguments than integer or long type.");
+			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "*"));
 			return new VoidType();
 		}
 	}
@@ -408,7 +444,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Type rhs = n.e2.accept(this);
 
 		if(!(rhs instanceof IntegerType)) {
-			error("Type mismatch: cannot convert to int.");
+			error(INVALID_ARRAY_LOOKUP.at(n.row, n.col, rhs));
 		}
 
 		if(lhs instanceof IntArrayType) {
@@ -416,16 +452,16 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		} else if(lhs instanceof LongArrayType) {
 			return new LongType();
 		} else {
-			error("Left hand side of brackets cannot be resolved to a type of long or int.");
-			return new IntegerType();
+			error(INVALID_ARRAY_INDEX.at(n.row, n.col, lhs));
+			return new VoidType();
 		}
 	}
 
 	public Type visit(ArrayLength n) {
-		Type rhs = n.e.accept(this);
+		Type lhs = n.e.accept(this);
 
-		if(!((rhs instanceof IntArrayType) || (rhs instanceof LongArrayType))) {
-			error("The left-hand side of an assignment must be an array.");
+		if(!((lhs instanceof IntArrayType) || (lhs instanceof LongArrayType))) {
+			error(INVALID_ARRAY_LENGTH.at(n.row, n.col, lhs));
 		}
 		return new IntegerType();
 	}
@@ -436,23 +472,33 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		//n.i.accept(this); 
 
 		if(!(lhs instanceof IdentifierType)) {
-			error("The left-hand side of an assignment must be a variable.");
+			error(INVALID_CALL.at(n.row, n.col, lhs));
 			lhs = new IdentifierType("Object");
 		}
 		/* Left hand side is a identifier so check that method exists*/
-		Table classScope = getCurrentScope().find(Symbol.symbol(((IdentifierType) lhs).s), "class").getScope();
-
-		/* Extract right hand side */
+		ClassBinding cb = (ClassBinding) getCurrentScope().find(Symbol.symbol(((IdentifierType) lhs).s), "class");
+		Table classScope = cb.getScope();
 		MethodBinding m = (MethodBinding) classScope.find(Symbol.symbol(n.i.s), "method");
 
+		if(m == null){
+			for(int i=0; i < cb.getExtensions().size(); i++ ){
+				IdentifierType it = (IdentifierType) cb.getExtensions().get(i);
+				ClassBinding cbe = (ClassBinding) getCurrentScope().find(Symbol.symbol(it.s), "class");
+				m = (MethodBinding) cbe.getScope().find(Symbol.symbol(n.i.s), "method");
+				if(m != null){
+					break;
+				}
+			}
+		}
+
 		if(m == null) {
-			error("Unknown method");
+			error(NOT_IN_SCOPE.at(n.row, n.col, n.i.s));
 			return new VoidType();
 		}
 
 		ArrayList<VariableBinding> paramTypes = m.getParams();
 		if(paramTypes.size() != n.el.size()) {
-			error("Argument size does not match (Call)");
+			error(UNMATCHED_ARGUMENT_SIZE.at(n.row, n.col, n.el.size(), paramTypes.size()));
 		}
 
 		for ( int i = 0; i < n.el.size(); i++ ) {
@@ -461,10 +507,10 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 			if(!checkTypeEquals(argumentType, formalType)) {
 				if(checkIdentifierEquals(argumentType, formalType)){
 					if(!classReferencesEquals(formalType, argumentType)) {
-						error("MethodBinding parameter has no extension of the type.");
+						error(INVALID_INHERTICANCE.at(n.row, n.col));
 					}
 				} else{
-					error("The method" + n.i.s + " is not applicable for the arguments provided.");
+						error(UNMATCHED_ARGUMENT_TYPES.at(n.row, n.col, formalType, argumentType));
 				}
 			}
 		}
@@ -492,7 +538,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Binder b =  getCurrentScope().find(Symbol.symbol(n.s));
 
 		if(b == null) {
-			error(n.s + " cannot be resolved to a variable. (IdentifierExp)");
+			error(NOT_IN_SCOPE.at(n.row, n.col, n.s));
 			return new IntegerType();
 		} 
 		return b.getType();
@@ -506,7 +552,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(NewIntArray n) {
 		Type indexType = n.e.accept(this);
 		if(!(indexType instanceof IntegerType)) {
-			error("Type mismatch: cannot convert type to int. (NewIntArray)");
+			error(UNMATCHED_TYPE.at(n.row, n.col, indexType, "int"));
 		}
 		return new IntArrayType();
 	}
@@ -514,7 +560,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(NewLongArray n) {
 		Type indexType = n.e.accept(this);
 		if(!(indexType instanceof IntegerType)) {
-			error("Type mismatch: cannot convert type to int. (NewLongArray)");
+			error(UNMATCHED_TYPE.at(n.row, n.col, indexType, "long"));
 		}
 		return new LongArrayType();
 	}
@@ -527,7 +573,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(Not n) {
 		Type expType = n.e.accept(this);
 		if(!(expType instanceof BooleanType)) {
-			error("Incompatible operand types.");
+			error(INVALID_UNARY_OP.at(n.row, n.col, expType));
 		}
 		return new BooleanType();
 	}
@@ -536,7 +582,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		Binder b = getCurrentScope().find(Symbol.symbol(n.s));
 
 		if(b == null) {
-			error(n.s + " cannot be resolved to a variable.");
+			error(NOT_IN_SCOPE.at(n.row, n.col, n.s));
 			return new IntegerType();
 		} 
 		return b.getType();
@@ -571,7 +617,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
     public Type checkClass(Identifier n) {
     	ClassBinding c = (ClassBinding) getCurrentScope().find(Symbol.symbol(n.s), "class");
     	if(c == null) {
-			error(n.s + " is not a class in this scope.");
+			error(NOT_IN_SCOPE.at(n.row, n.col, n.s));
     		return new IntegerType();
     	}
     	return  c.getType();
@@ -580,7 +626,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
     public Type checkMethod(Identifier n) {
     	MethodBinding m = (MethodBinding) getCurrentScope().find(Symbol.symbol(n.s), "method");
     	if(m == null) {
-			error(n.s + " is not a method in this scope.");
+			error(NOT_IN_SCOPE.at(n.row, n.col, n.s));
     		return new IntegerType();
     	}
     	return  m.getType();
@@ -589,7 +635,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
     public Type checkVariable(Identifier n) {
     	VariableBinding v = (VariableBinding) getCurrentScope().find(Symbol.symbol(n.s), "variable");
     	if(v == null) {
-			error(n.s + " is not a variable in this scope.");
+			error(NOT_IN_SCOPE.at(n.row, n.col, n.s));
     		return new VoidType();
     	}
     	return v.getType();
@@ -669,32 +715,32 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	}
 
 	private ArrayList<Type> checkExtensions(ClassDeclExtends n) {
-		String className = n.i.s;
+		HashSet<String> visitedClasses = new HashSet<String>();
 		ArrayList<Type> extensions = new ArrayList<Type>();
-		HashSet<String> visited = new HashSet<String>();
-		ClassBinding currentClass = (ClassBinding) getCurrentScope().find(Symbol.symbol(className),"class");
-		visited.add(className);
+
+		/* Add current traversed class as visited */
+		ClassBinding currentClass = (ClassBinding) getCurrentScope().find(Symbol.symbol(n.i.s),"class");
+		visitedClasses.add(n.i.s);
 
 		/* Traverse while extented classes still exist */
-		while(currentClass != null && currentClass.hasExtensions()) {
-			IdentifierType classExtension = (IdentifierType) currentClass.getExtensions().get(0);
-
-			if(visited.contains(classExtension.s)) {
-				error("Cyclic inheritance involving " + className + ".");
-				break;
-			}else{
-				visited.add(classExtension.s);				
+		while(currentClass != null) {
+			if(!currentClass.hasExtensions()){
+				return extensions;
 			}
+
+			IdentifierType classExtension = (IdentifierType) currentClass.getExtensions().get(0);
+			if(currentClass.equals(classExtension.s) || visitedClasses.contains(classExtension.s)) {
+				error(CYCLIC_INHERTICANCE.at(n.row, n.col, classExtension.s));
+				return new ArrayList<Type>();
+			}
+
+			ClassBinding extendedClass = currentClass;
+			currentClass = (ClassBinding) getCurrentScope().find(Symbol.symbol(classExtension.s), "class");
+			extendedClass.getScope().parent = currentClass.getScope();
+
 			/* update list */
 			extensions.add(classExtension);
-
-			/* Update current class */
-			ClassBinding oldClass = currentClass;
-			currentClass = (ClassBinding) getCurrentScope().find(Symbol.symbol(classExtension.s), "class");
-			if(currentClass != null) {
-				oldClass.getScope().parent = currentClass.getScope();
-			}
-
+			visitedClasses.add(classExtension.s);
 		}
 		return extensions;
 	}

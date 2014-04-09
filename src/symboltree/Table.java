@@ -51,42 +51,22 @@ public class Table {
 
     /* Lookup in symbol table */
     public Binder find(Symbol s) {
-        Table currentScope = this;
-
-        Binder binding = currentScope.findany(s);
-        if(binding != null){
-            return binding;
-        }
-
-        while (currentScope.hasParent()) {
-            currentScope = currentScope.getParent();
-            binding = currentScope.findany(s);
-            if (binding != null) {
-                return binding;
-            }
-        }
-        return null;
-    }
-
-    public Binder findany(Symbol s){
-        VariableBinding v = this.variables.get(s);
+        VariableBinding v = (VariableBinding) find(s, "variable");
         if (v != null) {
             return v;
         }
 
-        MethodBinding m = this.methods.get(s);
+        MethodBinding m = (MethodBinding) find(s, "method");
         if (m != null) {
             return m;
         }
 
-        ClassBinding c = this.classes.get(s);
+        ClassBinding c = (ClassBinding) find(s, "class");
         if (c != null) {
             return c;
         }
-
         return null;
     }
-
 
     public Binder findexclusive(Symbol s, String bType){
         try {

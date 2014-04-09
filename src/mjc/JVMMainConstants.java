@@ -71,25 +71,33 @@ public interface JVMMainConstants {
   /** RegularExpression Id. */
   int INTEGER_LITERAL = 35;
   /** RegularExpression Id. */
-  int IDENTIFIER = 36;
+  int LONG_LITERAL = 36;
   /** RegularExpression Id. */
-  int ASSIGN = 37;
+  int IDENTIFIER = 37;
   /** RegularExpression Id. */
-  int LT = 38;
+  int ASSIGN = 38;
   /** RegularExpression Id. */
-  int SC_AND = 39;
+  int LT = 39;
   /** RegularExpression Id. */
-  int PLUS = 40;
+  int EQ = 40;
   /** RegularExpression Id. */
-  int MINUS = 41;
+  int NE = 41;
   /** RegularExpression Id. */
-  int STAR = 42;
+  int SC_OR = 42;
   /** RegularExpression Id. */
-  int SINGLE_LINE_COMMENT = 46;
+  int SC_AND = 43;
   /** RegularExpression Id. */
-  int FORMAL_COMMENT = 47;
+  int PLUS = 44;
   /** RegularExpression Id. */
-  int MULTI_LINE_COMMENT = 48;
+  int MINUS = 45;
+  /** RegularExpression Id. */
+  int STAR = 46;
+  /** RegularExpression Id. */
+  int SINGLE_LINE_COMMENT = 50;
+  /** RegularExpression Id. */
+  int FORMAL_COMMENT = 51;
+  /** RegularExpression Id. */
+  int MULTI_LINE_COMMENT = 52;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -138,20 +146,24 @@ public interface JVMMainConstants {
     "\".\"",
     "\"!\"",
     "<INTEGER_LITERAL>",
+    "<LONG_LITERAL>",
     "<IDENTIFIER>",
     "\"=\"",
     "\"<\"",
+    "\"==\"",
+    "\"!=\"",
+    "\"||\"",
     "\"&&\"",
     "\"+\"",
     "\"-\"",
     "\"*\"",
     "\"//\"",
-    "<token of kind 44>",
+    "<token of kind 48>",
     "\"/*\"",
     "<SINGLE_LINE_COMMENT>",
     "\"*/\"",
     "\"*/\"",
-    "<token of kind 49>",
+    "<token of kind 53>",
   };
 
 }

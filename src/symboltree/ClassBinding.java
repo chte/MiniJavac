@@ -21,10 +21,10 @@ public class ClassBinding extends Binder{
   }
 
   public boolean hasExtensions() {
-		if(extensions.size() == 0) {
-      return false;
+		if(extensions.size() > 0) {
+      return true;
     }else{
-    	return true;
+    	return false;
     }
   }
 
