@@ -130,7 +130,6 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
         /* Visited class so set up new scope */
         startScope(n, Table.ScopeType.CLASS);
 
-        ArrayList<Type> extensions = new ArrayList<Type>();
         ClassBinding c = new ClassBinding(n.i, new IdentifierType(n.i.s), getCurrentScope());
         c.addExtension(new IdentifierType(n.j.s));
 
@@ -169,6 +168,11 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
                 }
                 break;
             case BLOCK:
+                VariableBinding v = (VariableBinding) getCurrentScope().find(Symbol.symbol(n.i.s), "variable");
+                if(v != null){
+                    error(DUPLICATE_FIELD.at(n.row, n.col, n.i.s, "block"));
+                }
+
                 if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t)) ){
                     error(DUPLICATE_LOCAL.at(n.row, n.col, n.i.s, "block"));
                 }
@@ -242,11 +246,13 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
 
     public void visit(Block n)
     {
+        Table parentScope = tableStack.peekFirst();
+    
         /* Visited method so set up new scope */
         startScope(n, Table.ScopeType.BLOCK);
         
+        /* Add main class to program scope */
         getCurrentScope().setClassType(getParentScope().getClassType());
-
         super.visit(n);
 
         /* End of scope */

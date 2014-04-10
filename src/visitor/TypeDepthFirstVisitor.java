@@ -106,12 +106,14 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 		checkClass(n.i);
 
-		ArrayList<Type> extensions = checkExtensions(n);
-		ClassBinding c = (ClassBinding) getOldScope().find(Symbol.symbol(n.i.s), "class");
+		checkExtensions(n);
+		// ClassBinding c = (ClassBinding) getOldScope().find(Symbol.symbol(n.i.s), "class");
 
-		for(Type t : extensions){
-			c.addExtension(t);
-		}
+		// System.out.println("Class " + n.i.s);
+		// for(Type t : extensions){
+		// 	System.out.println("Found ext: " + ((IdentifierType) t).s);
+		// 	c.addExtension(t);
+		// }
 
 		for ( int i = 0; i < n.vl.size(); i++ ) {
 			n.vl.elementAt(i).accept(this);
@@ -369,7 +371,13 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 		/* Equality of classes must be checked by reference aswell */
 		if(!checkTypeEquals(lhs, rhs) && !classReferencesEquals(lhs, rhs) && !classReferencesEquals(rhs, lhs)) {
-			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "=="));
+			if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
+			 	(lhs instanceof LongType && rhs instanceof IntegerType) ){
+				//error("The operator + is undefined for unmatched operands, long, long or int, int.");
+				return new BooleanType();
+			}else{
+				error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "=="));
+			}
 		}
 		return new BooleanType();
 	}
@@ -380,7 +388,13 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 		/* Equality of classes must be checked by reference aswell */
 		if(!checkTypeEquals(lhs, rhs) && !classReferencesEquals(lhs, rhs) && !classReferencesEquals(rhs, lhs)) {
-			error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "!="));
+			if( (lhs instanceof IntegerType && rhs instanceof LongType) || 
+			 	(lhs instanceof LongType && rhs instanceof IntegerType) ){
+				//error("The operator + is undefined for unmatched operands, long, long or int, int.");
+				return new BooleanType();
+			}else{
+				error(INVALID_BINARY_OP.at(n.row, n.col, lhs, rhs, "!="));
+			}
 		}
 		return new BooleanType();
 	}
@@ -469,32 +483,36 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(Call n) {
 		/* Left hand side expression */
 		Type lhs = n.e.accept(this);
-		//n.i.accept(this); 
 
 		if(!(lhs instanceof IdentifierType)) {
 			error(INVALID_CALL.at(n.row, n.col, lhs));
 			lhs = new IdentifierType("Object");
 		}
 		/* Left hand side is a identifier so check that method exists*/
-		ClassBinding cb = (ClassBinding) getCurrentScope().find(Symbol.symbol(((IdentifierType) lhs).s), "class");
-		Table classScope = cb.getScope();
-		MethodBinding m = (MethodBinding) classScope.find(Symbol.symbol(n.i.s), "method");
+		ClassBinding c = (ClassBinding) getCurrentScope().find(Symbol.symbol(((IdentifierType) lhs).s), "class");
+		MethodBinding m = (MethodBinding) c.getScope().find(Symbol.symbol(n.i.s), "method");
+	
 
-		if(m == null){
-			for(int i=0; i < cb.getExtensions().size(); i++ ){
-				IdentifierType it = (IdentifierType) cb.getExtensions().get(i);
-				ClassBinding cbe = (ClassBinding) getCurrentScope().find(Symbol.symbol(it.s), "class");
-				m = (MethodBinding) cbe.getScope().find(Symbol.symbol(n.i.s), "method");
+		if(m == null) {
+			// System.out.println(c.toString(0));
+
+			IdentifierType extension = c.getExtension();
+			while(extension != null){
+				c = (ClassBinding) getCurrentScope().find(Symbol.symbol(extension.s), "class");			
+				extension = c.getExtension();
+				m = (MethodBinding) c.getScope().find(Symbol.symbol(n.i.s), "method");
+				
 				if(m != null){
 					break;
 				}
 			}
 		}
-
-		if(m == null) {
+		if(m == null){
 			error(NOT_IN_SCOPE.at(n.row, n.col, n.i.s));
 			return new VoidType();
 		}
+
+		IdentifierType extension = c.getExtension();
 
 		ArrayList<VariableBinding> paramTypes = m.getParams();
 		if(paramTypes.size() != n.el.size()) {
@@ -600,15 +618,16 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		IdentifierType classRhs = (IdentifierType) t2;
 		ClassBinding c = (ClassBinding) getCurrentScope().find(Symbol.symbol(classRhs.s), "class");
 
-		if(c == null || !c.hasExtensions()) {
+		if(c == null || !c.hasExtension()) {
 			return false;
 		}
-		ArrayList<Type> classRhsExtensions = c.getExtensions();
-		for(int i = 0; i < classRhsExtensions.size(); i++) {
-			IdentifierType extension = (IdentifierType) classRhsExtensions.get(i);
-			if(extension.s.equals(classLhs.s)) {
+		IdentifierType extension = c.getExtension();
+		while(extension != null){
+			if(classLhs.equals(extension)) {
 				return true;
 			}
+			c = (ClassBinding) getCurrentScope().find(Symbol.symbol(extension.s), "class");			
+			extension = c.getExtension();
 		}
 		
 		return false;
@@ -714,7 +733,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		return false;
 	}
 
-	private ArrayList<Type> checkExtensions(ClassDeclExtends n) {
+	private void checkExtensions(ClassDeclExtends n) {
 		HashSet<String> visitedClasses = new HashSet<String>();
 		ArrayList<Type> extensions = new ArrayList<Type>();
 
@@ -724,25 +743,26 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 		/* Traverse while extented classes still exist */
 		while(currentClass != null) {
-			if(!currentClass.hasExtensions()){
-				return extensions;
+			if(!currentClass.hasExtension()){
+				return;
 			}
 
-			IdentifierType classExtension = (IdentifierType) currentClass.getExtensions().get(0);
-			if(currentClass.equals(classExtension.s) || visitedClasses.contains(classExtension.s)) {
+			IdentifierType classExtension = currentClass.getExtension();
+			if(visitedClasses.contains(classExtension.s)) {
 				error(CYCLIC_INHERTICANCE.at(n.row, n.col, classExtension.s));
-				return new ArrayList<Type>();
+				System.exit(1);
+				return;
 			}
 
 			ClassBinding extendedClass = currentClass;
 			currentClass = (ClassBinding) getCurrentScope().find(Symbol.symbol(classExtension.s), "class");
-			extendedClass.getScope().parent = currentClass.getScope();
-
-			/* update list */
-			extensions.add(classExtension);
+			if(currentClass != null){
+				extendedClass.getScope().parent = currentClass.getScope();
+			}
 			visitedClasses.add(classExtension.s);
+
 		}
-		return extensions;
+		return;
 	}
 
 

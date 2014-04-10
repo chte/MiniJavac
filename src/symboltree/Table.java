@@ -33,7 +33,6 @@ public class Table {
     /* Lookup in symbol table */
     public Binder find(Symbol s, String bType) {
         Table currentScope = this;
-
         Binder binding = currentScope.findexclusive(s, bType);
         if(binding != null){
             return binding;

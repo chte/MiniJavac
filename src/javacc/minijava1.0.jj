@@ -170,7 +170,7 @@ TOKEN: /* LITERALS */
 {
   < INTEGER_LITERAL: ( ["0"] | ["1"-"9"](["0"-"9"])*) >
 |
-  < LONG_LITERAL: "0" | ["1"-"9"](["0"-"9"])* ["l", "L"] >
+  < LONG_LITERAL: ("0" | ["1"-"9"](["0"-"9"])*) ["l", "L"] >
 }
 
 
@@ -183,10 +183,10 @@ TOKEN: /* OPERATORS */
 {
   < ASSIGN: "=" >
 | < LT: "<" >
-// | < GT: ">" >
+| < GT: ">" >
 | < EQ: "==" > /* Bonus 1p */
-// | < LE: "<=" > /* Bonus 1p */
-// | < GE: ">=" > /* Bonus 1p */
+| < LE: "<=" > /* Bonus 1p */
+| < GE: ">=" > /* Bonus 1p */
 | < NE: "!=" > /* Bonus 1p */
 | < SC_OR: "||" > /* Bonus 2p */
 | < SC_AND: "&&" >
@@ -429,7 +429,22 @@ Exp EqExp() :
 Exp RelExp() :
 { Token t; Exp e1, e2; }
 {
-  e1 = AddExp() [LOOKAHEAD(2) t=<LT> e2 = RelExp() { return new LessThan(e1, e2, t.endLine, t.endColumn); }] { return e1; }
+  e1 = AddExp() 
+  [   LOOKAHEAD(2) 
+      t=<LT> e2 = RelExp() { return new LessThan(e1, e2, t.endLine, t.endColumn); }
+    |
+      t=<LE> e2 = RelExp() { return new LessThanOrEqual(e1, e2, t.endLine, t.endColumn); }
+    |    
+      t=<GT> e2 = RelExp() { return new GreaterThan(e1, e2, t.endLine, t.endColumn); }
+    |
+      t=<GE> e2 = RelExp() { return new GreaterThanOrEqual(e1, e2, t.endLine, t.endColumn); }
+    |
+      t=<EQ> e2 = RelExp() { return new Equal(e1, e2, t.endLine, t.endColumn); }      
+    |
+      t=<NE> e2 = RelExp() { return new NotEqual(e1, e2, t.endLine, t.endColumn); }  
+  ]
+  { return e1; }
+
 }
 
 Exp AddExp() :

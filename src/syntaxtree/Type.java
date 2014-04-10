@@ -8,7 +8,7 @@ public abstract class Type {
 	return getClass().equals(tp.getClass());
     }
     
-    public  String toString(Type tp)
+    public  String toString()
     {
       String[] parts = getClass().getName().split("\\.");
       return parts[parts.length-1];
