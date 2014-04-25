@@ -99,7 +99,7 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
             error(DUPLICATE_CLASS.at(n.row, n.col, n.i1.s));
         }
         getCurrentScope().setClassType(new IdentifierType(n.i1.s));
-        getCurrentScope().insert(Symbol.symbol(n.i2.s), new VariableBinding(n.i2 ,new IdentifierType(n.i2.s) ));
+        getCurrentScope().insert(Symbol.symbol(n.i2.s), new VariableBinding(n.i2 ,new IdentifierType(n.i2.s), VariableBinding.VariableType.PARAM ));
 
         /* Set traverse in main class as a new child scope */
         super.visit(n);
@@ -153,17 +153,17 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
         /* If not duplicate variable insert new into scope */
         switch(scopeType){
             case MAIN_CLASS:
-                if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t)) ){
+                if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t,VariableBinding.VariableType.FIELD)) ){
                     error(DUPLICATE_FIELD.at(n.row, n.col, n.i.s, "mainclass"));
                 }
                 break;
             case CLASS:
-                if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t)) ){
+                if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t,VariableBinding.VariableType.FIELD)) ){
                     error(DUPLICATE_FIELD.at(n.row, n.col, n.i.s, "class"));
                 }
                 break;
             case METHOD:
-                if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t)) ){
+                if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t,VariableBinding.VariableType.LOCAL)) ){
                     error(DUPLICATE_LOCAL.at(n.row, n.col, n.i.s, "method"));
                 }
                 break;
@@ -173,7 +173,7 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
                     error(DUPLICATE_FIELD.at(n.row, n.col, n.i.s, "block"));
                 }
 
-                if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t)) ){
+                if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t, VariableBinding.VariableType.LOCAL)) ){
                     error(DUPLICATE_LOCAL.at(n.row, n.col, n.i.s, "block"));
                 }
                 break;
@@ -189,7 +189,7 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
 
         MethodBinding m = new MethodBinding(n.i, n.t, getCurrentScope());
         for(int i = 0; i < n.fl.size(); i++) {
-            VariableBinding v = new VariableBinding(n.fl.elementAt(i).i, n.fl.elementAt(i).t);
+            VariableBinding v = new VariableBinding(n.fl.elementAt(i).i, n.fl.elementAt(i).t, VariableBinding.VariableType.LOCAL);
             m.addParam(v);
         }
 
@@ -207,7 +207,7 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
 
     public void visit(Formal n)
     {
-        if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t))){
+        if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t, VariableBinding.VariableType.PARAM))){
             error(DUPLICATE_PARAMETERS.at(n.row, n.col, n.i.s));
         }
 

@@ -40,6 +40,17 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		return tableStack.get(1);
     }
 
+	public void enterScope(Table scope){
+		/* Push current scope on stack */
+		tableStack.push(scope);
+	}
+
+	public void leaveScope(){
+		/* Push current scope on stack */
+		tableStack.pop();
+	}
+
+
 	public Table startScope(Object n){
         Table parentScope = tableStack.peekFirst();
 
@@ -99,13 +110,9 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		return new VoidType();
 	}
 
-
-
 	public Type visit(ClassDeclExtends n) {
 		startScope(n);
-
 		checkClass(n.i);
-
 		checkExtensions(n);
 		// ClassBinding c = (ClassBinding) getOldScope().find(Symbol.symbol(n.i.s), "class");
 
@@ -488,6 +495,9 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 			error(INVALID_CALL.at(n.row, n.col, lhs));
 			lhs = new IdentifierType("Object");
 		}
+
+		n.c = ((IdentifierType) lhs).s;
+
 		/* Left hand side is a identifier so check that method exists*/
 		ClassBinding c = (ClassBinding) getCurrentScope().find(Symbol.symbol(((IdentifierType) lhs).s), "class");
 		MethodBinding m = (MethodBinding) c.getScope().find(Symbol.symbol(n.i.s), "method");

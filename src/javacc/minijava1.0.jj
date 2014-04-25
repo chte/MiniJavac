@@ -34,6 +34,7 @@ public static void main(String args[]) {
   SyntaxTreePrinter stp;
   SymbolTableBuilderVisitor stb;
   TypeDepthFirstVisitor tdfv;
+  BytecodeEmitterVisitor bev;
 
 	if (args.length == 0) {
 		System.out.println("MiniJavac 1.0:  Reading from standard input . . .");
@@ -90,10 +91,11 @@ public static void main(String args[]) {
     tdfv.scopeLookupTable = stb.scopeLookupTable;
     tdfv.visit(program);
 
+    bev = new BytecodeEmitterVisitor();
+    bev.scopeLookupTable = tdfv.scopeLookupTable;
+    bev.typeChecker = tdfv;
+    bev.visit(program);
 
-    for(String className : stb.classes){
-      new File(className+".j").createNewFile(); 
-    }
     if(stb.hasErrors()){
       for(CompilerError err : stb.getErrors()){
           System.err.println(err);

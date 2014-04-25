@@ -20,6 +20,10 @@ public class CompilerError
 
     @Override 
     public String toString() {
-    	return "Encountered error at [line: " + row + ", column: " + col + "] " + getMsg();
+        if(row == 0 && col == 0){
+           return "Internal error: " + getMsg();
+        }else{
+    	   return "Encountered error at [line: " + row + ", column: " + col + "] " + getMsg();
+        }
     }
 }

@@ -7,11 +7,7 @@ public class Binder {
     public enum SymbolType {
         CLASS, 
         EXTENDS, 
-        RETURN,
-        LOCAL, 
-        PARAM,
-        MAIN, 
-        FIELD
+        RETURN
     }
     private Identifier id;
     private Type type;

@@ -4,10 +4,32 @@ import syntaxtree.*;
 import java.util.ArrayList;
 
 public class VariableBinding extends Binder{
+    public enum VariableType {
+        LOCAL, 
+        PARAM,
+        FIELD
+    }
 
-	/* Input parameter st can be arbitary string instead */
-	public VariableBinding(Identifier id, Type type) { 
-		super(id,type);
+    private VariableType vt;
+    private int so;
+
+	public VariableBinding(Identifier id, Type t) { 
+		super(id,t);
+	}
+	public VariableBinding(Identifier id, Type t, VariableType vt) { 
+		super(id,t); this.vt = vt;
+	}
+
+	public VariableType getVariableType(){
+		return this.vt;
+	}
+
+	public void setStackOffset(int so){
+		this.so = so;
+	}
+
+	public String getStackOffset(){
+		return ""+this.so;
 	}
 
     public String toString(int level) {

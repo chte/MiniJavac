@@ -51,19 +51,14 @@ public class Table {
     /* Lookup in symbol table */
     public Binder find(Symbol s) {
         VariableBinding v = (VariableBinding) find(s, "variable");
-        if (v != null) {
-            return v;
-        }
-
+        if (v != null) return v;
+    
         MethodBinding m = (MethodBinding) find(s, "method");
-        if (m != null) {
-            return m;
-        }
+        if (m != null) return m;
 
         ClassBinding c = (ClassBinding) find(s, "class");
-        if (c != null) {
-            return c;
-        }
+        if (c != null) return c;
+
         return null;
     }
 
@@ -71,21 +66,15 @@ public class Table {
         try {
             if(bType.equals("variable")){
                 VariableBinding v = this.variables.get(s);
-                if (v != null) {
-                    return v;
-                }
+                if (v != null) return v;
             }   
             if(bType.equals("method")){
                 MethodBinding m = this.methods.get(s);
-                if (m != null) {
-                    return m;
-                }
+                if (m != null) return m;
             }
             if(bType.equals("class")){
                 ClassBinding c = this.classes.get(s);
-                if (c != null) {
-                    return c;
-                }
+                if (c != null) return c;
             }
             return null;
         } catch( Exception e ){
