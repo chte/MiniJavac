@@ -94,8 +94,8 @@ class internalMatrix{
 	public boolean setData(int rowIn, int colIn, int dataIn){
 		boolean status;
 		//Check so we're in range
-		if(getMatrixSize() > ((getRowLength()*rowIn)+colIn)){
-			data[((getRowLength()*rowIn)+colIn)] = dataIn;
+		if(this.getMatrixSize() > ((this.getRowLength()*rowIn)+colIn)){
+			data[((this.getRowLength()*rowIn)+colIn)] = dataIn;
 			status = true;
 		}
 		else {
@@ -108,8 +108,8 @@ class internalMatrix{
 	public int getData(int rowIn, int colIn){
 		int result;
 		result = 0;
-		if(((getRowLength()*rowIn)+colIn) < getMatrixSize()){
-			result = data[((getRowLength()*rowIn)+colIn)];
+		if(((this.getRowLength()*rowIn)+colIn) < this.getMatrixSize()){
+			result = data[((this.getRowLength()*rowIn)+colIn)];
 		}	
 		return result;
 	}
@@ -175,10 +175,10 @@ class matrixWithPrint extends internalMatrix{
 		
 		i = 0;
 		
-		while(i < getRowLength()){
+		while(i < this.getRowLength()){
 			j = 0;
-			while(j < getColomnLength()){
-				System.out.println(getData(i,j));
+			while(j < this.getColomnLength()){
+				System.out.println(this.getData(i,j));
 				j = j + 1;
 			}
 			i = i + 1;
