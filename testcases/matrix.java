@@ -141,7 +141,7 @@ class internalMatrix{
 			while(i < aRows){
 				j = 0;
 				while(j < bColomns){
-					c.setData(i,j,0);
+					if(c.setData(i,j,0)){}
 					j = j + 1;
 				}
 				i = i + 1;
@@ -155,7 +155,7 @@ class internalMatrix{
 				while(j < bColomns){
 					int k = 0;
 					while(k < aColomns){
-						c.setData(i,j, c.getData(i,j)+(a.getData(i,k)*b.getData(k,j)));
+						if(c.setData(i,j, c.getData(i,j)+(a.getData(i,k)*b.getData(k,j)))){};
 						k = k + 1;
 					}
 					j = j + 1;
