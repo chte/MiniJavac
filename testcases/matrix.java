@@ -7,8 +7,9 @@
 // EXT:CNE
 // EXT:CEQ
 // EXT:LONG
+// EXT:ISC
 
-public class matrix {
+class matrix {
 	public static void main(String args[]){
 		internalMatrix m;
 		int i;
@@ -17,11 +18,12 @@ public class matrix {
 		matrixWithPrint o;
 		long x;
 		long y;
+		boolean scrap;
 		
 		m = new internalMatrix();
 		n = new internalMatrix();
-		m.Init(2,2);
-		n.Init(2,2);
+		scrap = m.Init(2,2);
+		scrap = n.Init(2,2);
 		
 		//Check the lazy evaluation
 		if((true || false) && true){
@@ -41,8 +43,8 @@ public class matrix {
 		while(i < m.getColomnLength()){
 			j = 0;
 			while(j < m.getColomnLength()){
-				m.setData(i,j,2);
-				n.setData(i,j,2);
+				scrap = m.setData(i,j,2);
+				scrap = n.setData(i,j,2);
 				j = j + 1;
 			}
 			i = i + 1;
@@ -50,7 +52,7 @@ public class matrix {
 		
 		o = m.matrixmultiplication(m,n);
 
-		o.printMatrix();
+		scrap = o.printMatrix();
 		
 		x = 13L;
 		y = 13;
