@@ -21,8 +21,6 @@ return
    .limit stack 2
    aload_0
    putfield validstatement3/i I
-   aload_0
-   getfield validstatement3/i I
    if_icmplt TRUE_LABEL_0
    iconst_0
    goto NEXT_LABEL_1

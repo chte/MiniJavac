@@ -49,7 +49,7 @@ return
    getfield Mergesort/s I
    isub
    istore_2
-   lt TRUE_LABEL_0
+   if_icmplt TRUE_LABEL_0
    iconst_0
    goto NEXT_LABEL_1
 TRUE_LABEL_0:
@@ -117,19 +117,19 @@ IF_NEXT_4:
    aload_0
    getfield Mergesort/m I
    istore_5
-   lt TRUE_LABEL_5
+   if_icmplt TRUE_LABEL_5
    iconst_0
    goto NEXT_LABEL_6
 TRUE_LABEL_5:
    iconst_1
 NEXT_LABEL_6:
-   lt TRUE_LABEL_7
+   if_icmplt TRUE_LABEL_7
    iconst_0
    goto NEXT_LABEL_8
 TRUE_LABEL_7:
    iconst_1
 NEXT_LABEL_8:
-   lt TRUE_LABEL_9
+   if_icmplt TRUE_LABEL_9
    iconst_0
    goto NEXT_LABEL_10
 TRUE_LABEL_9:
@@ -164,7 +164,7 @@ IF_FALSE_12:
    iadd
    istore_6
 IF_NEXT_13:
-   lt TRUE_LABEL_14
+   if_icmplt TRUE_LABEL_14
    iconst_0
    goto NEXT_LABEL_15
 TRUE_LABEL_14:
@@ -172,7 +172,7 @@ TRUE_LABEL_14:
 NEXT_LABEL_15:
    ifeq IF_FALSE_17
 IF_TRUE_16:
-   lt TRUE_LABEL_19
+   if_icmplt TRUE_LABEL_19
    iconst_0
    goto NEXT_LABEL_20
 TRUE_LABEL_19:
@@ -192,7 +192,7 @@ NEXT_LABEL_20:
    istore_6
    goto IF_NEXT_18
 IF_FALSE_17:
-   lt TRUE_LABEL_21
+   if_icmplt TRUE_LABEL_21
    iconst_0
    goto NEXT_LABEL_22
 TRUE_LABEL_21:
@@ -212,7 +212,7 @@ NEXT_LABEL_22:
    istore_6
 IF_NEXT_18:
    istore_6
-   lt TRUE_LABEL_23
+   if_icmplt TRUE_LABEL_23
    iconst_0
    goto NEXT_LABEL_24
 TRUE_LABEL_23:
@@ -238,7 +238,7 @@ NEXT_LABEL_24:
 .method public avg(II)I
    .limit locals 2
    .limit stack 2
-   lt TRUE_LABEL_25
+   if_icmplt TRUE_LABEL_25
    iconst_0
    goto NEXT_LABEL_26
 TRUE_LABEL_25:
@@ -257,7 +257,7 @@ NEXT_LABEL_26:
    .limit stack 3
    .field protected i I
    istore_1
-   lt TRUE_LABEL_27
+   if_icmplt TRUE_LABEL_27
    iconst_0
    goto NEXT_LABEL_28
 TRUE_LABEL_27:
