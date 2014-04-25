@@ -5,6 +5,11 @@ import visitor.TypeVisitor;
 public class ArrayAssign extends Statement {
   public Identifier i;
   public Exp e1,e2;
+  public int row, col;
+
+  public ArrayAssign(Identifier ai, Exp ae1, Exp ae2, int row, int col) {
+    i=ai; e1=ae1; e2=ae2; this.row=row; this.col=col;
+  }
 
   public ArrayAssign(Identifier ai, Exp ae1, Exp ae2) {
     i=ai; e1=ae1; e2=ae2;

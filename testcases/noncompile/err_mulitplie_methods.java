@@ -1,1 +1,0 @@
-class Mainklassen { public static void main(String[] args) {if (new Klass().trueMeth() < 20) System.out.println(new Klass().trueMeth());else { {{}{}{ {System.out.println(true); }}{} }} }}class Klass { public boolean trueMeth() {return false; } public int trueMeth() {return 1; }}

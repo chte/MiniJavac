@@ -390,6 +390,14 @@ public class SyntaxTreePrinter extends visitor.DepthFirstVisitor
 		++level;
 	}
 
+	void preWork(LongLiteral n) 
+	{
+		String name = nodeName(n);
+		out.println(indent() + "(" + name + 
+			"[ " + n.i + " ]");
+		++level;
+	}
+
 	void preWork(Call n) 
 	{
 		String name = nodeName(n);

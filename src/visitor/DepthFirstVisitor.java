@@ -57,6 +57,9 @@ public class DepthFirstVisitor implements Visitor {
         for ( int i = 0; i < n.vl.size(); i++ ) {
             n.vl.elementAt(i).accept(this);
         }
+        for ( int i = 0; i < n.ml.size(); i++ ) {
+            n.ml.elementAt(i).accept(this);
+        }
     }
 
 // Type t;

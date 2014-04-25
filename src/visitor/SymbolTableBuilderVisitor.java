@@ -1,7 +1,11 @@
 package visitor;
+
 import syntaxtree.*;
 import symboltree.*;
+
 import error.*;
+import static error.ErrorObject.*;
+
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -11,9 +15,9 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
     public Table program;
     public LinkedList<Table> tableStack;
     public HashMap<Object, Table> scopeLookupTable;
-    public CompilerErrorMsg error;
-    public CompilerErrorMsg warning;
     public ArrayList<String> classes;
+    private ArrayList<CompilerError> errors = new ArrayList<CompilerError>();
+
 
     public SymbolTableBuilderVisitor(){
         tableStack = new LinkedList<Table>();
@@ -22,16 +26,17 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
     }
 
 
-    public void error(String message) {
-        error = new CompilerErrorMsg(System.out, "COMPILE SYMBOL ERROR: " + message);
-        error.flush();
+    public void error(final CompilerError err) {
+        errors.add(err);
     }
 
-    public void warning(String message) {
-        warning = new CompilerErrorMsg(System.out, "COMPILE SYMBOL WARNING: " + message);
-        warning.flush();
+    public boolean hasErrors(){
+        return !errors.isEmpty();
     }
 
+    public ArrayList<CompilerError> getErrors(){
+        return errors;
+    }
 
     public Table getCurrentScope(){
         return tableStack.peekFirst();
@@ -44,6 +49,10 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
         }else{
            return null;
         }
+    }
+
+    public Table getScope(Object n){
+        return scopeLookupTable.get(n);
     }
 
     public Table startScope(Object n, Table.ScopeType scopeType){
@@ -87,7 +96,7 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
 
         /* Add main class to program scope */
         if(!getParentScope().insert(Symbol.symbol(n.i1.s), new ClassBinding(n.i1, new IdentifierType(n.i1.s), getCurrentScope() )) ){
-            error(n.i1.s + " was already defined in scope.");
+            error(DUPLICATE_CLASS.at(n.row, n.col, n.i1.s));
         }
         getCurrentScope().setClassType(new IdentifierType(n.i1.s));
         getCurrentScope().insert(Symbol.symbol(n.i2.s), new VariableBinding(n.i2 ,new IdentifierType(n.i2.s) ));
@@ -104,12 +113,12 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
 
         /* Add class to scope */
         if(!getParentScope().insert(Symbol.symbol(n.i.s), new ClassBinding(n.i, new IdentifierType(n.i.s), getCurrentScope() ))){
-            error(n.i.s + " was already defined in scope.");   
+            error(DUPLICATE_CLASS.at(n.row, n.col, n.i.s));
         }
 
         getCurrentScope().setClassType(new IdentifierType(n.i.s));
 
-        /* Set traverse in main class as a new child scope */
+        /* Set traverse in class */
         super.visit(n);
 
         /* End of scope */
@@ -117,19 +126,21 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
     }
 
     public void visit(ClassDeclExtends n){
+        classes.add(n.i.s);
         /* Visited class so set up new scope */
         startScope(n, Table.ScopeType.CLASS);
 
-        ArrayList<Type> extensions = new ArrayList<Type>();
         ClassBinding c = new ClassBinding(n.i, new IdentifierType(n.i.s), getCurrentScope());
         c.addExtension(new IdentifierType(n.j.s));
 
         if(!getParentScope().insert(Symbol.symbol(n.i.s), c)){
-            error(n.i.s + " was already defined in scope.");
+            error(DUPLICATE_CLASS.at(n.row, n.col, n.i.s));
         }
 
-        getCurrentScope().classType = new IdentifierType(n.i.s);
+        getCurrentScope().setClassType(new IdentifierType(n.i.s));
+        
 
+        /* Set traverse in class */
         super.visit(n);
 
         /* End of scope */
@@ -143,22 +154,27 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
         switch(scopeType){
             case MAIN_CLASS:
                 if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t)) ){
-                    error("Field identifier " + n.i.s + " was already defined in the main class.");
+                    error(DUPLICATE_FIELD.at(n.row, n.col, n.i.s, "mainclass"));
                 }
                 break;
             case CLASS:
                 if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t)) ){
-                    error("Field identifier " + n.i.s + " was already defined in the class scope.");  
+                    error(DUPLICATE_FIELD.at(n.row, n.col, n.i.s, "class"));
                 }
                 break;
             case METHOD:
                 if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t)) ){
-                    error("Local identifier " + n.i.s + " was already defined in the method scope.");
+                    error(DUPLICATE_LOCAL.at(n.row, n.col, n.i.s, "method"));
                 }
                 break;
             case BLOCK:
+                VariableBinding v = (VariableBinding) getCurrentScope().find(Symbol.symbol(n.i.s), "variable");
+                if(v != null){
+                    error(DUPLICATE_FIELD.at(n.row, n.col, n.i.s, "block"));
+                }
+
                 if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t)) ){
-                    error("Local identifier " + n.i.s + " was already defined in the scope.");
+                    error(DUPLICATE_LOCAL.at(n.row, n.col, n.i.s, "block"));
                 }
                 break;
         }
@@ -178,7 +194,7 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
         }
 
         if(!getParentScope().insert(Symbol.symbol(n.i.s), m)){
-            warning("Duplicate method names " + n.i.s + ".");
+            error(DUPLICATE_METHOD.at(n.row, n.col, n.i.s));
         }
 
         getCurrentScope().setClassType(getParentScope().getClassType());
@@ -192,7 +208,7 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
     public void visit(Formal n)
     {
         if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t))){
-            error("Duplicate parameter " + n.i.s + ".");
+            error(DUPLICATE_PARAMETERS.at(n.row, n.col, n.i.s));
         }
 
         super.visit(n);
@@ -230,11 +246,13 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
 
     public void visit(Block n)
     {
+        Table parentScope = tableStack.peekFirst();
+    
         /* Visited method so set up new scope */
         startScope(n, Table.ScopeType.BLOCK);
         
+        /* Add main class to program scope */
         getCurrentScope().setClassType(getParentScope().getClassType());
-
         super.visit(n);
 
         /* End of scope */

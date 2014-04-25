@@ -6,6 +6,7 @@ import java.io.*;
 import syntaxtree.*;
 import symboltree.*;
 import visitor.*;
+import error.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -77,7 +78,7 @@ public static void main(String args[]) {
     //Symbol table
     stb = new SymbolTableBuilderVisitor();
     stb.visit(program);
-    
+
     // VERBOSE: Output symbol table
     if(VERBOSE) {
       Table st = stb.scopeLookupTable.get(program);
@@ -89,13 +90,24 @@ public static void main(String args[]) {
     tdfv.scopeLookupTable = stb.scopeLookupTable;
     tdfv.visit(program);
 
+
     for(String className : stb.classes){
       new File(className+".j").createNewFile(); 
     }
-
-    if(tdfv.error != null || stb.error != null){
-        System.exit(1);
+    if(stb.hasErrors()){
+      for(CompilerError err : stb.getErrors()){
+          System.err.println(err);
+      }
+      throw new Exception("Symbol table error");
     }
+
+    if(tdfv.hasErrors()){
+       for(CompilerError err : tdfv.getErrors()){
+          System.err.println(err);
+       }
+       throw new Exception("Type checker error");
+    }
+
 		System.out.println("MiniJavac 1.0: Java program parsed successfully.");
 	} catch (Exception e) {
 		System.out.println(e.getMessage());
@@ -157,8 +169,8 @@ TOKEN: /* SEPARATORS */
 TOKEN: /* LITERALS */
 {
   < INTEGER_LITERAL: ( ["0"] | ["1"-"9"](["0"-"9"])*) >
-//|
-//  < LONG_LITERAL: "0" | ["1"-"9"](["0"-"9"])* ["l", "L"] >
+|
+  < LONG_LITERAL: ("0" | ["1"-"9"](["0"-"9"])*) ["l", "L"] >
 }
 
 
@@ -171,12 +183,12 @@ TOKEN: /* OPERATORS */
 {
   < ASSIGN: "=" >
 | < LT: "<" >
-// | < GT: ">" >
-// | < EQ: "==" > /* Bonus 1p */
-// | < LE: "<=" > /* Bonus 1p */
-// | < GE: ">=" > /* Bonus 1p */
-// | < NE: "!=" > /* Bonus 1p */
-// | < SC_OR: "||" > /* Bonus 2p */
+| < GT: ">" >
+| < EQ: "==" > /* Bonus 1p */
+| < LE: "<=" > /* Bonus 1p */
+| < GE: ">=" > /* Bonus 1p */
+| < NE: "!=" > /* Bonus 1p */
+| < SC_OR: "||" > /* Bonus 2p */
 | < SC_AND: "&&" >
 | < PLUS: "+" >
 | < MINUS: "-" >
@@ -247,39 +259,43 @@ ClassDeclList ClassDeclList():
       LOOKAHEAD(3)
       c = ClassDecl()
       { cdl.addElement(c); } 
-    // |
-    //   c = ClassDeclExtends()
-    //   { cdl.addElement(c); }
+    |
+      c = ClassDeclExtends()
+      { cdl.addElement(c); }
   )*
   { return cdl; }
 }
 
 MainClass MainClass():
-{ Token t; Identifier id1, id2; VarDecl v; Statement stmt; VarDeclList vdl = new VarDeclList(); StatementList sl = new StatementList(); }
+{ Token t; Token main; Identifier id1, id2; VarDecl v; Statement stmt; VarDeclList vdl = new VarDeclList(); StatementList sl = new StatementList(); }
 {
   <CLASS>
-  t = <IDENTIFIER> { id1 = new Identifier(t.image); }
+  t = <IDENTIFIER> { id1 = new Identifier(t.image, t.endLine, t.endColumn); }
   <LBRACE>
-      <PUBLIC> <STATIC> <VOID> t = <IDENTIFIER> <LPAREN> <STRING> <LBRACKET> <RBRACKET> t = <IDENTIFIER> { id2 = new Identifier(t.image); } <RPAREN>
+      <PUBLIC> <STATIC> <VOID> main = <IDENTIFIER> <LPAREN> <STRING> <LBRACKET> <RBRACKET> t = <IDENTIFIER> { id2 = new Identifier(t.image, t.endLine, t.endColumn); } <RPAREN>
       <LBRACE> //Block
       ( LOOKAHEAD( Type() <IDENTIFIER> ) v = VarDecl() { vdl.addElement(v); } )* 
       ( stmt = Stmt() { sl.addElement(stmt); } )* 
       <RBRACE>
   <RBRACE>
-  { return new MainClass(id1, id2, vdl, sl); }
+  { 
+    if(!main.image.equals("main")){
+      System.exit(1);
+    };
+  }
+  { return new MainClass(id1, id2, vdl, sl, main.endLine, main.endColumn); }
 }
 
 ClassDeclExtends ClassDeclExtends():
 {
   Token t; Identifier id, ide; VarDecl v; MethodDecl m; VarDeclList vl = new VarDeclList(); MethodDeclList ml = new MethodDeclList();
-  ClassDeclSimple cd = null;
 }
 {
-  <CLASS> t = <IDENTIFIER> { id = new Identifier(t.image); } <EXTENDS> t = <IDENTIFIER> { ide = new Identifier(t.image); } 
+  <CLASS> t=<IDENTIFIER>  { id=new Identifier(t.image, t.endLine, t.endColumn); } <EXTENDS> t = <IDENTIFIER> { ide = new Identifier(t.image, t.endLine, t.endColumn); } 
   <LBRACE> //Block
        ( LOOKAHEAD(2) v = VarDecl() {vl.addElement(v); } )* ( m = MethodDecl() { ml.addElement(m); } )* 
   <RBRACE>
-  { return new ClassDeclExtends(id, ide, vl, ml); }
+  { return new ClassDeclExtends(id, ide, vl, ml, t.endLine, t.endColumn); }
 }
 
 
@@ -288,43 +304,43 @@ ClassDeclSimple ClassDecl():
   Token t; Identifier id, ide; VarDecl v; MethodDecl m; VarDeclList vl = new VarDeclList(); MethodDeclList ml = new MethodDeclList();
 }
 {
-  <CLASS> t = <IDENTIFIER> { id = new Identifier(t.image); }
+  <CLASS> t=<IDENTIFIER> { id = new Identifier(t.image, t.endLine, t.endColumn); }
   <LBRACE> //Block
        ( LOOKAHEAD(2) v = VarDecl() {vl.addElement(v); } )* ( m = MethodDecl() { ml.addElement(m); } )* 
   <RBRACE>
-  { return new ClassDeclSimple(id, vl, ml); }
+  { return new ClassDeclSimple(id, vl, ml, t.endLine, t.endColumn); }
 }
 
 /* Variable declaration */
 VarDecl VarDecl() :
 { Token t; Type type; Identifier id; }
 {
-  type=Type() t = <IDENTIFIER> { id=new Identifier(t.image); } <SEMICOLON>  { return new VarDecl(type, id); }
+  ( type=Type() t = <IDENTIFIER> { id = new Identifier(t.image, t.endLine, t.endColumn); } <SEMICOLON> )  { return new VarDecl(type, id); }
 }
 
 MethodDecl MethodDecl():
 { Exp e; Token t; Type type; Identifier id;  VarDecl v; Statement s; FormalList fl = new FormalList(); VarDeclList vl = new VarDeclList(); StatementList sl = new StatementList(); }
 {
-  <PUBLIC> type = Type() ( t = <IDENTIFIER> { id = new Identifier(t.image); } ) <LPAREN> [ fl = FormalList() ] <RPAREN>
+  <PUBLIC> type = Type() ( t = <IDENTIFIER> { id = new Identifier(t.image, t.endLine, t.endColumn); } ) <LPAREN> [ fl = FormalList() ] <RPAREN>
   <LBRACE> 
     ( LOOKAHEAD(2) v = VarDecl() { vl.addElement(v); } )* 
     ( s = Stmt() { sl.addElement(s); } )*  
     <RETURN> e = Exp() <SEMICOLON>
   <RBRACE>
-  { return new MethodDecl(type, id, fl, vl, sl, e); }
+  { return new MethodDecl(type, id, fl, vl, sl, e, t.endLine, t.endColumn); }
 }
 
 FormalList FormalList():
 { Token t; Type type; Identifier id; Formal f; FormalList fl = new FormalList(); }
 {
-  type=Type() t=<IDENTIFIER> { id=new Identifier(t.image); } { f = new Formal(type, id); fl.addElement(f); } ( f=FormalRest() { fl.addElement(f); } )* 
+  type=Type() t=<IDENTIFIER> { id=new Identifier(t.image, t.endLine, t.endColumn); } { f = new Formal(type, id, t.endLine, t.endColumn); fl.addElement(f); } ( f=FormalRest() { fl.addElement(f); } )* 
   { return fl; }
 }
 
 Formal FormalRest():
 { Token t; Type type; Identifier id; }
 {
-  <COMMA> type=Type() ( t=<IDENTIFIER> { id=new Identifier(t.image); } ) { return new Formal(type, id); }
+  <COMMA> type=Type() ( t=<IDENTIFIER> { id=new Identifier(t.image, t.endLine, t.endColumn); } ) { return new Formal(type, id); }
 }
 
 /*
@@ -334,11 +350,19 @@ Type Type() :
 { Token t; Type type; }
 {
   (
-      LOOKAHEAD(2)
-      <INT> <LBRACKET> <RBRACKET> { type=new IntArrayType(); }
-    | <INT> { type=new IntegerType(); }
+      (
+          LOOKAHEAD(2)
+          <INT> <LBRACKET> <RBRACKET> { type=new IntArrayType(); }
+        | <INT> { type=new IntegerType(); }
+      )
+    |
+      (
+          LOOKAHEAD(2)
+          <LONG> <LBRACKET> <RBRACKET> { type=new LongArrayType(); }
+        | <LONG> { type=new LongType(); }
+      )
     | <BOOLEAN> { type=new BooleanType(); }  
-    | t=<IDENTIFIER> { type=new IdentifierType(t.image); }
+    | t=<IDENTIFIER> { type=new IdentifierType(t.image, t.endLine, t.endColumn); }
   )
   { return type; }
 }
@@ -348,19 +372,25 @@ Type Type() :
  */
 
 Statement Stmt():
-{ Token t; Exp e1, e2; Identifier id; Statement rs, s1, s2; StatementList sl = new StatementList(); }
+{ Token t; Exp e1, e2; Identifier id; Statement rs, s1, s2; VarDecl v; StatementList sl = new StatementList(); VarDeclList vl = new VarDeclList(); }
 {
   (
-      <LBRACE> ( s1=Stmt() { sl.addElement(s1); } )* <RBRACE> { rs = new Block(sl); }
-    | // /* Extension */
-      // <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() { rs = new If(e1, s1); }
-      // [ LOOKAHEAD(1) <ELSE> s2=Stmt() { rs = new IfElse(e1, s1, s2); } ]
-      <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() <ELSE> s2=Stmt() { rs = new IfElse(e1, s1, s2); } 
-    | <WHILE> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() { rs = new While(e1, s1); }
+      (
+        <LBRACE> 
+          ( LOOKAHEAD(2) v=VarDecl() { vl.addElement(v); } )* 
+          ( s1=Stmt() { sl.addElement(s1); } )* 
+        <RBRACE> 
+      )
+      { rs = new Block(vl,sl); }
+    | /* Extension */
+      t=<IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() { rs = new If(e1, s1, t.endLine, t.endColumn); }
+      [ LOOKAHEAD(1) <ELSE> s2=Stmt() { rs = new IfElse(e1, s1, s2, t.endLine, t.endColumn); } ]
+      // <IF> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() <ELSE> s2=Stmt() { rs = new IfElse(e1, s1, s2); } 
+    | t=<WHILE> <LPAREN> e1=Exp() <RPAREN> s1=Stmt() { rs = new While(e1, s1, t.endLine, t.endColumn); }
     | <SYSOUT_PRINTLN> <LPAREN> e1=Exp() <RPAREN> <SEMICOLON>  { rs = new Print(e1); }
     | LOOKAHEAD(2)
-      t = <IDENTIFIER> { id = new Identifier(t.image); } <ASSIGN> e1=Exp() <SEMICOLON>  { rs = new Assign(id,e1); } 
-    | t = <IDENTIFIER> { id = new Identifier(t.image); } <LBRACKET> e1=Exp() <RBRACKET> <ASSIGN> e2=Exp() <SEMICOLON> { rs = new ArrayAssign(id,e1,e2); } 
+      ( t = <IDENTIFIER> { id = new Identifier(t.image, t.endLine, t.endColumn); } <ASSIGN> e1=Exp() <SEMICOLON> )  { rs = new Assign(id, e1, t.endLine, t.endColumn); } 
+    | ( t = <IDENTIFIER> { id = new Identifier(t.image, t.endLine, t.endColumn); } <LBRACKET> e1=Exp() <RBRACKET> <ASSIGN> e2=Exp() <SEMICOLON> ) { rs = new ArrayAssign(id,e1,e2, t.endLine, t.endColumn); } 
   )
   { return rs; }
 }
@@ -370,62 +400,116 @@ Statement Stmt():
  */
 
 Exp Exp() : //Or expression with lowest precedence (weakest)
-{ Exp e1, e2; }
+{ Token t; Exp e1, e2; }
 {
-  e1 = RelExp() [LOOKAHEAD(2) <SC_AND> e2 = Exp() { return new Or(e1, e2); }] { return e1; }
+  e1 = AndExp() [LOOKAHEAD(2) t=<SC_OR> e2 = Exp() { return new Or(e1, e2, t.endLine, t.endColumn); }] { return e1; }
 }
 
-Exp RelExp() :
-{ Exp e1, e2; }
+
+Exp AndExp() :
+{ Token t; Exp e1, e2; }
 {
-  e1 = AddExp() [LOOKAHEAD(2) <LT> e2 = RelExp() { return new LessThan(e1, e2); }] { return e1; }
+  e1 = EqExp() [LOOKAHEAD(2) t=<SC_AND> e2 = AndExp() { return new And(e1, e2, t.endLine, t.endColumn); }] { return e1; }
+
 }
 
-Exp AddExp() :
-{ Exp e1, e2; }
+Exp EqExp() :
+{ Token t; Exp e1, e2; }
 {
-  e1 = MultExp()
+  e1 = RelExp()
   [   LOOKAHEAD(2) 
-      <PLUS> e2 = AddExp() { return new Plus(e1, e2); }
+      t=<EQ> e2 = EqExp() { return new Equal(e1, e2, t.endLine, t.endColumn); }
     | 
-      <MINUS> e2 = AddExp() { return new Minus(e1, e2); }
+      t=<NE> e2 = EqExp() { return new NotEqual(e1, e2, t.endLine, t.endColumn); }
   ]
   { return e1; }
 }
 
-Exp MultExp() :
-{ Exp e1, e2; }
+
+Exp RelExp() :
+{ Token t; Exp e1, e2; }
 {
-  e1 = PrimaryExp() [LOOKAHEAD(2) <STAR> e2 = MultExp() { return new Times(e1, e2); }] { return e1; }
+  e1 = AddExp() 
+  [   LOOKAHEAD(2) 
+      t=<LT> e2 = RelExp() { return new LessThan(e1, e2, t.endLine, t.endColumn); }
+    |
+      t=<LE> e2 = RelExp() { return new LessThanOrEqual(e1, e2, t.endLine, t.endColumn); }
+    |    
+      t=<GT> e2 = RelExp() { return new GreaterThan(e1, e2, t.endLine, t.endColumn); }
+    |
+      t=<GE> e2 = RelExp() { return new GreaterThanOrEqual(e1, e2, t.endLine, t.endColumn); }
+    |
+      t=<EQ> e2 = RelExp() { return new Equal(e1, e2, t.endLine, t.endColumn); }      
+    |
+      t=<NE> e2 = RelExp() { return new NotEqual(e1, e2, t.endLine, t.endColumn); }  
+  ]
+  { return e1; }
+
+}
+
+Exp AddExp() :
+{ Token t; Exp e1, e2; }
+{
+  e1 = MultExp()
+  [   LOOKAHEAD(2) 
+      t=<PLUS> e2 = AddExp() { return new Plus(e1, e2, t.endLine, t.endColumn); }
+    | 
+      t=<MINUS> e2 = AddExp() { return new Minus(e1, e2, t.endLine, t.endColumn); }
+  ]
+  { return e1; }
+}
+
+
+Exp MultExp() :
+{ Token t; Exp e1, e2; }
+{
+  e1 = PrimaryExp() [LOOKAHEAD(2) t=<STAR> e2 = MultExp() { return new Times(e1, e2, t.endLine, t.endColumn); }] { return e1; }
 }
 
 
 Exp PrimaryExp():
-{ Token t; Exp e; }
+{ Token t; Exp e;}
 {
-  (
-      (t = <INTEGER_LITERAL> { e = new IntegerLiteral(Integer.parseInt(t.image)); } ) 
+  (   
+      (t = <INTEGER_LITERAL> { e = new IntegerLiteral(Integer.parseInt(t.image), t.endLine, t.endColumn); } ) 
+    | (t = <LONG_LITERAL> { e = new LongLiteral(Long.parseLong(t.image.substring(0, t.image.length()-1)), t.endLine, t.endColumn); } ) 
     | <TRUE>  { e = new True(); }
     | <FALSE> { e = new False(); }
-    | (t = <IDENTIFIER> { e = new IdentifierExp(t.image); } )
+    | (t = <IDENTIFIER> { e = new IdentifierExp(t.image, t.endLine, t.endColumn); } )
     | <THIS> { e = new This(); } 
-    |  LOOKAHEAD(2)
-      <NEW> <INT> <LBRACKET> ( e=Exp() { e = new NewIntArray(e); } ) <RBRACKET> 
-    | <NEW> ( t = <IDENTIFIER> { e = new NewObject(new Identifier(t.image)); } ) <LPAREN> <RPAREN> 
-    | <NOT> ( e = Exp() { e = new Not(e); } ) 
+    | LOOKAHEAD(2)
+      (
+            LOOKAHEAD(<NEW> <INT> <LBRACKET> Exp() <RBRACKET> <LBRACKET>)
+            t=<NEW> <INT> <LBRACKET> ( e=Exp() { e = new NewIntArray(e, t.endLine, t.endColumn); } ) <RBRACKET> { return e; }
+          | t=<NEW> <INT> <LBRACKET> ( e=Exp() { e = new NewIntArray(e, t.endLine, t.endColumn); } ) <RBRACKET> 
+
+      )
+    | LOOKAHEAD(2)
+      (
+           LOOKAHEAD(<NEW> <LONG> <LBRACKET> Exp() <RBRACKET> <LBRACKET>)
+            t=<NEW> <LONG> <LBRACKET> ( e=Exp() { e = new NewLongArray(e, t.endLine, t.endColumn); } ) <RBRACKET> { return e; }
+          | t=<NEW> <LONG> <LBRACKET> ( e=Exp() { e = new NewLongArray(e, t.endLine, t.endColumn); } ) <RBRACKET> 
+
+      )
+    | {Token obj;} obj=<NEW> ( t = <IDENTIFIER> { e = new NewObject(new Identifier(t.image, t.endLine, t.endColumn), obj.endLine, obj.endColumn); } ) <LPAREN> <RPAREN> 
+    | t=<NOT> ( e = Exp() { e = new Not(e, t.endLine, t.endColumn); } ) 
     | <LPAREN> e = Exp() <RPAREN> 
   )
-  ( LOOKAHEAD(2) e=ExpPrim(e) )*
-  { return e; }
+  ( 
+    e=ExpPrim(e) 
+  )*
+  { 
+    return e; 
+  }
 }
 
 Exp ExpPrim(Exp e1):
 { Token t; Exp e2; Identifier id; ExpList el; }
 {
-    <LBRACKET> e2=Exp() <RBRACKET> { return new ArrayLookup(e1, e2); }
+    t=<LBRACKET> e2=Exp() <RBRACKET> { return new ArrayLookup(e1, e2, t.endLine, t.endColumn); }
   | LOOKAHEAD(2)
-    <DOT> <LENGTH> { return new ArrayLength(e1); }
-  | <DOT> (t = <IDENTIFIER> { id = new Identifier(t.image); } ) <LPAREN> el=ExpList() <RPAREN> { return new Call(e1, id, el); }
+    t=<DOT> <LENGTH> { return new ArrayLength(e1, t.endLine, t.endColumn); }
+  | {Token call;} call=<DOT> (t = <IDENTIFIER> { id = new Identifier(t.image, t.endLine, t.endColumn); } ) <LPAREN> el=ExpList() <RPAREN> { return new Call(e1, id, el, call.endLine, call.endColumn); }
 }
 
 ExpList ExpList():

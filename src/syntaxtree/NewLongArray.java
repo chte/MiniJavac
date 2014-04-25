@@ -11,9 +11,7 @@ public class NewLongArray extends Exp {
     }
 
     public NewLongArray(Exp ae, int row, int col) {
-        e = ae;
-        this.row = row;
-        this.col = col;
+        e = ae; this.row=row; this.col=col;
     }
 
     public void accept(Visitor v) {

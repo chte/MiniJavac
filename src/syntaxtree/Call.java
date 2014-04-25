@@ -8,9 +8,15 @@ public class Call extends Exp {
     
   public Identifier i;
   public ExpList el;
+
+  public int row, col;
   
   public Call(Exp ae, Identifier ai, ExpList ael) {
     e=ae; i=ai; el=ael;
+  }
+
+  public Call(Exp ae, Identifier ai, ExpList ael, int row, int col) {
+    e=ae; i=ai; el=ael; this.row=row; this.col=col;
   }
 
   public void accept(Visitor v) {

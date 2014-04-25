@@ -11,7 +11,7 @@ public class LongLiteral extends Exp {
     }
 
     public LongLiteral(long ai, int row, int col) {
-        i = ai; this.row = row; this.col = col;
+        i = ai; this.row=row; this.col=col;
     }
 
     public void accept(Visitor v) {

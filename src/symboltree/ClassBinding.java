@@ -4,7 +4,8 @@ import syntaxtree.*;
 import java.util.ArrayList;
 
 public class ClassBinding extends Binder{
-  private ArrayList<Type> extensions = new ArrayList<Type>(); // If extra parameters exist like method
+  private ArrayList<Type> inherits = new ArrayList<Type>(); // If extra parameters exist like method
+  private IdentifierType extension = null;
 
 	/* Input parameter st can be arbitary string instead */
   public ClassBinding(Identifier id, Type type, Table scope) { 
@@ -13,18 +14,18 @@ public class ClassBinding extends Binder{
 
   public void addExtension(Type t){
     super.setSymbolType(Binder.SymbolType.EXTENDS);
-    this.extensions.add(t);
+    extension = (IdentifierType) t;
   }
 
-  public ArrayList<Type> getExtensions() {
-    return extensions;
+  public IdentifierType getExtension() {
+    return extension;
   }
 
-  public boolean hasExtensions() {
-		if(extensions.size() == 0) {
-      return false;
+  public boolean hasExtension() {
+		if(extension != null) {
+      return true;
     }else{
-    	return true;
+    	return false;
     }
   }
 
@@ -37,8 +38,8 @@ public class ClassBinding extends Binder{
 
     sb.append("  " + super.getIdName() +"=<" + ((super.getSymbolType() == Binder.SymbolType.EXTENDS) ? "CLASS" + " " + super.getSymbolType() : super.getSymbolType()) + ": " + super.getTypeName());
 
-		if(hasExtensions()) {
-  		sb.append(", Extension: " + super.getTypeName(extensions.get(0))); // NOTERDEN KAN HA FLERA
+		if(hasExtension()) {
+  		sb.append(", Extension: " + super.getTypeName(extension)); // NOTERDEN KAN HA FLERA
     }
     sb.append(">");
 

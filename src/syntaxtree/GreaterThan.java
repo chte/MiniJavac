@@ -4,9 +4,14 @@ import visitor.TypeVisitor;
 
 public class GreaterThan extends Exp {
   public Exp e1,e2;
+  public int row, col;
   
   public GreaterThan(Exp ae1, Exp ae2) {
     e1=ae1; e2=ae2;
+  }
+
+  public GreaterThan(Exp ae1, Exp ae2, int row, int col) {
+    e1=ae1; e2=ae2; this.row=row; this.col=col;
   }
 
   public void accept(Visitor v) {

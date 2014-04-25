@@ -7,10 +7,13 @@ public class ClassDeclExtends extends ClassDecl {
   public Identifier j;
   public VarDeclList vl;  
   public MethodDeclList ml;
- 
-  public ClassDeclExtends(Identifier ai, Identifier aj, 
-                  VarDeclList avl, MethodDeclList aml) {
+  public int row, col;
+  public ClassDeclExtends(Identifier ai, Identifier aj, VarDeclList avl, MethodDeclList aml) {
     i=ai; j=aj; vl=avl; ml=aml;
+  }
+
+  public ClassDeclExtends(Identifier ai, Identifier aj, VarDeclList avl, MethodDeclList aml, int row, int col) {
+    i=ai; j=aj; vl=avl; ml=aml; this.row=row; this.col=col;
   }
 
   public void accept(Visitor v) {
