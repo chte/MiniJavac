@@ -1,5 +1,10 @@
 // EXT:IWE
 // EXT:BDJ
+// EXT:CLE
+// EXT:CGE
+// EXT:CGT
+
+
 
 public class matrix {
 	public static void main(String args[]){
@@ -16,7 +21,7 @@ public class matrix {
 		
 		i = 0;
 		
-		while(i <= 4){
+		while(i <= 4 || i >= 0){
 			System.out.println(m.getData(0, i));
 			i = i + 1;
 		}
@@ -52,7 +57,7 @@ class internalMatrix{
 	
 	public boolean setData(int row, int col, int data){
 		//Check so we're in range
-		if(this.getMatrixSize() > (row*col)){
+		if(this.getMatrixSize() > ((this.getRowSizeLength()*row)+col)){
 			this.data[row*col] = data;
 			return true;
 		}
@@ -62,7 +67,7 @@ class internalMatrix{
 	
 	public int getData(int row, int col){
 		if(row*col < this.getMatrixSize()){
-			return data[row*colomn];
+			return data[((this.getRowSizeLength()*row)+col)];
 		}	
 		return 0;
 	}	
