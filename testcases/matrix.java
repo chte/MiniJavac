@@ -10,7 +10,7 @@
 // EXT:ISC
 
 class matrix {
-	public static void main(String args[]){
+	public static void main(String[] args){
 		internalMatrix m;
 		int i;
 		int j;
@@ -92,20 +92,26 @@ class internalMatrix{
 	}
 	
 	public boolean setData(int rowIn, int colIn, int dataIn){
+		boolean status;
 		//Check so we're in range
-		if(this.getMatrixSize() > ((this.getRowLength()*rowIn)+colIn)){
-			this.data[((this.getRowLength()*rowIn)+colIn)] = dataIn;
-			return true;
+		if(getMatrixSize() > ((getRowLength()*rowIn)+colIn)){
+			data[((getRowLength()*rowIn)+colIn)] = dataIn;
+			status = true;
+		}
+		else {
+			status = false;
 		}
 		//This will only happen if we're out of range
-		return false;
+		return status;
 	}
 	
 	public int getData(int rowIn, int colIn){
-		if(((this.getRowLength()*rowIn)+colIn) < this.getMatrixSize()){
-			return data[((this.getRowLength()*rowIn)+colIn)];
+		int result;
+		result = 0;
+		if(((getRowLength()*rowIn)+colIn) < getMatrixSize()){
+			result = data[((getRowLength()*rowIn)+colIn)];
 		}	
-		return 0;
+		return result;
 	}
 
 	public matrixWithPrint matrixmultiplication(internalMatrix a,internalMatrix b){
@@ -117,6 +123,7 @@ class internalMatrix{
 		int j;
 		matrixWithPrint c;
 
+
 		aRows = a.getRowLength();
 		aColomns = a.getColomnLength();
 		bRows = b.getRowLength();
@@ -125,38 +132,37 @@ class internalMatrix{
 		if(aColomns != bRows){
 			c = new matrixWithPrint();
 			c.Init(0, 0);
-			return c;
 		}
+		else {
+			c = new matrixWithPrint();
+			c.Init(aRows,bColomns);
 
-		c = new matrixWithPrint();
-		c.Init(aRows,bColomns);
-
-		i = 0;
-		while(i < aRows){
-			j = 0;
-			while(j < bColomns){
-				c.setData(i,j,0);
-				j = j + 1;
-			}
-			i = i + 1;
-		}
-
-		i = 0;
-		j = 0;
-
-		while(i < aRows){
-			j = 0;
-			while(j < bColomns){
-				int k = 0;
-				while(k < aColomns){
-					c.setData(i,j, c.getData(i,j)+(a.getData(i,k)*b.getData(k,j)));
-					k = k + 1;
+			i = 0;
+			while(i < aRows){
+				j = 0;
+				while(j < bColomns){
+					c.setData(i,j,0);
+					j = j + 1;
 				}
-				j = j + 1;
+				i = i + 1;
 			}
-			i = i + 1;
-		}
 
+			i = 0;
+			j = 0;
+
+			while(i < aRows){
+				j = 0;
+				while(j < bColomns){
+					int k = 0;
+					while(k < aColomns){
+						c.setData(i,j, c.getData(i,j)+(a.getData(i,k)*b.getData(k,j)));
+						k = k + 1;
+					}
+					j = j + 1;
+				}
+				i = i + 1;
+			}
+		}
 		return c;
 	}	
 }
