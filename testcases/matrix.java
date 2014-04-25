@@ -4,30 +4,55 @@
 // EXT:CGE
 // EXT:CGT
 
-
-
 public class matrix {
 	public static void main(String args[]){
 		internalMatrix m;
 		int i;
+		int j;
+		internalMatrix n;
+		internalMatrix o;
 		
 		m = new internalMatrix();
-		m.Init(5, 5);
+		n = new internalMatrix();
+		m.Init(2,2);
+		n.Init(2,2);
 		
 		//Check the lazy evaluation
-		if((true || false) && true){
+		if((false || false) && true){
 			System.out.println(true);
 		}
 		
 		i = 0;
+		j = 0;
 		
-		while(i <= 4 || i >= 0){
-			System.out.println(m.getData(0, i));
+		while(i <= m.getMatrixSize()){
+			System.out.println(m.getData(i,j));
+			i = i + 1;
+		}
+
+		i = 0;
+		//Set the m and n matrix to only 2
+		while(i < m.getColomnLength()){
+			j = 0;
+			while(j < m.getColomnLength()){
+				m.setData(i,j,2);
+				n.setData(i,j,2);
+				j = j + 1;
+			}
 			i = i + 1;
 		}
 		
-		System.out.println(m.getData(5, 5));
+		o = m.matrixmultiplication(m,n);
+		i = 0;
 		
+		while(i < o.getColomnLength()){
+			j = 0;
+			while(j < o.getRowLength()){
+				System.out.println(o.getData(i,j));
+				j = j + 1;
+			}
+			i = i + 1;
+		}		
 	}
 }
 
@@ -43,7 +68,7 @@ class internalMatrix{
 		return true;
 	}
 	
-	public int getRowSizeLength(){
+	public int getRowLength(){
 		return this.row;
 	}
 	
@@ -57,8 +82,8 @@ class internalMatrix{
 	
 	public boolean setData(int row, int col, int data){
 		//Check so we're in range
-		if(this.getMatrixSize() > ((this.getRowSizeLength()*row)+col)){
-			this.data[row*col] = data;
+		if(this.getMatrixSize() > ((this.getRowLength()*row)+col)){
+			this.data[((this.getRowLength()*row)+col)] = data;
 			return true;
 		}
 		//This will only happen if we're out of range
@@ -66,8 +91,8 @@ class internalMatrix{
 	}
 	
 	public int getData(int row, int col){
-		if(row*col < this.getMatrixSize()){
-			return data[((this.getRowSizeLength()*row)+col)];
+		if(((this.getRowLength()*row)+col) < this.getMatrixSize()){
+			return data[((this.getRowLength()*row)+col)];
 		}	
 		return 0;
 	}
@@ -82,9 +107,9 @@ class internalMatrix{
 		int k;
 		internalMatrix c;
 
-		aRows = a.getRowSizeLength();
+		aRows = a.getRowLength();
 		aColomns = a.getColomnLength();
-		bRows = b.getRowSizeLength();
+		bRows = b.getRowLength();
 		bColomns = b.getColomnLength();
 
 		if(aColomns != bRows){
@@ -97,8 +122,8 @@ class internalMatrix{
 		c.Init(aRows,bColomns);
 
 		i = 0;
-		j = 0;
 		while(i < aRows){
+			j = 0;
 			while(j < bColomns){
 				c.setData(i,j,0);
 				j = j + 1;
@@ -111,14 +136,16 @@ class internalMatrix{
 		k = 0;
 
 		while(i < aRows){
+			j = 0;
 			while(j < bColomns){
+				k = 0;
 				while(k < aColomns){
-					c.setData(i,j,(a.getData(i,k)*b.getData(k,j)));
+					c.setData(i,j, c.getData(i,j)+(a.getData(i,k)*b.getData(k,j)));
 					k = k + 1;
 				}
 				j = j + 1;
 			}
-			i = i +1;
+			i = i + 1;
 		}
 
 		return c;
