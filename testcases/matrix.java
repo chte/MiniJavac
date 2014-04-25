@@ -70,6 +70,58 @@ class internalMatrix{
 			return data[((this.getRowSizeLength()*row)+col)];
 		}	
 		return 0;
+	}
+
+	public internalMatrix matrixmultiplication(internalMatrix a,internalMatrix b){
+		int aRows;
+		int aColomns;
+		int bRows;
+		int bColomns;
+		int i;
+		int j;
+		int k;
+		internalMatrix c;
+
+		aRows = a.getRowSizeLength();
+		aColomns = a.getColomnLength();
+		bRows = b.getRowSizeLength();
+		bColomns = b.getColomnLength();
+
+		if(aColomns != bRows){
+			c = new internalMatrix();
+			c.Init(0, 0);
+			return c;
+		}
+
+		c = new internalMatrix();
+		c.Init(aRows,bColomns);
+
+		i = 0;
+		j = 0;
+		while(i < aRows){
+			while(j < bColomns){
+				c.setData(i,j,0);
+				j = j + 1;
+			}
+			i = i + 1;
+		}
+
+		i = 0;
+		j = 0;
+		k = 0;
+
+		while(i < aRows){
+			while(j < bColomns){
+				while(k < aColomns){
+					c.setData(i,j,(a.getData(i,k)*b.getData(k,j)));
+					k = k + 1;
+				}
+				j = j + 1;
+			}
+			i = i +1;
+		}
+
+		return c;
 	}	
 }
 
