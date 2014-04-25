@@ -131,11 +131,11 @@ class internalMatrix{
 
 		if(aColomns != bRows){
 			c = new matrixWithPrint();
-			c.Init(0, 0);
+			if(c.Init(0, 0)){}
 		}
 		else {
 			c = new matrixWithPrint();
-			c.Init(aRows,bColomns);
+			if(c.Init(aRows,bColomns)){}
 
 			i = 0;
 			while(i < aRows){
