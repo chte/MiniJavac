@@ -116,6 +116,29 @@ public class Table {
         return false;
     }
 
+    public boolean findObject(IdentifierType t) {
+        Table currentScope = this;
+
+        for(ClassBinding c : classes.values()){
+            // System.out.println(t.s);
+            // System.out.println( ((IdentifierType) c.getType()).s );
+            if( ((IdentifierType) c.getType()).s.equals(t.s)) {
+                return true;
+            }
+        }
+
+        while (currentScope.hasParent()) {
+            currentScope = currentScope.getParent();
+            boolean found = currentScope.findObject(t);
+            if (found) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
     /**
     * Returns parent scope from current table
     *

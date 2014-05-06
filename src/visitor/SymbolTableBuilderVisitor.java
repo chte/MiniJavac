@@ -153,7 +153,7 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
         /* If not duplicate variable insert new into scope */
         switch(scopeType){
             case MAIN_CLASS:
-                if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t,VariableBinding.VariableType.FIELD)) ){
+                if(!getCurrentScope().insert(Symbol.symbol(n.i.s), new VariableBinding(n.i, n.t,VariableBinding.VariableType.LOCAL)) ){
                     error(DUPLICATE_FIELD.at(n.row, n.col, n.i.s, "mainclass"));
                 }
                 break;

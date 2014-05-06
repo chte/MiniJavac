@@ -60,7 +60,7 @@ public class Binder {
       return parts[parts.length-1];
     }
 
-    public String getTypeName(Type t) {
+    public static String getTypeName(Type t) {
       String[] parts = t.getClass().getName().split("\\.");
       return parts[parts.length-1];
     }

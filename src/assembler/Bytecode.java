@@ -4,6 +4,7 @@ import syntaxtree.*;
 import symboltree.*;
 
 import java.io.FileWriter;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class Bytecode {
 
 
   public static void init() {
-    output = new ArrayList<String>(300);
+    output = new ArrayList<String>(2000);
   }
 
   public static void setClassName(String name) {
@@ -70,8 +71,8 @@ public class Bytecode {
     String filename = className + ".j";
     
     try {
-      FileWriter writer = new FileWriter(filename);
-
+      File file = new File(filename);
+      FileWriter writer = new FileWriter(file);
       for (String line : output) {
         writer.append(line);
         writer.append('\n');
@@ -83,8 +84,8 @@ public class Bytecode {
 
   public static void standardConstructor(String c) {
     directive(".method public <init>()V");
-    write(getConstant("iload", 0));
-    write("invokenonvirtual " + c + "/<init>()V");
+    write(getConstant("aload", 0));
+    write("invokespecial " + c + "/<init>()V");
     write("return");
     directive(".end method");
   }
@@ -99,9 +100,13 @@ public class Bytecode {
     if (t instanceof IntegerType)
       return "I";
     else if (t instanceof BooleanType)
-      return "B";
+      return "Z";
+    else if (t instanceof LongType)
+      return "J";
     else if (t instanceof IntArrayType)
       return "[I";
+    else if (t instanceof LongArrayType)
+      return "[J";
     else if (t instanceof IdentifierType)
       return "L" + ((IdentifierType)t).s + ";";
 
@@ -121,18 +126,26 @@ public class Bytecode {
 
   public static String store(Type t, String l) {
     if (t instanceof IntegerType || t instanceof BooleanType) {
-      return "istore_" + l;
-    } else if (t instanceof IdentifierType || t instanceof IntArrayType) {
-      return "astore_" + l;
+      return "istore " + l;
+    }
+    else if (t instanceof LongType) {
+      return "lstore " + l;
+    }
+     else if (t instanceof IdentifierType || t instanceof IntArrayType || t instanceof LongArrayType) {
+      return "astore " + l;
     } 
     return "";
   }
 
   public static String load(Type t, String l) {
     if (t instanceof BooleanType || t instanceof IntegerType) {
-      return "iload_" + l;
-    } else if (t instanceof IdentifierType || t instanceof IntArrayType) {
-      return "aload_" + l;
+      return "iload " + l;
+    } 
+    else if (t instanceof LongType) {
+      return "lload " + l;
+    } 
+     else if (t instanceof IdentifierType || t instanceof IntArrayType || t instanceof LongArrayType) {
+      return "aload " + l;
     } 
     return "";
   }

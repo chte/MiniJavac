@@ -138,6 +138,10 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		n.t.accept(this);
 		checkVariable(n.i);
 
+		if(n.t instanceof IdentifierType && !getCurrentScope().findObject((IdentifierType) n.t)){
+			error(NO_SUCH_CLASS.at(n.row, n.col, ((IdentifierType) n.t).s));
+		}
+
 		return new VoidType();
 	}
 
@@ -176,7 +180,11 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public Type visit(Formal n) {
 		n.t.accept(this);
 		checkVariable(n.i);
+		//System.out.println( ( (IdentifierType) n.t).s);
 
+		if(n.t instanceof IdentifierType && !getCurrentScope().findObject((IdentifierType) n.t)){
+			error(NO_SUCH_CLASS.at(n.row, n.col, ((IdentifierType) n.t).s));
+		}
 		return n.t;
 	}
 
@@ -694,6 +702,9 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		if((t1 instanceof LongArrayType) && (t2 instanceof LongType)) {
 			return true;
 		}
+		if((t1 instanceof LongArrayType) && (t2 instanceof IntegerType)) {
+			return true;
+		}
 		return false;
 	}
 
@@ -751,6 +762,7 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		ClassBinding currentClass = (ClassBinding) getCurrentScope().find(Symbol.symbol(n.i.s),"class");
 		visitedClasses.add(n.i.s);
 
+
 		/* Traverse while extented classes still exist */
 		while(currentClass != null) {
 			if(!currentClass.hasExtension()){
@@ -768,6 +780,9 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 			currentClass = (ClassBinding) getCurrentScope().find(Symbol.symbol(classExtension.s), "class");
 			if(currentClass != null){
 				extendedClass.getScope().parent = currentClass.getScope();
+			}else{
+				error(NO_SUCH_CLASS.at(n.row, n.col, classExtension.s));	
+				
 			}
 			visitedClasses.add(classExtension.s);
 

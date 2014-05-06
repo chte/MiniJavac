@@ -29,6 +29,7 @@ public enum ErrorObject {
 
     NOT_IN_SCOPE                (215, "'%s' is not reachable in scope"),
     CYCLIC_INHERTICANCE         (216, "cyclic inheritance involving '%s'."),
+    NO_SUCH_CLASS               (217, "no such class: '%s'."),
 
     DEBUG_ERROR_NOT_FOUND       (300, "Cannot find object '%s'."),
     DEBUG_NEGATIVE_STACK_SIZE   (301, "Stack size is negative");
