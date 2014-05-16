@@ -1,5 +1,12 @@
 package error;
 
+/*
+ * Enum object that holds information outprints for 
+ * different errors.
+ *
+ * This enum is mainly used in the CompileError class
+ *
+ */
 public enum ErrorObject {
 
     /*
@@ -36,22 +43,28 @@ public enum ErrorObject {
 
 
 
+    //Error message that get printed to the user
     private final String msg;
+    //Type of error
     private final int type;
 
+    //Create a new error object
     private ErrorObject(int type, String msg) {
     	this.type = type;
     	this.msg = msg;
     }
 
+    //Get the error type
     public int getType(){
         return this.type;
     }
 
+    //Get the error message
     public String getMsg(){
         return this.msg;
     }
 
+    //Create a new CompileError
     public CompilerError at(int row, int col, Object... args){
         return new CompilerError(row, col, this, args);
     }
