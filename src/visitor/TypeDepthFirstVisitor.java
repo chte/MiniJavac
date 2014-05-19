@@ -11,6 +11,21 @@ import java.util.LinkedList;
 import error.*;
 import static error.ErrorObject.*;
 
+/**
+ * Type checker visitor visits each node of the Abstract Syntax Tree
+ * and uses the generated symbol tables from visitor.SymbolTableBuilderVisitor
+ * to do a final check that all references, declarations, inheritances, etc.,
+ * follows the MiniJava grammar.
+ *
+ * @see The vistor include some major error checking, for error
+ *		messages see error.ErrorObject
+ *
+ * @see The vistor implements TypeVisitor so each visit returns a (Type)
+ *
+ * @see The visitor is heavily dependent that the Symbol Tables are correctly
+ *		built. See, visitor.SymbolTableBuilderVisitor
+ */
+
 
 public class TypeDepthFirstVisitor implements TypeVisitor
 {
@@ -18,63 +33,121 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 	public LinkedList<Table> tableStack = new LinkedList<Table>();
     private ArrayList<CompilerError> errors  = new ArrayList<CompilerError>();
 
-
+    /**
+     * Appends an error to an error buffer 
+     *
+     * @param   err    error message wrapped in a CompilerError object 
+     *
+     */
     public void error(final CompilerError err) {
         errors.add(err);
     }
 
+    /**
+     * Checks for any buffered errors. 
+     *
+     * @return   returns true if errors exist, false otherwise.
+     *
+     */
     public boolean hasErrors(){
         return !errors.isEmpty();
     }
 
+    /**
+     * Returns the buffered errors as a list.
+     *
+     * @return   returns an ArrayList of CompilerError objects
+     *
+     */
     public ArrayList<CompilerError> getErrors(){
         return errors;
     }
 
 
+    /**
+     * Returns current scope which the visitor is in,
+     * by peeking in the table stack structure.
+     *
+     * @return   returns a symbol table of current scope.
+     *
+     */
 	public Table getCurrentScope(){
 		return tableStack.peekFirst();
 	}
 
-    public Table getOldScope(){
-		return tableStack.get(1);
-    }
 
+    /**
+     * This function forces the visitor to enter
+     * a scope. 
+     *
+     * @see This function is not used by this visitor 
+     *		but instead by the visitor.BytecodeEmitterVisitor
+     *
+     * @param   scope       scope that this visitor should be forced
+     *						to enter. 
+     *
+     */
 	public void enterScope(Table scope){
 		/* Push current scope on stack */
 		tableStack.push(scope);
 	}
 
+    /**
+     * This function forces the visitor to leave
+     * a scope. 
+     *
+     * @see This function is not used by this visitor 
+     *		but instead by the visitor.BytecodeEmitterVisitor
+     *
+     */
 	public void leaveScope(){
 		/* Push current scope on stack */
 		tableStack.pop();
 	}
 
-
-	public Table startScope(Object n){
-        Table parentScope = tableStack.peekFirst();
-
+    /**
+     * Begins the next scope of the code. 
+     * When a visiting a object, that object is
+     * used to lookup which scope it belongs to.
+     * The scope pushed onto this visitors table stack.
+     * 
+     *
+     * @see  This method uses a lookup table generated
+     * 		 with the symbol table builder, 
+     * 		 see visitor.SymbolTableBuilderVisitor
+	 *
+     * @param   n 	current object that is being visited
+     *
+     */
+	public void startScope(Object n){
 		/* Push current scope on stack */
 		tableStack.push(scopeLookupTable.get(n));
-
-        return parentScope;
 	}
 
-	public Table endScope(){
+    /**
+     * Ends the current scope of the code by popping
+     * current scope from stack, this should be invoked 
+     * when visitation of the object
+     * is finished. 
+	 *
+     * @param   n 	current object that is being visited
+     *
+     */
+	public void endScope(){
 		/* Pop first on stack */
 		tableStack.pop();
-
-		/* Return parent scope if needed */
-		return tableStack.peekFirst();
 	}    
 
 	public Type visit(Program n) {
-		tableStack.addFirst(scopeLookupTable.get(n));
+		startScope(n);
 
 		n.m.accept(this);
 		for ( int i = 0; i < n.cl.size(); i++ ) {
 			n.cl.elementAt(i).accept(this);
 		}
+
+		endScope();
+
 		return new VoidType();
 	}
 
@@ -114,13 +187,6 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		startScope(n);
 		checkClass(n.i);
 		checkExtensions(n);
-		// ClassBinding c = (ClassBinding) getOldScope().find(Symbol.symbol(n.i.s), "class");
-
-		// System.out.println("Class " + n.i.s);
-		// for(Type t : extensions){
-		// 	System.out.println("Found ext: " + ((IdentifierType) t).s);
-		// 	c.addExtension(t);
-		// }
 
 		for ( int i = 0; i < n.vl.size(); i++ ) {
 			n.vl.elementAt(i).accept(this);
@@ -257,7 +323,10 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 	public Type visit(Print n) {
 		Type t = n.e.accept(this);
-		if(!checkPrimitive(t)) {
+		/* Check that input is primitive types */
+		if(!((t instanceof IntegerType) || 
+		   (t instanceof BooleanType) || 
+		   (t instanceof LongType))) {
 			error(INVALID_UNARY_OP.at(n.row, n.col, t));
 		}
 		return new VoidType();
@@ -296,6 +365,19 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 			error(INVALID_ARRAY_ASSIGN.at(n.row, n.col, rhs, lhs));
 		}
 		return new VoidType();
+	}
+
+	private boolean checkArrayAssignEquals(Type t1, Type t2) {
+		if((t1 instanceof IntArrayType) && (t2 instanceof IntegerType)) {
+			return true;
+		}
+		if((t1 instanceof LongArrayType) && (t2 instanceof LongType)) {
+			return true;
+		}
+		if((t1 instanceof LongArrayType) && (t2 instanceof IntegerType)) {
+			return true;
+		}
+		return false;
 	}
 
 	public Type visit(And n) {
@@ -628,6 +710,21 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		return n;
     }
 
+
+    /* Helper methods for type checking follows */
+
+    /**
+     * This method checks so that both types are of
+     * identifier type. That both references to same 
+     * class or parent class by checking extensions.
+     *
+     * @param 	t1 	identifier to be checked
+     * @param 	t2  identifier to be checked
+     *
+     * @return 	returns true if both identifiers are
+     * 			referencing to same identifier type.
+     */
+
 	private boolean classReferencesEquals(Type t1, Type t2) {
 		if(!(t1 instanceof IdentifierType) || !(t2 instanceof IdentifierType)) {
 			return false;
@@ -695,18 +792,6 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 		return false;
 	}
 
-	private boolean checkArrayAssignEquals(Type t1, Type t2) {
-		if((t1 instanceof IntArrayType) && (t2 instanceof IntegerType)) {
-			return true;
-		}
-		if((t1 instanceof LongArrayType) && (t2 instanceof LongType)) {
-			return true;
-		}
-		if((t1 instanceof LongArrayType) && (t2 instanceof IntegerType)) {
-			return true;
-		}
-		return false;
-	}
 
 	private boolean checkIdentifierEquals(Type t1, Type t2) {
 		if((t1 instanceof IdentifierType) && (t2 instanceof IdentifierType)) {
@@ -742,13 +827,6 @@ public class TypeDepthFirstVisitor implements TypeVisitor
 
 	private boolean checkTypeEquals(Type t1, Type t2) {
 		if(checkIntEquals(t1, t2) || checkLongEquals(t1, t2) || checkBoolEquals(t1, t2) || checkArrayEquals(t1, t2) || checkClassEquals(t1, t2)) {
-			return true;
-		}
-		return false;
-	}
-
-	private boolean checkPrimitive(Type t) {
-		if((t instanceof IntegerType) || (t instanceof BooleanType) || (t instanceof LongType)) {
 			return true;
 		}
 		return false;

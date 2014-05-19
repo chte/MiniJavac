@@ -20,6 +20,15 @@ public class Table {
     public HashMap<Symbol, MethodBinding> methods;
     public HashMap<Symbol, VariableBinding> variables;
 
+
+    /** 
+     *
+     * Initializes the HashMaps for classes, methods, and variables.
+     *
+     * @param   parent      a reference to parent scope, null if no parent exists
+     * @param   scopeType   The type of the scope, such @see
+     *
+     */
     public Table(Table parent, Table.ScopeType scopeType){
         super();
         this.parent = parent;
@@ -30,7 +39,20 @@ public class Table {
         variables = new HashMap<Symbol, VariableBinding>();
     }
 
-    /* Lookup in symbol table */
+    /** 
+     *
+     * Performs a lookup in a specific HashMap of current
+     * scope and parent scopes, by calling findexclusive
+     * recursively. It stops when sought binder is found
+     * or if theres no more parent scopes to visit, i.e
+     * (Program) which parent scope is null.
+     * 
+     * @param   s       a symbol with a identifier to sought binder 
+     * @param   bType   the binder type sought to find
+     *
+     * @return          A binding, return null if none is found
+     *
+     */
     public Binder find(Symbol s, String bType) {
         Table currentScope = this;
         Binder binding = currentScope.findexclusive(s, bType);
@@ -48,7 +70,16 @@ public class Table {
         return null;
     }
 
-    /* Lookup in symbol table */
+
+    /**
+     * 
+     * Performs a lookup in every HashMap of current
+     * scope and parent scopes.
+     * 
+     * @param   s   a symbol with a identifier to sought binder 
+     * @return      a binding, return null if none is found
+     *
+     */
     public Binder find(Symbol s) {
         VariableBinding v = (VariableBinding) find(s, "variable");
         if (v != null) return v;
@@ -62,6 +93,15 @@ public class Table {
         return null;
     }
 
+
+    /** 
+     *
+     * Performs a lookup in a specific HashMap of current scope.
+     * 
+     * @param   s   a symbol with a identifier to sought binder 
+     * @return      a binding, return null if none is found
+     *
+     */
     public Binder findexclusive(Symbol s, String bType){
         try {
             if(bType.equals("variable")){
@@ -85,8 +125,10 @@ public class Table {
     /**
      * Add mapping of symbol to binding
      *
-     * @param name Symbol name and a binding.
-     * @return Return true if added successfully, else false.
+     * @param   s    Symbol which should be bound to binding
+     * @param   b    Binder which should be stored
+     * @return       Return true if added successfully, else false.
+     *
      */
     public boolean insert(Symbol s, Binder b) {
         if(b instanceof ClassBinding){
@@ -116,12 +158,18 @@ public class Table {
         return false;
     }
 
+    /**
+     * Searches through current scope and parent scope
+     * to see class with IdentifierType t exists
+     *
+     * @param   identifierType    Identifier type of the class sought to check
+     * @return                    Return true if found, else false.
+     *
+     */
     public boolean findObject(IdentifierType t) {
         Table currentScope = this;
 
         for(ClassBinding c : classes.values()){
-            // System.out.println(t.s);
-            // System.out.println( ((IdentifierType) c.getType()).s );
             if( ((IdentifierType) c.getType()).s.equals(t.s)) {
                 return true;
             }
@@ -142,13 +190,18 @@ public class Table {
     /**
     * Returns parent scope from current table
     *
-    * @param name Name of the scope.
     * @return Scope object, or null if there's no such scope (class).
     */
     public Table getParent() {
         return parent;
     }
 
+
+    /**
+    * Returns parent scope from current table
+    *
+    * @return Scope object, or null if there's no such scope (class).
+    */
     public void setClassType(IdentifierType classType) {
         this.classType = classType;
     }
