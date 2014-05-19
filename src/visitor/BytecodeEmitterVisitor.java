@@ -115,7 +115,7 @@ public class BytecodeEmitterVisitor implements Visitor {
     }
 
     /**
-     * Increaments the stack with 1. This method calls
+     * Increments the stack with 1. This method calls
      * incrementsStack(int s) with 1 as in parameter
      *
      */
@@ -167,7 +167,7 @@ public class BytecodeEmitterVisitor implements Visitor {
     /**
      * Begins a new scope, should be used when visiting a,
      * main class, class, method or block.
-     * A reference to this table is made by mapping visting
+     * A reference to this table is made by mapping visiting
      * object to the table.
      *
      * @param   n           current object that is being visited
@@ -236,8 +236,8 @@ public class BytecodeEmitterVisitor implements Visitor {
      * and dirty solution which only works in the restricted MiniJava
      * grammar version. 
      *
-     * By visisiting this node, the visitor creates a new scope and
-     * generate the necessay jasmin code.
+     * By visiting this node, the visitor creates a new scope and
+     * generate the necessary jasmin code.
      *
      * In case of extending this compiler the main method should be 
      * regarded as a method.
@@ -257,7 +257,7 @@ public class BytecodeEmitterVisitor implements Visitor {
         Bytecode.comment("main() - main method follows");
         Bytecode.directive(".method public static main([Ljava/lang/String;)V");
 
-        /* Variable declaraton plus paramaters (1) */
+        /* Variable declaration plus parameters (1) */
         // Bytecode.writeind(".limit locals " + 100);
 
         n.i1.accept(this);
@@ -296,7 +296,7 @@ public class BytecodeEmitterVisitor implements Visitor {
      * Visitation of a class that does not extend another class. 
      *
      * By visiting this node, the visitor has reached a new scope and
-     * the necessary jasmin code for a normal class declation is added
+     * the necessary jasmin code for a normal class declaration is added
      * to the Bytecode object
      *
      * @param   n   a ClassDeclSimple object 
@@ -382,7 +382,7 @@ public class BytecodeEmitterVisitor implements Visitor {
     }
 
     /**
-     * Visitation of a method delcaration.
+     * Visitation of a method declaration.
      * It will only continue the recursion.
      *
      * @param   n   a VarDecl object 
@@ -502,7 +502,7 @@ public class BytecodeEmitterVisitor implements Visitor {
      * Visitation of a block. 
      *
      * By visiting this node, the visitor has reached a new scope and
-     * a all the varaible and statements will be accpeted. 
+     * a all the variable and statements will be accepted. 
      *  
      * @param   n   a Block object 
      */
@@ -613,7 +613,7 @@ public class BytecodeEmitterVisitor implements Visitor {
 
     /**
      * This will generate the needed jasmine code for
-     * assigment a value to variable. 
+     * assignment a value to variable. 
      *
      * Note: special handling for the long type since 
      *       it has other properties than an normal int.
@@ -660,7 +660,7 @@ public class BytecodeEmitterVisitor implements Visitor {
 
     /**
      * This will generate the needed jasmine code for
-     * assigment a a array either the type int or long
+     * assignment a a array either the type int or long
      *
      * Note: special handling for the long type since 
      *       it has other properties than an normal int.
