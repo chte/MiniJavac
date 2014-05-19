@@ -423,7 +423,7 @@ public class SymbolTableBuilderVisitor extends visitor.DepthFirstVisitor{
      * scope references the old scope as a parent. The visitor traverses 
      * the Block object storing information in the new symbol table. 
      *  
-     * @param   n   a ClassDeclExtends object 
+     * @param   n   a Block object 
      */
     public void visit(Block n)
     {

@@ -13,6 +13,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+/**
+ * Bytecode emitter visitor, that visit each of the Abstract Syntax tree
+ * and generate the belonging jasmin machine code for the JVM.
+ *
+ * When done the code is written down to file on disk.
+ *
+ * @see Bytecode.java for more information about the counters for the jvm
+ */
 public class BytecodeEmitterVisitor implements Visitor {
     private int stackSize = 1;
     private int maxStackSize = 0;
@@ -25,33 +33,78 @@ public class BytecodeEmitterVisitor implements Visitor {
     public BytecodeEmitterVisitor(){
     }
 
+    /**
+     * Appends an error to an error buffer 
+     *
+     * @param   err    error message wrapped in a CompilerError object 
+     *
+     */
     public void error(final CompilerError err) {
         errors.add(err);
     }
 
+    /**
+     * Checks for any buffered errors. 
+     *
+     * @return   returns true if errors exist, false otherwise.
+     *
+     */
     public boolean hasErrors(){
         return !errors.isEmpty();
     }
-
+    /**
+     * Returns the buffered errors as a list.
+     *
+     * @return   returns an ArrayList of CompilerError objects
+     *
+     */
     public ArrayList<CompilerError> getErrors(){
         return errors;
     }
 
-
+    /**
+     * Returns current scope which the visitor is in,
+     * by peeking in the table stack structure.
+     *
+     * @return   returns a symbol table of current scope.
+     *
+     */
     public Table getCurrentScope(){
         return stack.peekFirst();
     }
 
+    /**
+     * Returns the parent scope of the current scope
+     * which the visitor is in. 
+     *
+     * @return   returns current scope's parent scope 
+     *           symbol table.
+     *
+     */
     public Table getPreviousScope(){
         return stack.get(1);
     }
 
+    /**
+     * Clears the stack depth. Both stackSize and maxStackSize
+     * will be set to 0.
+     *
+     * @return returns the new stack depth.
+     *
+     */
     public int clearStack(){
         /* Increment stack size tracker by one */
         stackSize = maxStackSize = 0;
         return Bytecode.stackDepth();
     }
 
+    /**
+     * Set's the stack limit. The limit is the current value
+     * from the variable maxStacksize
+     *
+     * @param   p   index location where to write this in code
+     *
+     */
     private void storeStack(int p) {
         Bytecode.newline();
         Bytecode.writeind(p, ".limit stack " + maxStackSize);
@@ -61,22 +114,46 @@ public class BytecodeEmitterVisitor implements Visitor {
         }
     }
 
+    /**
+     * Increments the stack with 1. This method calls
+     * incrementsStack(int s) with 1 as in parameter
+     *
+     */
     public void incrementStack(){
         /* Increment stack size tracker by one */
         incrementStack(1);
     }
 
+    /**
+     * Increases the stack counter with the given input.
+     * If the new stack counter gets higher than the old
+     * max stack counter the maxStackSize will be updated.
+     *
+     * @param s value of how much to increase the stack
+     *
+     */
     public void incrementStack(int s){
         /* Increment stack size tracker */
         stackSize += s;
         maxStackSize = Math.max(maxStackSize, stackSize);
     }
 
+    /**
+     * Decrements the stack with 1. This method calls
+     * decrementStack(int s) with 1 as in parameter
+     *
+     */
     public void decrementStack(){
         /* Decrement stack size tracker by one */
         decrementStack(1);
     }
 
+    /**
+     * Decreases the stack counter with the given input.
+     *
+     * @param s value of how much to decrease the stack
+     *
+     */
     public void decrementStack(int s){
         /* Decrement stack size tracker */
         stackSize -= s;
@@ -87,6 +164,17 @@ public class BytecodeEmitterVisitor implements Visitor {
 
     }
 
+    /**
+     * Begins a new scope, should be used when visiting a,
+     * main class, class, method or block.
+     * A reference to this table is made by mapping visiting
+     * object to the table.
+     *
+     * @param   n           current object that is being visited
+     *
+     * @return              returns the newly created Table.
+     *
+     */
     public Table startScope(Object n){
 
         Table parentScope = stack.peekFirst();
@@ -102,6 +190,15 @@ public class BytecodeEmitterVisitor implements Visitor {
         return parentScope;
     }
 
+    /**
+     * Ends the current scope, should be used when leaving a
+     * class, method or block. A special case is (Program).
+     * This pops the current symbol table from the symbol
+     * table stack and returns the next symbol table on stack.
+     *
+     * @return    returns next symbol table on stack.
+     *
+     */
     public Table endScope(){
         /* Pop first on stack */
         stack.pop();
@@ -110,8 +207,13 @@ public class BytecodeEmitterVisitor implements Visitor {
         return stack.peekFirst();
     }   
 
-// MainClass m;
-// ClassDeclList cl;
+    /**
+     * This is where the visiting begins. Creates a
+     * new scope and setup the needed init code for jasmin.
+     *
+     * @param   a Program object which should be top level 
+     *          of the Abstract Syntax Tree
+     */
     public void visit(Program n) {
         startScope(n);
 
@@ -128,8 +230,20 @@ public class BytecodeEmitterVisitor implements Visitor {
         endScope();
     }
 
-// Identifier i1,i2;
-// Statement s;
+    /**
+     * Visitation of main class. This is a special case in which
+     * also handles the main method of the program. This is a quick
+     * and dirty solution which only works in the restricted MiniJava
+     * grammar version. 
+     *
+     * By visiting this node, the visitor creates a new scope and
+     * generate the necessary jasmin code.
+     *
+     * In case of extending this compiler the main method should be 
+     * regarded as a method.
+     *
+     * @param   a MainClass object 
+     */
     public void visit(MainClass n) {
         startScope(n);
 
@@ -143,7 +257,7 @@ public class BytecodeEmitterVisitor implements Visitor {
         Bytecode.comment("main() - main method follows");
         Bytecode.directive(".method public static main([Ljava/lang/String;)V");
 
-        /* Variable declaraton plus paramaters (1) */
+        /* Variable declaration plus parameters (1) */
         // Bytecode.writeind(".limit locals " + 100);
 
         n.i1.accept(this);
@@ -178,9 +292,15 @@ public class BytecodeEmitterVisitor implements Visitor {
         endScope();
     }
 
-// Identifier i;
-// VarDeclList vl;
-// MethodDeclList ml;
+    /**
+     * Visitation of a class that does not extend another class. 
+     *
+     * By visiting this node, the visitor has reached a new scope and
+     * the necessary jasmin code for a normal class declaration is added
+     * to the Bytecode object
+     *
+     * @param   n   a ClassDeclSimple object 
+     */
     public void visit(ClassDeclSimple n) {
         startScope(n);
 
@@ -216,10 +336,17 @@ public class BytecodeEmitterVisitor implements Visitor {
         endScope();
     }
 
-// Identifier i;
-// Identifier j;
-// VarDeclList vl;
-// MethodDeclList ml;
+    /**
+     * Visitation of a class that does extend another class. 
+     *
+     * By visiting this node, the visitor has reached a new scope and
+     * generates the necessary jasmin code.
+     *
+     * Main difference from the ClassDeclSimple is the super class
+     * is set to another class instead of the java base object. 
+     *  
+     * @param   n   a ClassDeclExtends object 
+     */
     public void visit(ClassDeclExtends n) {
         startScope(n);
 
@@ -254,19 +381,25 @@ public class BytecodeEmitterVisitor implements Visitor {
         endScope();
     }
 
-// Type t;
-// Identifier i;
+    /**
+     * Visitation of a method declaration.
+     * It will only continue the recursion.
+     *
+     * @param   n   a VarDecl object 
+     */
     public void visit(VarDecl n) {
         n.t.accept(this);
         n.i.accept(this);
     }
 
-// Type t;
-// Identifier i;
-// FormalList fl;
-// VarDeclList vl;
-// StatementList sl;
-// Exp e;
+    /**
+     * Visitation of a method declaration.
+     *
+     * By visiting this node, the visitor has reached a new scope and
+     * the code for creating a new method will be added.
+     * 
+     * @param   n   a MethodDecl object 
+     */
     public void visit(MethodDecl n) {
         startScope(n);
 
@@ -341,8 +474,13 @@ public class BytecodeEmitterVisitor implements Visitor {
         endScope();
     }
 
-// Type t;
-// Identifier i;
+    /**
+     * Visitation of a formal parameter in a method declaration.
+     *
+     * This will continue the recursion.
+     * 
+     * @param   n   a Formal object 
+     */
     public void visit(Formal n) {
         n.t.accept(this);
         n.i.accept(this);
@@ -357,11 +495,17 @@ public class BytecodeEmitterVisitor implements Visitor {
     public void visit(IntegerType n) {
     }
 
-// String s;
     public void visit(IdentifierType n) {
     }
 
-// StatementList sl;
+    /**
+     * Visitation of a block. 
+     *
+     * By visiting this node, the visitor has reached a new scope and
+     * a all the variable and statements will be accepted. 
+     *  
+     * @param   n   a Block object 
+     */
     public void visit(Block n) {
         startScope(n);
 
@@ -375,8 +519,13 @@ public class BytecodeEmitterVisitor implements Visitor {
         endScope();
     }
 
-// Exp e;
-// Statement s1,s2;
+    /**
+     * This will generate the needed jasmine code for
+     * simple if statement
+     *
+     * @param n     a If object 
+     *
+     */
     public void visit(If n) {
         n.e.accept(this);
         String trueLabel = Bytecode.label("IF_TRUE");
@@ -389,8 +538,13 @@ public class BytecodeEmitterVisitor implements Visitor {
         Bytecode.write(falseLabel + ":");
     }
 
-// Exp e;
-// Statement s1,s2;
+    /**
+     * This will generate the needed jasmine code for
+     * simple if else statement
+     *
+     * @param n     a IfElse object 
+     *
+     */
     public void visit(IfElse n) {
         n.e.accept(this);
         String trueLabel = Bytecode.label("IF_TRUE");
@@ -409,8 +563,13 @@ public class BytecodeEmitterVisitor implements Visitor {
 
     }
 
-// Exp e;
-// Statement s;
+    /**
+     * This will generate the needed jasmine code for
+     * a while loop
+     *
+     * @param n     a While object 
+     *
+     */
     public void visit(While n) {
         String startLabel = Bytecode.label("WHILE");
         String endLabel = Bytecode.label("END_WHILE");
@@ -425,7 +584,16 @@ public class BytecodeEmitterVisitor implements Visitor {
         Bytecode.write(endLabel + ":");
     }
 
-// Exp e;
+    /**
+     * This will generate the needed jasmine code to
+     * print the variable to the console.
+     *
+     * Depending on the type, different jasmin code
+     * is generated.
+     *
+     * @param n     a Print object 
+     *
+     */
     public void visit(Print n) {
         typeChecker.enterScope(getCurrentScope());
         Type t = n.e.accept(typeChecker);
@@ -443,11 +611,17 @@ public class BytecodeEmitterVisitor implements Visitor {
         decrementStack();
     }
 
-// Identifier i;
-// Exp e;
+    /**
+     * This will generate the needed jasmine code for
+     * assignment a value to variable. 
+     *
+     * Note: special handling for the long type since 
+     *       it has other properties than an normal int.
+     *
+     * @param n     a Assign object 
+     *
+     */
     public void visit(Assign n) {
-        /* TODO: fix so integer can be assigned to long */
-
         n.i.accept(this);
         VariableBinding v = (VariableBinding) getCurrentScope().find(Symbol.symbol(n.i.s), "variable");
         if (v.getVariableType() == VariableBinding.VariableType.LOCAL || v.getVariableType() == VariableBinding.VariableType.PARAM) {
@@ -482,13 +656,19 @@ public class BytecodeEmitterVisitor implements Visitor {
             Bytecode.writeind("putfield '" + Bytecode.getClassName() + "/" + n.i.s + "' " + Bytecode.descriptor(v.getType()));
             decrementStack(2);
         }
-
     }
 
-// Identifier i;
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * assignment a a array either the type int or long
+     *
+     * Note: special handling for the long type since 
+     *       it has other properties than an normal int.
+     *
+     * @param n    a ArrayAssign object 
+     *
+     */
     public void visit(ArrayAssign n) {
-        /* TODO: fix aload offset for long */
         n.i.accept(this);
         VariableBinding v = (VariableBinding) getCurrentScope().find(Symbol.symbol(n.i.s), "variable");
 
@@ -523,7 +703,13 @@ public class BytecodeEmitterVisitor implements Visitor {
 
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * looking up either a long array or and int array
+     *
+     * @param n     a ArrayLookup object 
+     *
+     */
     public void visit(ArrayLookup n) {
 
         n.e1.accept(this);  
@@ -538,34 +724,35 @@ public class BytecodeEmitterVisitor implements Visitor {
         }else{
             Bytecode.writeind("iaload");
         }
-        // decrementStack(2);
-
     }
 
-// Exp e;
+    /**
+     * This will generate the needed jasmine code for
+     * get the length for an array.
+     *
+     * @param n     a ArrayLength object 
+     *
+     */
     public void visit(ArrayLength n) {
         n.e.accept(this);
         Bytecode.writeind("arraylength");
         decrementStack();
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * and operation. Keep in mind that it
+     * uses lazy evaluation.
+     *
+     * @param n     a And object 
+     *
+     */
     public void visit(And n) {
         typeChecker.enterScope(getCurrentScope());
         Type bool = n.e1.accept(typeChecker);
         if(bool instanceof BooleanType){
             n.e1.accept(this);
         }
-
-        // char t = accept(n.e1, n.e2);
-        //     if(t == 'l'){
-        //         Bytecode.writeind("lor");
-        //         decrementStack(4);
-        //     }else if( t == 'i' ){
-        //         Bytecode.writeind("ior");
-        //         decrementStack(2);
-        //     }
-
 
         String trueLabel = Bytecode.label("IF_TRUE");
         String falseLabel = Bytecode.label("IF_FALSE");
@@ -589,18 +776,39 @@ public class BytecodeEmitterVisitor implements Visitor {
         Bytecode.write(nextLabel + ":");
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * an less than expression
+     *
+     * @param n     a LessThan object 
+     *
+     */
     public void visit(LessThan n) {
         char t = accept(n.e1, n.e2);
         eval(t, "lt");
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * an less than or equal expression
+     *
+     * @param n     a LessThanEqual object 
+     *
+     */
     public void visit(LessThanOrEqual n) {
         char t = accept(n.e1, n.e2);
         eval(t, "le");
     }
 
+    /**
+     * This will generate the needed jasmine code for
+     * long literal.
+     *
+     * Note: The stack get increased by 2 because of the long size
+     *
+     * @param n     a LongLiteral object 
+     *
+     */
     public void visit(LongLiteral n) {
 
         if (n.i >= 0 && n.i <= 1) {
@@ -618,6 +826,16 @@ public class BytecodeEmitterVisitor implements Visitor {
     public void visit(LongArrayType n) {
     }
 
+    /**
+     * This will generate the needed jasmine code for
+     * long literal.
+     *
+     * Note: The stack get increased by 2 because of the long size
+     *
+     * @param t     char object, 'l' for long
+     * @param op    String operator, how to do the comparison
+     *
+     */
     public void eval(char t, String op){
         String trueLabel = Bytecode.label("TRUE_LABEL");
         String endLabel = Bytecode.label("NEXT_LABEL");
@@ -640,6 +858,18 @@ public class BytecodeEmitterVisitor implements Visitor {
         incrementStack();
     }
 
+    /**
+     * This will generate the needed jasmine code for
+     * the result of the two expressions. 
+     *
+     * Note: The stack get increased by 2 because of the long size
+     *
+     * @param e1    a Exp object
+     * @param e2    a Exp object
+     *
+     * @return      return what the two expression becomes
+     *
+     */
     public char accept(Exp e1, Exp e2){
         typeChecker.enterScope(getCurrentScope());
         Type t1 = e1.accept(typeChecker);
@@ -670,50 +900,75 @@ public class BytecodeEmitterVisitor implements Visitor {
             e2.accept(this);
             return 'i';
         }
-
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * a greater than expression, this will call 
+     * eval function.
+     *
+     * @param n     a GreaterThan object 
+     *
+     */
     public void visit(GreaterThan n) {
         char t = accept(n.e1, n.e2);
         eval(t, "gt");
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * a greater than or equal expression, this will call 
+     * eval function.
+     *
+     * @param n     a GreaterThanOrEqual object 
+     *
+     */
     public void visit(GreaterThanOrEqual n) {
         char t = accept(n.e1, n.e2);
         eval(t, "ge");
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * a equal expression, this will call 
+     * eval function.
+     *
+     * @param n     a Equal object 
+     *
+     */
     public void visit(Equal n) {
         char t = accept(n.e1, n.e2);
         eval(t, "eq");
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * not equal expression, this will call 
+     * eval function.
+     *
+     * @param n     a NotEqual object 
+     *
+     */
     public void visit(NotEqual n) {
         char t = accept(n.e1, n.e2);
         eval(t, "ne");
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * or expression.
+     *
+     * Note: This will do lazy evaluation
+     *
+     * @param n     a Or object 
+     *
+     */
     public void visit(Or n) {
         typeChecker.enterScope(getCurrentScope());
         Type bool = n.e1.accept(typeChecker);
         if(bool instanceof BooleanType){
             n.e1.accept(this);
         }
-
-        // char t = accept(n.e1, n.e2);
-        //     if(t == 'l'){
-        //         Bytecode.writeind("lor");
-        //         decrementStack(4);
-        //     }else if( t == 'i' ){
-        //         Bytecode.writeind("ior");
-        //         decrementStack(2);
-        //     }
-
 
         String trueLabel = Bytecode.label("IF_TRUE");
         String falseLabel = Bytecode.label("IF_FALSE");
@@ -735,10 +990,15 @@ public class BytecodeEmitterVisitor implements Visitor {
             }
 
         Bytecode.write(nextLabel + ":");
-
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * plus expression.
+     *
+     * @param n     a Plus object 
+     *
+     */
     public void visit(Plus n) {
         char t = accept(n.e1, n.e2);
         if(t == 'l'){
@@ -750,7 +1010,13 @@ public class BytecodeEmitterVisitor implements Visitor {
         }
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * minus expression.
+     *
+     * @param n     a Minus object 
+     *
+     */
     public void visit(Minus n) {
         char t = accept(n.e1, n.e2);
         if(t == 'l'){
@@ -762,7 +1028,14 @@ public class BytecodeEmitterVisitor implements Visitor {
         }
     }
 
-// Exp e1,e2;
+    /**
+     * This will generate the needed jasmine code for
+     * times expression, this will call 
+     * eval function.
+     *
+     * @param n     a Times object 
+     *
+     */
     public void visit(Times n) {
         char t = accept(n.e1, n.e2);
         if(t == 'l'){
@@ -774,9 +1047,13 @@ public class BytecodeEmitterVisitor implements Visitor {
         }
     }
 
-// Exp e;
-// Identifier i;
-// ExpList el;
+    /**
+     * This will generate the needed jasmine code for
+     * calling a specific method in a class.
+     *
+     * @param n     a Call object 
+     *
+     */
     public void visit(Call n) {
         ClassBinding c = (ClassBinding) getCurrentScope().find(Symbol.symbol(n.c), "class");
         MethodBinding m = (MethodBinding) c.getScope().find(Symbol.symbol(n.i.s), "method");
@@ -785,11 +1062,19 @@ public class BytecodeEmitterVisitor implements Visitor {
         for ( int i = 0; i < n.el.size(); i++ ) {
             n.el.elementAt(i).accept(this);
         }
-        
+    
         Bytecode.writeind("invokevirtual " + c.getIdName() + "/" + m.getIdName() + Bytecode.getMethodParams(m));   
     }
 
-// int i;
+    /**
+     * This will generate the needed jasmine code for
+     * for putting a integer on the stack.
+     *
+     * Note: if possible it will use iconst for speed improvements
+     *
+     * @param n     a IntegerLiteral object 
+     *
+     */
     public void visit(IntegerLiteral n) {
         if (n.i >= -1 && n.i <= 5) {
             Bytecode.writeind(Bytecode.getConstant("iconst", n.i));
@@ -800,17 +1085,40 @@ public class BytecodeEmitterVisitor implements Visitor {
         incrementStack();
     }
 
+    /**
+     * This will generate the needed jasmine code for
+     * writing a true to the stack. Which is represented
+     * by an integer with value 1
+     *
+     * @param n     a True object 
+     *
+     */
     public void visit(True n) {
         Bytecode.writeind("iconst_1");
         incrementStack();
     }
 
+    /**
+     * This will generate the needed jasmine code for
+     * writing a false to the stack. Which is represented
+     * by an integer with value 0
+     *
+     * @param n     a False object 
+     *
+     */
     public void visit(False n) {
         Bytecode.writeind("iconst_0");
         incrementStack();
     }
 
-// String s;
+    /**
+     * This will generate the needed jasmine code for
+     * evaluation and expression and storing it in a 
+     * identifier. 
+     *
+     * @param n     a IdentifierExp object 
+     *
+     */
     public void visit(IdentifierExp n) {
         VariableBinding v = (VariableBinding) getCurrentScope().find(Symbol.symbol(n.s), "variable");
         if (v.getVariableType() == VariableBinding.VariableType.LOCAL || v.getVariableType() == VariableBinding.VariableType.PARAM) {
@@ -822,27 +1130,51 @@ public class BytecodeEmitterVisitor implements Visitor {
         incrementStack();
     }
 
+    /**
+     * This will generate the needed jasmine code for
+     * for This object.
+     *
+     * @param n     a This object 
+     *
+     */
     public void visit(This n) {
         Bytecode.writeind(Bytecode.getConstant("aload", 0));
         incrementStack(2);
     }
 
-// Exp e;
+    /**
+     * This will generate the needed jasmine code for
+     * for a new int array.
+     *
+     * @param n     a NewIntArray object 
+     *
+     */
     public void visit(NewIntArray n) {	
         n.e.accept(this);
         Bytecode.writeind("newarray int");
         incrementStack(1);
     }
 
-// Exp e;
+    /**
+     * This will generate the needed jasmine code for
+     * for a new long array.
+     *
+     * @param n     a NewLongArray object 
+     *
+     */
     public void visit(NewLongArray n) {  
         n.e.accept(this);
         Bytecode.writeind("newarray long");
         incrementStack(2);
     }
 
-
-// Identifier i;
+    /**
+     * This will generate the needed jasmine code for
+     * for a new object
+     *
+     * @param n     a NewObject object 
+     *
+     */
     public void visit(NewObject n) {
         Bytecode.writeind("new '" + n.i.s + "'");
         Bytecode.writeind("dup");
@@ -851,19 +1183,22 @@ public class BytecodeEmitterVisitor implements Visitor {
         decrementStack();
     }
 
-// Exp e;
+    /**
+     * This will generate the needed jasmine code for
+     * Not operation, this is done by XOR
+     *
+     * @param n     a Not object 
+     *
+     */
     public void visit(Not n) {
         n.e.accept(this);
         Bytecode.writeind("iconst_1");
         incrementStack();
         Bytecode.writeind("ixor");
         decrementStack();
-
     }
 
-// String s;
     public void visit(Identifier n) {
-
     }
 
     public void visit(VoidType n) {
