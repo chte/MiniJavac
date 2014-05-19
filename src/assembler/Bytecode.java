@@ -34,10 +34,6 @@ public class Bytecode {
   public static void directive(String s) {
     output.add(s);
   }
-  
-  public static int stackDepth() {
-    return output.size();
-  }
 
   public static void comment(String s){
     output.add(";");
